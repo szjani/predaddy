@@ -1,0 +1,11 @@
+{
+    "name": "baseddd/baseddd",
+    "description": "Common DDD classes and utilities",
+    "require": {
+        "precore/precore": "~1.0",
+        "mf4php/mf4php": "~1.0"
+    },
+    "autoload": {
+        "psr-0": {"baseddd": "src/"}
+    }
+}
