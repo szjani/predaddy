@@ -23,6 +23,8 @@
 
 namespace baseddd\domain;
 
+use baseddd\eventhandling\EventBase;
+
 /**
  * Base class for all Domain Events.
  * This class contains the basic behavior expected from any event

@@ -24,6 +24,7 @@
 namespace baseddd\domain;
 
 use BadMethodCallException;
+use baseddd\eventhandling\EventBus;
 use precore\lang\Object;
 
 /**
