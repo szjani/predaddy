@@ -49,7 +49,7 @@ abstract class AggregateRoot extends Object implements Entity
     protected static function raise(DomainEvent $event)
     {
         if (self::$eventBus === null) {
-            static::getLogger()->error("EventBus has not been set to '{}'", array(static::className()));
+            static::getLogger()->error("EventBus has not been set to '{}'", array($this->getClassName()));
             throw new BadMethodCallException('EventBus has not been set!');
         }
         self::$eventBus->post($event);
