@@ -41,12 +41,12 @@ abstract class EventBase extends Object implements Event
     public function __construct()
     {
         $this->timestamp = new DateTime();
-        $this->id = UUID::randomUUID();
+        $this->id = UUID::randomUUID()->toString();
     }
 
     public function getEventIdentifier()
     {
-        return $this->id->toString();
+        return $this->id;
     }
 
     public function getTimestamp()
@@ -68,6 +68,6 @@ abstract class EventBase extends Object implements Event
 
     public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self && $this->id->equals($object->id);
+        return $object instanceof self && $this->id === $object->id;
     }
 }
