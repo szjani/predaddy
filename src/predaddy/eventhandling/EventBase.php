@@ -25,6 +25,7 @@ namespace predaddy\eventhandling;
 
 use DateTime;
 use precore\lang\Object;
+use precore\lang\ObjectInterface;
 
 /**
  * Base class for all types of events. Contains the event identifier and timestamp.
@@ -62,5 +63,10 @@ abstract class EventBase extends Object implements Event
         foreach (unserialize($serialized) as $key => $value) {
             $this->$key = $value;
         }
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self && $this->id === $object->id;
     }
 }
