@@ -1,11 +1,23 @@
 {
     "name": "predaddy/predaddy",
     "description": "Common DDD classes and utilities",
+    "license": "MIT",
+    "keywords": ["ddd", "eventbus", "aggregate"],
+    "authors": [
+        {
+            "name": "Szurovecz János",
+            "homepage": "http://www.szjani.hu/"
+        }
+    ],
     "require": {
+        "php": ">=5.3.0",
         "precore/precore": "~1.0",
         "mf4php/mf4php": "~1.0"
     },
     "autoload": {
         "psr-0": {"predaddy": "src/"}
+    },
+    "suggest": {
+        "mf4php/mf4php-beanstalk": "If you want to use EventBus with Beanstalk (asynchronous event handling)"
     }
 }
