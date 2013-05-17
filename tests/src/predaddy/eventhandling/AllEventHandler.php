@@ -21,18 +21,14 @@
  * SOFTWARE.
  */
 
-namespace baseddd\domain;
-
-use precore\lang\ObjectInterface;
+namespace predaddy\eventhandling;
 
 /**
- * DDD enity. The following rules should be applied:
- *  - Each aggregate has a root entity.
- *  - Each entity has identity field.
- *  - Only the root is accessible from outside the boundary.
+ * Description of AllEventHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface Entity extends ObjectInterface
+interface AllEventHandler extends EventHandler
 {
+    public function handle(Event $event);
 }

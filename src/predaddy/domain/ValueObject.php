@@ -21,53 +21,15 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling\mf4php;
+namespace predaddy\domain;
 
-use baseddd\eventhandling\Event;
-use Serializable;
+use precore\lang\ObjectInterface;
 
 /**
- * Wraps an event and one of its handler class and method pair.
+ * Must be immutable.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventWrapper implements Serializable
+interface ValueObject extends ObjectInterface
 {
-    private $event;
-    private $handlerClass;
-    private $handlerMethod;
-
-    public function __construct(Event $event, $handlerClass, $handlerMethod)
-    {
-        $this->event = $event;
-        $this->handlerClass = $handlerClass;
-        $this->handlerMethod = $handlerMethod;
-    }
-
-    public function getEvent()
-    {
-        return $this->event;
-    }
-
-    public function getHandlerClass()
-    {
-        return $this->handlerClass;
-    }
-
-    public function getHandlerMethod()
-    {
-        return $this->handlerMethod;
-    }
-
-    public function serialize()
-    {
-        return serialize(get_object_vars($this));
-    }
-
-    public function unserialize($serialized)
-    {
-        foreach (unserialize($serialized) as $key => $value) {
-            $this->$key = $value;
-        }
-    }
 }

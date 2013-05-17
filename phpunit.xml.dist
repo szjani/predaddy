@@ -8,14 +8,14 @@
          colors="true"
          timeoutForSmallTests="5">
   <testsuites>
-    <testsuite name="baseddd">
+    <testsuite name="predaddy">
       <directory suffix="Test.php">tests</directory>
       <!--<directory suffix="Test.php">tests/system</directory>-->
     </testsuite>
   </testsuites>
 
   <logging>
-    <log type="coverage-html" target="build/coverage" title="baseddd"
+    <log type="coverage-html" target="build/coverage" title="predaddy"
          charset="UTF-8" yui="true" highlight="true"
          lowUpperBound="35" highLowerBound="70"/>
     <log type="coverage-clover" target="build/logs/clover.xml"/>

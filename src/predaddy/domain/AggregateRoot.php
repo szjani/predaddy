@@ -21,14 +21,38 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\domain;
+
+use BadMethodCallException;
+use predaddy\eventhandling\EventBus;
+use precore\lang\Object;
 
 /**
- * Description of DeadEventHandler
+ * Description of AggregateRoot
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface DeadEventHandler extends EventHandler
+abstract class AggregateRoot extends Object implements Entity
 {
-    public function handle(DeadEvent $event);
+    /**
+     * @var EventBus
+     */
+    private static $eventBus;
+
+    /**
+     * @param EventBus $eventBus
+     */
+    public static function setEventBus(EventBus $eventBus)
+    {
+        self::$eventBus = $eventBus;
+    }
+
+    protected static function raise(DomainEvent $event)
+    {
+        if (self::$eventBus === null) {
+            static::getLogger()->error("EventBus has not been set to '{}'", array($this->getClassName()));
+            throw new BadMethodCallException('EventBus has not been set!');
+        }
+        self::$eventBus->post($event);
+    }
 }

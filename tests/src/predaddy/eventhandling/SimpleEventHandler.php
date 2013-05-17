@@ -21,15 +21,14 @@
  * SOFTWARE.
  */
 
-namespace baseddd\domain;
-
-use precore\lang\ObjectInterface;
+namespace predaddy\eventhandling;
 
 /**
- * Must be immutable.
+ * Description of SimpleEventHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface ValueObject extends ObjectInterface
+interface SimpleEventHandler extends EventHandler
 {
+    public function handle(SimpleEvent $event);
 }

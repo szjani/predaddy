@@ -21,29 +21,46 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling\mf4php;
+namespace predaddy\eventhandling;
 
-use baseddd\eventhandling\SimpleEvent;
-use PHPUnit_Framework_TestCase;
-
-require_once __DIR__ . '/../SimpleEvent.php';
+use DateTime;
+use precore\lang\Object;
 
 /**
- * Description of EventWrapperTest
+ * Base class for all types of events. Contains the event identifier and timestamp.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventWrapperTest extends PHPUnit_Framework_TestCase
+abstract class EventBase extends Object implements Event
 {
-    public function testSerialize()
+    private $id;
+    private $timestamp;
+
+    public function __construct()
     {
-        $event = new SimpleEvent();
-        $handlerClass = 'handlerClass';
-        $handlerMethod = 'handle';
-        $wrapper = new EventWrapper($event, $handlerClass, $handlerMethod);
-        $serialized = serialize($wrapper);
-        $unserialized = unserialize($serialized);
-        self::assertEquals($wrapper, $unserialized);
-        self::assertEquals($event, $unserialized->getEvent());
+        $this->timestamp = new DateTime();
+        $this->id = uniqid($this->getClassName(), true);
+    }
+
+    public function getEventIdentifier()
+    {
+        return $this->id;
+    }
+
+    public function getTimestamp()
+    {
+        return clone $this->timestamp;
+    }
+
+    public function serialize()
+    {
+        return serialize(get_object_vars($this));
+    }
+
+    public function unserialize($serialized)
+    {
+        foreach (unserialize($serialized) as $key => $value) {
+            $this->$key = $value;
+        }
     }
 }

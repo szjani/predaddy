@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
 /**
  * Description of EventHandlerConfiguration
@@ -72,7 +72,7 @@ class EventHandlerConfiguration
 
     protected function findHandlerMethods()
     {
-        $eventClassName = 'baseddd\eventhandling\Event';
+        $eventClassName = 'predaddy\eventhandling\Event';
         foreach ($this->eventHandler->getObjectClass()->getMethods() as $reflMethod) {
             if (!$reflMethod->isPublic()) {
                 continue;

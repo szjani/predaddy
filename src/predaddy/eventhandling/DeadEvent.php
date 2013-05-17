@@ -21,32 +21,31 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
 /**
+ * Wraps an event which has not been handled by event handlers.
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface EventBus
+class DeadEvent extends EventBase
 {
+    private $event;
+
     /**
-     * Post an event on this bus. It is dispatched to all subscribed event handlers.
-     *
      * @param Event $event
      */
-    public function post(Event $event);
+    public function __construct(Event $event)
+    {
+        parent::__construct();
+        $this->event = $event;
+    }
 
     /**
-     * Register the given handler to this bus. When registered, it will receive all events posted to this bus.
-     *
-     * @param EventHandler $handler
+     * @return Event
      */
-    public function register(EventHandler $handler);
-
-    /**
-     * Unregister the given handler to this bus.
-     * When unregistered, it will no longer receive events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function unregister(EventHandler $handler);
+    public function getEvent()
+    {
+        return $this->event;
+    }
 }

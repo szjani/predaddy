@@ -21,14 +21,29 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling\mf4php;
+
+use predaddy\eventhandling\SimpleEvent;
+use PHPUnit_Framework_TestCase;
+
+require_once __DIR__ . '/../SimpleEvent.php';
 
 /**
- * Description of SimpleEventHandler
+ * Description of EventWrapperTest
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface SimpleEventHandler extends EventHandler
+class EventWrapperTest extends PHPUnit_Framework_TestCase
 {
-    public function handle(SimpleEvent $event);
+    public function testSerialize()
+    {
+        $event = new SimpleEvent();
+        $handlerClass = 'handlerClass';
+        $handlerMethod = 'handle';
+        $wrapper = new EventWrapper($event, $handlerClass, $handlerMethod);
+        $serialized = serialize($wrapper);
+        $unserialized = unserialize($serialized);
+        self::assertEquals($wrapper, $unserialized);
+        self::assertEquals($event, $unserialized->getEvent());
+    }
 }

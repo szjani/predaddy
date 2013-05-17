@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="baseddd" default="build">
+<project name="predaddy" default="build">
     <property name="builddir" value="${basedir}/build" />
     <property name="srcdir" value="${basedir}/src" />
     <property name="testdir" value="${basedir}/tests" />

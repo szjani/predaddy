@@ -1,55 +1,44 @@
 <?php
+
 /*
- * Copyright (c) 2013 Szurovecz János
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
+namespace predaddy\eventhandling\mf4php;
 
-namespace baseddd\eventhandling;
-
+use predaddy\eventhandling\DeadEvent;
+use predaddy\eventhandling\SimpleEvent;
+use mf4php\DefaultQueue;
+use mf4php\memory\MemoryMessageDispatcher;
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
 
-require_once 'SimpleEvent.php';
-require_once 'SimpleEventHandler.php';
-require_once 'AllEventHandler.php';
-require_once 'DeadEventHandler.php';
+require_once __DIR__ . '/../SimpleEvent.php';
+require_once __DIR__ . '/../SimpleEventHandler.php';
+require_once __DIR__ . '/../AllEventHandler.php';
+require_once __DIR__ . '/../DeadEventHandler.php';
 
 /**
  * Description of DirectEventBusTest
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DirectEventBusTest extends PHPUnit_Framework_TestCase
+class Mf4PhpEventBusTest extends PHPUnit_Framework_TestCase
 {
     private $bus;
 
     public function setUp()
     {
-        $this->bus = new DirectEventBus('default');
+        $dispatcher = new MemoryMessageDispatcher();
+        $this->bus = new Mf4PhpEventBus('default', $dispatcher);
+        $dispatcher->addListener(new DefaultQueue('default'), $this->bus);
     }
 
     public function testTwoHandlerPost()
     {
         $event = new SimpleEvent();
-        $simpleEventHandler = $this->getMock('baseddd\eventhandling\SimpleEventHandler');
-        $allEventHandler = $this->getMock('baseddd\eventhandling\AllEventHandler');
+        $simpleEventHandler = $this->getMock('predaddy\eventhandling\SimpleEventHandler');
+        $allEventHandler = $this->getMock('predaddy\eventhandling\AllEventHandler');
 
         $simpleEventHandler
             ->expects(self::any())
@@ -58,7 +47,7 @@ class DirectEventBusTest extends PHPUnit_Framework_TestCase
         $simpleEventHandler
             ->expects(self::any())
             ->method('getClassName')
-            ->will(self::returnValue('baseddd\eventhandling\SimpleEventHandler'));
+            ->will(self::returnValue('predaddy\eventhandling\SimpleEventHandler'));
         $simpleEventHandler
             ->expects(self::once())
             ->method('handle')
@@ -71,7 +60,7 @@ class DirectEventBusTest extends PHPUnit_Framework_TestCase
         $allEventHandler
             ->expects(self::any())
             ->method('getClassName')
-            ->will(self::returnValue('baseddd\eventhandling\AllEventHandler'));
+            ->will(self::returnValue('predaddy\eventhandling\AllEventHandler'));
         $allEventHandler
             ->expects(self::once())
             ->method('handle')
@@ -88,7 +77,7 @@ class DirectEventBusTest extends PHPUnit_Framework_TestCase
     public function testDeadEventHandling()
     {
         $expectedEvent = $event = new SimpleEvent();
-        $deadEventHandler = $this->getMock('baseddd\eventhandling\DeadEventHandler');
+        $deadEventHandler = $this->getMock('predaddy\eventhandling\DeadEventHandler');
 
         $deadEventHandler
             ->expects(self::any())
@@ -97,7 +86,7 @@ class DirectEventBusTest extends PHPUnit_Framework_TestCase
         $deadEventHandler
             ->expects(self::any())
             ->method('getClassName')
-            ->will(self::returnValue('baseddd\eventhandling\DeadEventHandler'));
+            ->will(self::returnValue('predaddy\eventhandling\DeadEventHandler'));
         $deadEventHandler
             ->expects(self::once())
             ->method('handle')

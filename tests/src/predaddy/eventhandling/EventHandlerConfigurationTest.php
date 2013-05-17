@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
@@ -41,7 +41,7 @@ class EventHandlerConfigurationTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $handler = $this->getMock('baseddd\eventhandling\AllEventHandler');
+        $handler = $this->getMock('predaddy\eventhandling\AllEventHandler');
         $handler
             ->expects(self::any())
             ->method('getObjectClass')

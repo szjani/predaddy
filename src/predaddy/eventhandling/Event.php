@@ -21,14 +21,31 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
+
+use DateTime;
+use precore\lang\ObjectInterface;
+use Serializable;
 
 /**
- * Description of SimpleEvent
+ * Base interface for all events in the application.
+ * All classes that represent an event should implement this interface.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class SimpleEvent extends EventBase
+interface Event extends Serializable, ObjectInterface
 {
-    public $data = 'hello';
+    /**
+     * Returns the identifier of this event.
+     *
+     * @return string
+     */
+    public function getEventIdentifier();
+
+    /**
+     * Returns the timestamp of this event.
+     *
+     * @return DateTime
+     */
+    public function getTimestamp();
 }

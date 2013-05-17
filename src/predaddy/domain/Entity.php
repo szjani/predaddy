@@ -21,20 +21,18 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\domain;
 
 use precore\lang\ObjectInterface;
 
 /**
- * It can have several handler methods. Handler methods must keep the following rules:
- *  - The method is public
- *  - The method has exactly 1 parameter
- *  - The parameter must be a subtype of Event
- *  - Return values are allowed, but are ignored
- *  - Exceptions are highly discouraged, and are likely to be caught and ignored
+ * DDD enity. The following rules should be applied:
+ *  - Each aggregate has a root entity.
+ *  - Each entity has identity field.
+ *  - Only the root is accessible from outside the boundary.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface EventHandler extends ObjectInterface
+interface Entity extends ObjectInterface
 {
 }

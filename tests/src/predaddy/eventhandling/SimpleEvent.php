@@ -21,31 +21,14 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
 /**
- * Wraps an event which has not been handled by event handlers.
+ * Description of SimpleEvent
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DeadEvent extends EventBase
+class SimpleEvent extends EventBase
 {
-    private $event;
-
-    /**
-     * @param Event $event
-     */
-    public function __construct(Event $event)
-    {
-        parent::__construct();
-        $this->event = $event;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
+    public $data = 'hello';
 }

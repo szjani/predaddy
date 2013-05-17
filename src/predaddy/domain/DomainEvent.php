@@ -21,19 +21,29 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\domain;
 
-use Exception;
+use predaddy\eventhandling\EventBase;
 
 /**
- * A memory based EventBus which directly calls handler methods on event handlers.
+ * Base class for all Domain Events.
+ * This class contains the basic behavior expected from any event
+ * to be processedby event sourcing engines and aggregates.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DirectEventBus extends AbstractEventBus
+abstract class DomainEvent extends EventBase
 {
-    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
+    private $aggregateId;
+
+    public function __construct($aggregateId)
     {
-        $handler->$method($event);
+        parent::__construct();
+        $this->aggregateId = $aggregateId;
+    }
+
+    public function getAggregateIdentifier()
+    {
+        return $this->aggregateId;
     }
 }

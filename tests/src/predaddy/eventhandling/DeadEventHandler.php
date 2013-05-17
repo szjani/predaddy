@@ -21,29 +21,14 @@
  * SOFTWARE.
  */
 
-namespace baseddd\domain;
-
-use baseddd\eventhandling\EventBase;
+namespace predaddy\eventhandling;
 
 /**
- * Base class for all Domain Events.
- * This class contains the basic behavior expected from any event
- * to be processedby event sourcing engines and aggregates.
+ * Description of DeadEventHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class DomainEvent extends EventBase
+interface DeadEventHandler extends EventHandler
 {
-    private $aggregateId;
-
-    public function __construct($aggregateId)
-    {
-        parent::__construct();
-        $this->aggregateId = $aggregateId;
-    }
-
-    public function getAggregateIdentifier()
-    {
-        return $this->aggregateId;
-    }
+    public function handle(DeadEvent $event);
 }

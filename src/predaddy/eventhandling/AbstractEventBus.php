@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
 use precore\lang\Object;
 

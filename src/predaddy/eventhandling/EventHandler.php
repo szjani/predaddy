@@ -21,31 +21,20 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
-use DateTime;
 use precore\lang\ObjectInterface;
-use Serializable;
 
 /**
- * Base interface for all events in the application.
- * All classes that represent an event should implement this interface.
+ * It can have several handler methods. Handler methods must keep the following rules:
+ *  - The method is public
+ *  - The method has exactly 1 parameter
+ *  - The parameter must be a subtype of Event
+ *  - Return values are allowed, but are ignored
+ *  - Exceptions are highly discouraged, and are likely to be caught and ignored
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface Event extends Serializable, ObjectInterface
+interface EventHandler extends ObjectInterface
 {
-    /**
-     * Returns the identifier of this event.
-     *
-     * @return string
-     */
-    public function getEventIdentifier();
-
-    /**
-     * Returns the timestamp of this event.
-     *
-     * @return DateTime
-     */
-    public function getTimestamp();
 }

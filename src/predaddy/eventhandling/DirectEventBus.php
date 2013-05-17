@@ -21,46 +21,19 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling;
+namespace predaddy\eventhandling;
 
-use DateTime;
-use precore\lang\Object;
+use Exception;
 
 /**
- * Base class for all types of events. Contains the event identifier and timestamp.
+ * A memory based EventBus which directly calls handler methods on event handlers.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class EventBase extends Object implements Event
+class DirectEventBus extends AbstractEventBus
 {
-    private $id;
-    private $timestamp;
-
-    public function __construct()
+    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
     {
-        $this->timestamp = new DateTime();
-        $this->id = uniqid($this->getClassName(), true);
-    }
-
-    public function getEventIdentifier()
-    {
-        return $this->id;
-    }
-
-    public function getTimestamp()
-    {
-        return clone $this->timestamp;
-    }
-
-    public function serialize()
-    {
-        return serialize(get_object_vars($this));
-    }
-
-    public function unserialize($serialized)
-    {
-        foreach (unserialize($serialized) as $key => $value) {
-            $this->$key = $value;
-        }
+        $handler->$method($event);
     }
 }

@@ -21,38 +21,53 @@
  * SOFTWARE.
  */
 
-namespace baseddd\domain;
+namespace predaddy\eventhandling\mf4php;
 
-use BadMethodCallException;
-use baseddd\eventhandling\EventBus;
-use precore\lang\Object;
+use predaddy\eventhandling\Event;
+use Serializable;
 
 /**
- * Description of AggregateRoot
+ * Wraps an event and one of its handler class and method pair.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AggregateRoot extends Object implements Entity
+class EventWrapper implements Serializable
 {
-    /**
-     * @var EventBus
-     */
-    private static $eventBus;
+    private $event;
+    private $handlerClass;
+    private $handlerMethod;
 
-    /**
-     * @param EventBus $eventBus
-     */
-    public static function setEventBus(EventBus $eventBus)
+    public function __construct(Event $event, $handlerClass, $handlerMethod)
     {
-        self::$eventBus = $eventBus;
+        $this->event = $event;
+        $this->handlerClass = $handlerClass;
+        $this->handlerMethod = $handlerMethod;
     }
 
-    protected static function raise(DomainEvent $event)
+    public function getEvent()
     {
-        if (self::$eventBus === null) {
-            static::getLogger()->error("EventBus has not been set to '{}'", array($this->getClassName()));
-            throw new BadMethodCallException('EventBus has not been set!');
+        return $this->event;
+    }
+
+    public function getHandlerClass()
+    {
+        return $this->handlerClass;
+    }
+
+    public function getHandlerMethod()
+    {
+        return $this->handlerMethod;
+    }
+
+    public function serialize()
+    {
+        return serialize(get_object_vars($this));
+    }
+
+    public function unserialize($serialized)
+    {
+        foreach (unserialize($serialized) as $key => $value) {
+            $this->$key = $value;
         }
-        self::$eventBus->post($event);
     }
 }

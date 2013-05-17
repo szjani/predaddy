@@ -21,11 +21,11 @@
  * SOFTWARE.
  */
 
-namespace baseddd\eventhandling\mf4php;
+namespace predaddy\eventhandling\mf4php;
 
-use baseddd\eventhandling\AbstractEventBus;
-use baseddd\eventhandling\Event;
-use baseddd\eventhandling\EventHandler;
+use predaddy\eventhandling\AbstractEventBus;
+use predaddy\eventhandling\Event;
+use predaddy\eventhandling\EventHandler;
 use mf4php\DefaultQueue;
 use mf4php\Message;
 use mf4php\MessageDispatcher;
