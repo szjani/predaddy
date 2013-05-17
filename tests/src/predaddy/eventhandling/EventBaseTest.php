@@ -24,50 +24,29 @@
 namespace predaddy\eventhandling;
 
 use DateTime;
-use precore\lang\Object;
-use precore\lang\ObjectInterface;
-use precore\util\UUID;
+use PHPUnit_Framework_TestCase;
+
+require_once 'SimpleEvent.php';
 
 /**
- * Base class for all types of events. Contains the event identifier and timestamp.
+ * Description of EventBaseTest
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class EventBase extends Object implements Event
+class EventBaseTest extends PHPUnit_Framework_TestCase
 {
-    private $id;
-    private $timestamp;
-
-    public function __construct()
+    public function testEquals()
     {
-        $this->timestamp = new DateTime();
-        $this->id = UUID::randomUUID();
+        $event1 = new SimpleEvent();
+        $event2 = new SimpleEvent();
+        self::assertFalse($event1->equals($event2));
+        self::assertTrue($event1->equals($event1));
     }
 
-    public function getEventIdentifier()
+    public function testGetTimestamp()
     {
-        return $this->id->toString();
-    }
-
-    public function getTimestamp()
-    {
-        return clone $this->timestamp;
-    }
-
-    public function serialize()
-    {
-        return serialize(get_object_vars($this));
-    }
-
-    public function unserialize($serialized)
-    {
-        foreach (unserialize($serialized) as $key => $value) {
-            $this->$key = $value;
-        }
-    }
-
-    public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof self && $this->id->equals($object->id);
+        $event = new SimpleEvent();
+        self::assertInstanceOf('DateTime', $event->getTimestamp());
+        self::assertTrue($event->getTimestamp() <= new DateTime());
     }
 }
