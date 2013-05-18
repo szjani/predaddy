@@ -34,7 +34,7 @@ use predaddy\eventhandling\EventBase;
  */
 abstract class DomainEvent extends EventBase
 {
-    private $aggregateId;
+    protected $aggregateId;
 
     public function __construct($aggregateId)
     {
