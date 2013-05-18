@@ -17,7 +17,6 @@ require_once __DIR__ . '/../SimpleEvent.php';
 require_once __DIR__ . '/../SimpleEventHandler.php';
 require_once __DIR__ . '/../AllEventHandler.php';
 require_once __DIR__ . '/../DeadEventHandler.php';
-require_once __DIR__ . '/SimpleEventObjectMessageFactory.php';
 
 /**
  * Description of DirectEventBusTest
@@ -106,7 +105,7 @@ class Mf4PhpEventBusTest extends PHPUnit_Framework_TestCase
 
     public function testMessageFactory()
     {
-        $factory = $this->getMock(__NAMESPACE__ . '\SimpleEventObjectMessageFactory', array('createMessage'));
+        $factory = $this->getMock(__NAMESPACE__ . '\ObjectMessageFactory', array('createMessage'));
         $factory
             ->expects(self::once())
             ->method('createMessage')
@@ -134,7 +133,7 @@ class Mf4PhpEventBusTest extends PHPUnit_Framework_TestCase
             ->with($event);
 
         $this->bus->register($simpleEventHandler);
-        $this->bus->registerObjectMessageFactory($factory);
+        $this->bus->registerObjectMessageFactory($factory, SimpleEvent::className());
         $this->bus->post($event);
     }
 }

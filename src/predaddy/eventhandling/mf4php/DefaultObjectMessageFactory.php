@@ -36,15 +36,4 @@ class DefaultObjectMessageFactory implements ObjectMessageFactory
     {
         return new ObjectMessage($eventWrapper);
     }
-
-    /**
-     * It is not used because this is the default ObjectMessageFactory
-     * for all type of events.
-     * 
-     * @return string
-     */
-    public static function getEventClass()
-    {
-        return '\predaddy\eventhandling\Event';
-    }
 }

@@ -37,9 +37,4 @@ interface ObjectMessageFactory
      * @return \mf4php\ObjectMessage
      */
     public function createMessage(EventWrapper $eventWrapper);
-
-    /**
-     * @return string Class name of the event can be handled.
-     */
-    public static function getEventClass();
 }

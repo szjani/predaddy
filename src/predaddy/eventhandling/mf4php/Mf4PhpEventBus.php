@@ -66,9 +66,9 @@ class Mf4PhpEventBus extends AbstractEventBus implements MessageListener
      *
      * @param \predaddy\eventhandling\mf4php\ObjectMessageFactory $factory
      */
-    public function registerObjectMessageFactory(ObjectMessageFactory $factory)
+    public function registerObjectMessageFactory(ObjectMessageFactory $factory, $eventClass)
     {
-        $this->objectMessageFactories[$factory::getEventClass()] = $factory;
+        $this->objectMessageFactories[$eventClass] = $factory;
     }
 
     public function onMessage(Message $message)
