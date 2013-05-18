@@ -35,8 +35,8 @@ use precore\util\UUID;
  */
 abstract class EventBase extends Object implements Event
 {
-    private $id;
-    private $timestamp;
+    protected $id;
+    protected $timestamp;
 
     public function __construct()
     {
