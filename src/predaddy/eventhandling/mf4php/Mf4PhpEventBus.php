@@ -30,7 +30,6 @@ use mf4php\DefaultQueue;
 use mf4php\Message;
 use mf4php\MessageDispatcher;
 use mf4php\MessageListener;
-use mf4php\ObjectMessage;
 
 /**
  * EventBus implementation which uses mf4php to forward events.
@@ -47,18 +46,29 @@ class Mf4PhpEventBus extends AbstractEventBus implements MessageListener
 {
     private $dispatcher;
     private $queue;
+    private $objectMessageFactories = array();
+    private $defaultObjectMessageFactory;
 
     public function __construct($identifier, MessageDispatcher $dispatcher)
     {
         parent::__construct($identifier);
         $this->dispatcher = $dispatcher;
         $this->queue = new DefaultQueue($identifier);
+        $this->defaultObjectMessageFactory = new DefaultObjectMessageFactory();
     }
 
-    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
+    /**
+     * Only full matching class names are used, you should not register
+     * a factory for an abstract event class/interface!
+     *
+     * If there is no registered factory for a particular event class,
+     * DefaultObjectMessageFactory will be used.
+     *
+     * @param \predaddy\eventhandling\mf4php\ObjectMessageFactory $factory
+     */
+    public function registerObjectMessageFactory(ObjectMessageFactory $factory)
     {
-        $message = new ObjectMessage(new EventWrapper($event, $handler->getClassName(), $method));
-        $this->dispatcher->send($this->queue, $message);
+        $this->objectMessageFactories[$factory::getEventClass()] = $factory;
     }
 
     public function onMessage(Message $message)
@@ -73,5 +83,29 @@ class Mf4PhpEventBus extends AbstractEventBus implements MessageListener
                 $handler->$method($eventWrapper->getEvent());
             }
         }
+    }
+
+    /**
+     * Finds the appropriate message factory for the given event.
+     *
+     * @param \predaddy\eventhandling\Event $event
+     * @return ObjectMessageFactory
+     */
+    protected function findObjectMessageFactory(Event $event)
+    {
+        $eventClass = $event->getClassName();
+        foreach ($this->objectMessageFactories as $class => $factory) {
+            if ($class === $eventClass) {
+                return $factory;
+            }
+        }
+        return $this->defaultObjectMessageFactory;
+    }
+
+    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
+    {
+        $eventWrapper = new EventWrapper($event, $handler->getClassName(), $method);
+        $message = $this->findObjectMessageFactory($event)->createMessage($eventWrapper);
+        $this->dispatcher->send($this->queue, $message);
     }
 }

@@ -6,17 +6,18 @@
  */
 namespace predaddy\eventhandling\mf4php;
 
-use predaddy\eventhandling\DeadEvent;
-use predaddy\eventhandling\SimpleEvent;
 use mf4php\DefaultQueue;
 use mf4php\memory\MemoryMessageDispatcher;
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
+use predaddy\eventhandling\DeadEvent;
+use predaddy\eventhandling\SimpleEvent;
 
 require_once __DIR__ . '/../SimpleEvent.php';
 require_once __DIR__ . '/../SimpleEventHandler.php';
 require_once __DIR__ . '/../AllEventHandler.php';
 require_once __DIR__ . '/../DeadEventHandler.php';
+require_once __DIR__ . '/SimpleEventObjectMessageFactory.php';
 
 /**
  * Description of DirectEventBusTest
@@ -100,6 +101,40 @@ class Mf4PhpEventBusTest extends PHPUnit_Framework_TestCase
             );
 
         $this->bus->register($deadEventHandler);
+        $this->bus->post($event);
+    }
+
+    public function testMessageFactory()
+    {
+        $factory = $this->getMock(__NAMESPACE__ . '\SimpleEventObjectMessageFactory', array('createMessage'));
+        $factory
+            ->expects(self::once())
+            ->method('createMessage')
+            ->will(
+                self::returnCallback(
+                    function (EventWrapper $wrapper) {
+                        return new \mf4php\ObjectMessage($wrapper);
+                    }
+                )
+            );
+
+        $event = new SimpleEvent();
+        $simpleEventHandler = $this->getMock('predaddy\eventhandling\SimpleEventHandler');
+        $simpleEventHandler
+            ->expects(self::any())
+            ->method('getObjectClass')
+            ->will(self::returnValue(new ObjectClass($simpleEventHandler)));
+        $simpleEventHandler
+            ->expects(self::any())
+            ->method('getClassName')
+            ->will(self::returnValue('predaddy\eventhandling\SimpleEventHandler'));
+        $simpleEventHandler
+            ->expects(self::once())
+            ->method('handle')
+            ->with($event);
+
+        $this->bus->register($simpleEventHandler);
+        $this->bus->registerObjectMessageFactory($factory);
         $this->bus->post($event);
     }
 }
