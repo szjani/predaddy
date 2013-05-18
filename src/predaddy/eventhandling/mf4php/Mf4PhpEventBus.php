@@ -40,6 +40,9 @@ use mf4php\MessageListener;
  * With an asynchronous MessageDispatcher implementation event
  * handling can be asynchronous.
  *
+ * Do not register it to the given MessageDispatcher,
+ * it is handled by default.
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class Mf4PhpEventBus extends AbstractEventBus implements MessageListener
@@ -55,6 +58,7 @@ class Mf4PhpEventBus extends AbstractEventBus implements MessageListener
         $this->dispatcher = $dispatcher;
         $this->queue = new DefaultQueue($identifier);
         $this->defaultObjectMessageFactory = new DefaultObjectMessageFactory();
+        $dispatcher->addListener($this->queue, $this);
     }
 
     /**

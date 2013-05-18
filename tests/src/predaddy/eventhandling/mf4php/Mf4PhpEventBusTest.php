@@ -31,7 +31,6 @@ class Mf4PhpEventBusTest extends PHPUnit_Framework_TestCase
     {
         $dispatcher = new MemoryMessageDispatcher();
         $this->bus = new Mf4PhpEventBus('default', $dispatcher);
-        $dispatcher->addListener(new DefaultQueue('default'), $this->bus);
     }
 
     public function testTwoHandlerPost()
