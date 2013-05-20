@@ -24,6 +24,7 @@
 namespace predaddy\eventhandling\mf4php;
 
 use mf4php\ObjectMessage;
+use predaddy\eventhandling\Event;
 
 /**
  * Default ObjectMessageFactory.
@@ -32,8 +33,8 @@ use mf4php\ObjectMessage;
  */
 class DefaultObjectMessageFactory implements ObjectMessageFactory
 {
-    public function createMessage(EventWrapper $eventWrapper)
+    public function createMessage(Event $event)
     {
-        return new ObjectMessage($eventWrapper);
+        return new ObjectMessage($event);
     }
 }

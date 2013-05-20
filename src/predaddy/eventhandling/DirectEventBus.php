@@ -32,8 +32,8 @@ use Exception;
  */
 class DirectEventBus extends AbstractEventBus
 {
-    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
+    protected function innerPost(Event $event)
     {
-        $handler->$method($event);
+        $this->forwardEvent($event);
     }
 }

@@ -43,7 +43,7 @@ abstract class AbstractEventBus extends Object implements EventBus
         $this->identifier = (string) $identifier;
     }
 
-    abstract protected function callHandlerMethod(EventHandler $handler, $method, Event $event);
+    abstract protected function innerPost(Event $event);
 
     public function post(Event $event)
     {
@@ -51,6 +51,16 @@ abstract class AbstractEventBus extends Object implements EventBus
             "Event '{}' has been posted to '{}' event bus",
             array($event->getClassName(), $this->identifier)
         );
+        $this->innerPost($event);
+    }
+
+    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
+    {
+        $handler->$method($event);
+    }
+
+    protected function forwardEvent(Event $event)
+    {
         $forwarded = false;
         /* @var $config EventHandlerConfiguration */
         foreach ($this->handlerConfigurations as $config) {

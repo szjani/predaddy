@@ -110,8 +110,8 @@ class Mf4PhpEventBusTest extends PHPUnit_Framework_TestCase
             ->method('createMessage')
             ->will(
                 self::returnCallback(
-                    function (EventWrapper $wrapper) {
-                        return new \mf4php\ObjectMessage($wrapper);
+                    function (SimpleEvent $event) {
+                        return new \mf4php\ObjectMessage($event);
                     }
                 )
             );

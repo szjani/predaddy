@@ -23,8 +23,11 @@
 
 namespace predaddy\eventhandling\mf4php;
 
+use mf4php\ObjectMessage;
+use predaddy\eventhandling\Event;
+
 /**
- * Used to create ObjectMessage object for EventWrapper objects.
+ * Used to create ObjectMessage object for Event objects.
  * Useful if you want to define a delay or priority
  * for the message will be sent to mf4php dispatcher.
  *
@@ -33,8 +36,8 @@ namespace predaddy\eventhandling\mf4php;
 interface ObjectMessageFactory
 {
     /**
-     * @param EventWrapper $eventWrapper
-     * @return \mf4php\ObjectMessage
+     * @param Event $event
+     * @return ObjectMessage
      */
-    public function createMessage(EventWrapper $eventWrapper);
+    public function createMessage(Event $event);
 }
