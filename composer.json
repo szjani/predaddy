@@ -14,7 +14,6 @@
         "precore/precore": "~1.0",
         "mf4php/mf4php": "~1.0"
     },
-    "minimum-stability": "dev",
     "autoload": {
         "psr-0": {"predaddy": "src/"}
     },
