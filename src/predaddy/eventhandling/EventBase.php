@@ -44,11 +44,17 @@ abstract class EventBase extends Object implements Event
         $this->id = UUID::randomUUID()->toString();
     }
 
+    /**
+     * @return string
+     */
     public function getEventIdentifier()
     {
         return $this->id;
     }
 
+    /**
+     * @return DateTime
+     */
     public function getTimestamp()
     {
         return clone $this->timestamp;
