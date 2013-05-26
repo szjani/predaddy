@@ -2,7 +2,7 @@ predaddy
 ========
 
 It is a library which gives you some usable classes to be able to use common DDD patterns.
-You can find samples in the sample directory.
+You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
 
 EventBus
 --------
