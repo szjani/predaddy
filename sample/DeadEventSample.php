@@ -8,6 +8,7 @@ use predaddy\eventhandling\DeadEvent;
 use predaddy\eventhandling\DirectEventBus;
 use predaddy\eventhandling\EventBase;
 use predaddy\eventhandling\EventHandler;
+use predaddy\eventhandling\Subscribe;
 
 class UnprocessedEvent extends EventBase
 {
@@ -15,6 +16,9 @@ class UnprocessedEvent extends EventBase
 
 class DeadEventHandler extends Object implements EventHandler
 {
+    /**
+     * @Subscribe
+     */
     public function handleDeadEvents(DeadEvent $event)
     {
         printf("Instance of %s has not been caught\n", $event->getEvent()->getClassName());

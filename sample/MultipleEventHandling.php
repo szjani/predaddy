@@ -7,6 +7,7 @@ use precore\lang\Object;
 use predaddy\eventhandling\DirectEventBus;
 use predaddy\eventhandling\EventBase;
 use predaddy\eventhandling\EventHandler;
+use predaddy\eventhandling\Subscribe;
 
 class SampleEvent1 extends EventBase
 {
@@ -18,6 +19,10 @@ class SampleEvent2 extends EventBase
 
 class SampleEventHandler extends Object implements EventHandler
 {
+    /**
+     * @Subscribe
+     * @param \sample\SampleEvent1 $event
+     */
     public function handleOne(SampleEvent1 $event)
     {
         printf(
@@ -27,6 +32,10 @@ class SampleEventHandler extends Object implements EventHandler
         );
     }
 
+    /**
+     * @Subscribe
+     * @param \sample\SampleEvent2 $event
+     */
     public function handleTwo(SampleEvent2 $event)
     {
         printf(

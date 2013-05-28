@@ -7,6 +7,7 @@ use precore\lang\Object;
 use predaddy\eventhandling\DirectEventBus;
 use predaddy\eventhandling\EventBase;
 use predaddy\eventhandling\EventHandler;
+use predaddy\eventhandling\Subscribe;
 
 class UserRegistered extends EventBase
 {
@@ -26,6 +27,9 @@ class UserRegistered extends EventBase
 
 class EmailSender extends Object implements EventHandler
 {
+    /**
+     * @Subscribe
+     */
     public function sendMail(UserRegistered $event)
     {
         printf("Sending email to %s...\n", $event->getEmail());

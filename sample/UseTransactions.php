@@ -17,6 +17,7 @@ use predaddy\eventhandling\EventHandler;
 use predaddy\eventhandling\mf4php\Mf4PhpEventBus;
 use trf4php\doctrine\DoctrineTransactionManager;
 use Exception;
+use predaddy\eventhandling\Subscribe;
 
 class UserRegistered extends EventBase
 {
@@ -36,6 +37,10 @@ class UserRegistered extends EventBase
 
 class EmailSender extends Object implements EventHandler
 {
+    /**
+     * @Subscribe
+     * @param \sample\UserRegistered $event
+     */
     public function sendMail(UserRegistered $event)
     {
         printf("Sending email to %s...\n", $event->getEmail());

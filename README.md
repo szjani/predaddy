@@ -34,10 +34,11 @@ class is mandatory. You have to use protected visibility for you member variable
 methods.
 
 Event handlers are really easy to use. Predaddy scans the registered objects and tries to find the event handler methods.
-There are two rules:
+There are three rules:
 
 * Handler methods must be public
 * They have to have exactly one parameter, which implements Event interface
+* Must be marked with @Subscribe annotation
 
 If a handler method can handle an instance of a particular event class, then that will be called with all events which
 are compatible with the defined class. For instance using Event interface as a typehint in your handle method effects that all raised events will be passed to that method.
