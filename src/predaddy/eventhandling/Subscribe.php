@@ -23,21 +23,14 @@
 
 namespace predaddy\eventhandling;
 
-require_once 'AbstractEventHandler.php';
-
 /**
- * Description of DeadEventHandler
+ * Mark handle methods in your EventHandler classes with this annotation.
+ *
+ * @Annotation
+ * @Target("METHOD")
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DeadEventHandler extends AbstractEventHandler
+final class Subscribe
 {
-    /**
-     * @Subscribe
-     * @param \predaddy\eventhandling\DeadEvent $event
-     */
-    public function handle(DeadEvent $event)
-    {
-        $this->lastEvent = $event;
-    }
 }

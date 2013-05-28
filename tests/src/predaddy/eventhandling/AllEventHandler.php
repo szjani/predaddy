@@ -23,12 +23,21 @@
 
 namespace predaddy\eventhandling;
 
+require_once 'AbstractEventHandler.php';
+
 /**
  * Description of AllEventHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface AllEventHandler extends EventHandler
+class AllEventHandler extends AbstractEventHandler
 {
-    public function handle(Event $event);
+    /**
+     * @Subscribe
+     * @param \predaddy\eventhandling\Event $event
+     */
+    public function handle(Event $event)
+    {
+        $this->lastEvent = $event;
+    }
 }

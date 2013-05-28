@@ -23,6 +23,10 @@
 
 namespace predaddy\eventhandling;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\Reader;
+use Exception;
 use precore\lang\Object;
 
 /**
@@ -34,13 +38,19 @@ abstract class AbstractEventBus extends Object implements EventBus
 {
     private $identifier;
     private $handlerConfigurations = array();
+    private $reader = null;
 
     /**
      * @param string $identifier Used for logging
      */
-    public function __construct($identifier)
+    public function __construct($identifier, Reader $reader = null)
     {
         $this->identifier = (string) $identifier;
+        AnnotationRegistry::registerFile(__DIR__ . '/EventHandlingAnnotations.php');
+        if ($reader == null) {
+            $reader = new AnnotationReader();
+        }
+        $this->reader = $reader;
     }
 
     abstract protected function innerPost(Event $event);
@@ -82,7 +92,7 @@ abstract class AbstractEventBus extends Object implements EventBus
 
     public function register(EventHandler $handler)
     {
-        $this->handlerConfigurations[$handler->getClassName()] = new EventHandlerConfiguration($handler);
+        $this->handlerConfigurations[$handler->getClassName()] = new EventHandlerConfiguration($handler, $this->reader);
     }
 
     public function unregister(EventHandler $handler)

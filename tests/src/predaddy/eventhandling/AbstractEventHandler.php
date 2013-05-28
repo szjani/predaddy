@@ -23,21 +23,14 @@
 
 namespace predaddy\eventhandling;
 
-require_once 'AbstractEventHandler.php';
+use precore\lang\Object;
 
 /**
- * Description of DeadEventHandler
+ * Description of AbstractEventHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DeadEventHandler extends AbstractEventHandler
+class AbstractEventHandler extends Object implements EventHandler
 {
-    /**
-     * @Subscribe
-     * @param \predaddy\eventhandling\DeadEvent $event
-     */
-    public function handle(DeadEvent $event)
-    {
-        $this->lastEvent = $event;
-    }
+    public $lastEvent;
 }

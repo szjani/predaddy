@@ -30,6 +30,7 @@ use precore\lang\ObjectInterface;
  *  - The method is public
  *  - The method has exactly 1 parameter
  *  - The parameter must be a subtype of Event
+ *  - You must use @Subscribe annotation
  *  - Return values are allowed, but are ignored
  *  - Exceptions are highly discouraged, and are likely to be caught and ignored
  *

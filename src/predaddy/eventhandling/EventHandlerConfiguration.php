@@ -23,6 +23,9 @@
 
 namespace predaddy\eventhandling;
 
+use Doctrine\Common\Annotations\Reader;
+use ReflectionClass;
+
 /**
  * Description of EventHandlerConfiguration
  *
@@ -32,10 +35,12 @@ class EventHandlerConfiguration
 {
     private $eventHandler;
     private $handlerMethods = array();
+    private $reader;
 
-    public function __construct(EventHandler $eventHandler)
+    public function __construct(EventHandler $eventHandler, Reader $reader)
     {
         $this->eventHandler = $eventHandler;
+        $this->reader = $reader;
         $this->findHandlerMethods();
     }
 
@@ -73,7 +78,11 @@ class EventHandlerConfiguration
     protected function findHandlerMethods()
     {
         $eventClassName = 'predaddy\eventhandling\Event';
-        foreach ($this->eventHandler->getObjectClass()->getMethods() as $reflMethod) {
+        $reflClass = $this->eventHandler->getObjectClass();
+        foreach ($reflClass->getMethods() as $reflMethod) {
+            if ($this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe') === null) {
+                continue;
+            }
             if (!$reflMethod->isPublic()) {
                 continue;
             }
