@@ -24,7 +24,6 @@
 namespace predaddy\eventhandling;
 
 use Doctrine\Common\Annotations\Reader;
-use ReflectionClass;
 
 /**
  * Description of EventHandlerConfiguration
@@ -34,8 +33,9 @@ use ReflectionClass;
 class EventHandlerConfiguration
 {
     private $eventHandler;
-    private $handlerMethods = array();
+    private $directHandlerMethods = array();
     private $reader;
+    private $compatibleHandlerMethodsCache = array();
 
     public function __construct(EventHandler $eventHandler, Reader $reader)
     {
@@ -44,27 +44,17 @@ class EventHandlerConfiguration
         $this->findHandlerMethods();
     }
 
-    public function getHandleMethodFor(Event $event)
-    {
-        $eventClassName = $event->getClassName();
-        if (array_key_exists($eventClassName, $this->handlerMethods)) {
-            return $this->handlerMethods[$eventClassName];
-        }
-        $eventClass = $event->getObjectClass();
-        foreach ($this->handlerMethods as $handlerEventClass => $handlerMethod) {
-            if ($eventClass->isSubclassOf($handlerEventClass)) {
-                return $handlerMethod;
-            }
-        }
-        return null;
-    }
-
     /**
+     * @param Event $event
      * @return array
      */
-    public function getHandleMethods()
+    public function getHandlerMethodsFor(Event $event)
     {
-        return $this->handlerMethods;
+        $eventClassName = $event->getClassName();
+        if (!array_key_exists($eventClassName, $this->compatibleHandlerMethodsCache)) {
+            $this->compatibleHandlerMethodsCache[$eventClassName] = $this->findCompatibleMethodsFor($event);
+        }
+        return $this->compatibleHandlerMethodsCache[$eventClassName];
     }
 
     /**
@@ -73,6 +63,24 @@ class EventHandlerConfiguration
     public function getEventHandler()
     {
         return $this->eventHandler;
+    }
+
+    /**
+     * Find all handler methods for a specific type of Event
+     *
+     * @param Event $event
+     * @return array
+     */
+    protected function findCompatibleMethodsFor(Event $event)
+    {
+        $result = array();
+        $eventClass = $event->getObjectClass();
+        foreach ($this->directHandlerMethods as $handlerEventClass => $methods) {
+            if ($eventClass->getName() === $handlerEventClass || $eventClass->isSubclassOf($handlerEventClass)) {
+                $result = array_merge($result, $methods);
+            }
+        }
+        return $result;
     }
 
     protected function findHandlerMethods()
@@ -96,7 +104,7 @@ class EventHandlerConfiguration
                 || (!$paramType->isSubclassOf($eventClassName) && $paramType->getName() !== $eventClassName)) {
                 continue;
             }
-            $this->handlerMethods[$paramType->getName()] = $reflMethod->getName();
+            $this->directHandlerMethods[$paramType->getName()][] = $reflMethod->getName();
         }
     }
 }

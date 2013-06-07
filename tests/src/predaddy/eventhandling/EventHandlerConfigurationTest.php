@@ -48,7 +48,7 @@ class EventHandlerConfigurationTest extends PHPUnit_Framework_TestCase
     public function testGetHandleMethodFor()
     {
         $event = new SimpleEvent();
-        $method = $this->config->getHandleMethodFor($event);
+        $method = $this->config->getHandlerMethodsFor($event);
         self::assertNotNull($method);
     }
 }

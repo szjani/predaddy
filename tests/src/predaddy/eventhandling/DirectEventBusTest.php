@@ -29,6 +29,7 @@ require_once 'SimpleEvent.php';
 require_once 'SimpleEventHandler.php';
 require_once 'AllEventHandler.php';
 require_once 'DeadEventHandler.php';
+require_once 'MultipleSameEventHandler.php';
 
 /**
  * Description of DirectEventBusTest
@@ -75,5 +76,27 @@ class DirectEventBusTest extends PHPUnit_Framework_TestCase
         $this->bus->post($event);
 
         self::assertSame($expectedEvent, $deadEventHandler->lastEvent->getEvent());
+    }
+
+    public function testMultipleSaveEventHandler()
+    {
+        $multipleSameEventHandler = new MultipleSameEventHandler();
+        $this->bus->register($multipleSameEventHandler);
+
+        $event = new SimpleEvent();
+        $this->bus->post($event);
+
+        self::assertSame($event, $multipleSameEventHandler->lastEvent);
+        self::assertSame($event, $multipleSameEventHandler->lastEvent2);
+        self::assertSame($event, $multipleSameEventHandler->lastEvent3);
+        self::assertSame($event, $multipleSameEventHandler->lastEvent4);
+
+        $event2 = new DeadEvent($event);
+        $this->bus->post($event2);
+
+        self::assertSame($event, $multipleSameEventHandler->lastEvent);
+        self::assertSame($event2, $multipleSameEventHandler->lastEvent2);
+        self::assertSame($event, $multipleSameEventHandler->lastEvent3);
+        self::assertSame($event2, $multipleSameEventHandler->lastEvent4);
     }
 }

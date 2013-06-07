@@ -74,14 +74,14 @@ abstract class AbstractEventBus extends Object implements EventBus
         $forwarded = false;
         /* @var $config EventHandlerConfiguration */
         foreach ($this->handlerConfigurations as $config) {
-            $method = $config->getHandleMethodFor($event);
-            if ($method !== null) {
+            $methods = $config->getHandlerMethodsFor($event);
+            foreach ($methods as $method) {
                 try {
                     $this->callHandlerMethod($config->getEventHandler(), $method, $event);
+                    $forwarded = true;
                 } catch (Exception $e) {
                     self::getLogger()->error('An error occured in an event handler method!', null, $e);
                 }
-                $forwarded = true;
             }
         }
         if (!$forwarded && !($event instanceof DeadEvent)) {
@@ -101,12 +101,5 @@ abstract class AbstractEventBus extends Object implements EventBus
         if (array_key_exists($key, $this->handlerConfigurations)) {
             unset($this->handlerConfigurations[$key]);
         }
-    }
-
-    protected function getHandler($className)
-    {
-        return array_key_exists($className, $this->handlerConfigurations)
-            ? $this->handlerConfigurations[$className]->getEventHandler()
-            : null;
     }
 }
