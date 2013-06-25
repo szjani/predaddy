@@ -28,11 +28,11 @@ use ReflectionClass;
 use ReflectionMethod;
 
 /**
- * Description of EventHandlerConfiguration
+ * Finds handler methods which are annotated with Subscribe.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventHandlerConfiguration
+class AnnotatedEventHandlerDescriptor implements EventHandlerDescriptor
 {
     private $handlerClass;
     private $directHandlerMethods = array();
@@ -47,14 +47,14 @@ class EventHandlerConfiguration
     }
 
     /**
-     * @param Event $event
+     * @param ReflectionClass $eventClass
      * @return array of ReflectionMethod
      */
-    public function getHandlerMethodsFor(Event $event)
+    public function getHandlerMethodsFor(ReflectionClass $eventClass)
     {
-        $eventClassName = $event->getClassName();
+        $eventClassName = $eventClass->getName();
         if (!array_key_exists($eventClassName, $this->compatibleHandlerMethodsCache)) {
-            $this->compatibleHandlerMethodsCache[$eventClassName] = $this->findCompatibleMethodsFor($event);
+            $this->compatibleHandlerMethodsCache[$eventClassName] = $this->findCompatibleMethodsFor($eventClass);
         }
         return $this->compatibleHandlerMethodsCache[$eventClassName];
     }
@@ -62,13 +62,12 @@ class EventHandlerConfiguration
     /**
      * Find all handler methods for a specific type of Event
      *
-     * @param Event $event
+     * @param ReflectionClass $eventClass
      * @return array of ReflectionMethod
      */
-    protected function findCompatibleMethodsFor(Event $event)
+    protected function findCompatibleMethodsFor(ReflectionClass $eventClass)
     {
         $result = array();
-        $eventClass = $event->getObjectClass();
         foreach ($this->directHandlerMethods as $handlerEventClass => $methods) {
             if ($eventClass->getName() === $handlerEventClass || $eventClass->isSubclassOf($handlerEventClass)) {
                 $result = array_merge($result, $methods);

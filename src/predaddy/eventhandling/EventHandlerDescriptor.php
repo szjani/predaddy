@@ -23,32 +23,18 @@
 
 namespace predaddy\eventhandling;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use PHPUnit_Framework_TestCase;
-
-require_once 'SimpleEvent.php';
-require_once 'SimpleEventHandler.php';
-require_once 'AllEventHandler.php';
+use ReflectionClass;
 
 /**
- * Description of EventHandlerConfigurationTest
+ * Finds and provide handler methods in the given class.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventHandlerConfigurationTest extends PHPUnit_Framework_TestCase
+interface EventHandlerDescriptor
 {
-    private $config;
-
-    public function setUp()
-    {
-        $handler = new AllEventHandler();
-        $this->config = new EventHandlerConfiguration($handler->getObjectClass(), new AnnotationReader());
-    }
-
-    public function testGetHandleMethodFor()
-    {
-        $event = new SimpleEvent();
-        $method = $this->config->getHandlerMethodsFor($event);
-        self::assertNotNull($method);
-    }
+    /**
+     * @param ReflectionClass $eventClass
+     * @return array of ReflectionMethod
+     */
+    public function getHandlerMethodsFor(ReflectionClass $eventClass);
 }

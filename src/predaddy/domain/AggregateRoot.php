@@ -24,20 +24,33 @@
 namespace predaddy\domain;
 
 use BadMethodCallException;
-use predaddy\eventhandling\EventBus;
 use precore\lang\Object;
+use predaddy\eventhandling\DirectEventBus;
+use predaddy\eventhandling\EventBus;
+use predaddy\eventhandling\EventHandler;
+use Traversable;
 
 /**
- * Description of AggregateRoot
+ * Aggregate root class.
+ *
+ * You can send an event which will be handled by all handler methods
+ * inside the aggregate root, after that they will be sent to all outer event handlers.
+ *
+ * Handler methods must be annotated with "Subscribe"
+ * and must be private or protected in the aggregate root itself.
+ *
+ * If you are using event sourcing, you can initialize your aggregate roots through loadFromHistory method.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AggregateRoot extends Object implements Entity
+abstract class AggregateRoot extends Object implements Entity, EventHandler
 {
     /**
      * @var EventBus
      */
     private static $eventBus;
+    private static $descriptorFactory = null;
+    private $innerEventBus = null;
 
     /**
      * @param EventBus $eventBus
@@ -47,12 +60,47 @@ abstract class AggregateRoot extends Object implements Entity
         self::$eventBus = $eventBus;
     }
 
-    protected static function raise(DomainEvent $event)
+    /**
+     * Useful in case of Event Sourcing.
+     *
+     * @param Traversable $events
+     */
+    public function loadFromHistory(Traversable $events)
+    {
+        foreach ($events as $event) {
+            $this->handleEventInAggregate($event);
+        }
+    }
+
+    private function getInnerEventBus()
+    {
+        if ($this->innerEventBus === null) {
+            $this->innerEventBus = new DirectEventBus($this->getClassName(), self::getDescriptorFactory());
+            $this->innerEventBus->register($this);
+        }
+        return $this->innerEventBus;
+    }
+
+    private function handleEventInAggregate(DomainEvent $event)
+    {
+        $this->getInnerEventBus()->post($event);
+    }
+
+    private static function getDescriptorFactory()
+    {
+        if (self::$descriptorFactory == null) {
+            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory();
+        }
+        return self::$descriptorFactory;
+    }
+
+    protected function raise(DomainEvent $event)
     {
         if (self::$eventBus === null) {
             static::getLogger()->error("EventBus has not been set to '{}'", array(static::className()));
             throw new BadMethodCallException('EventBus has not been set!');
         }
+        $this->handleEventInAggregate($event);
         self::$eventBus->post($event);
     }
 }

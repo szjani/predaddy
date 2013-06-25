@@ -23,9 +23,6 @@
 
 namespace predaddy\eventhandling;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\Reader;
 use Exception;
 use precore\lang\Object;
 use SplObjectStorage;
@@ -33,30 +30,33 @@ use SplObjectStorage;
 /**
  * Abstract EventBus which find handler methods in the registered event handlers.
  *
+ * Handler method finding mechanism can be modified by an EventHandlerDescriptorFactory.
+ * If no factory is passed to the constructor, annotation based scanning
+ * will be used with  AnnotatedEventHandlerDescriptorFactory.
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class AbstractEventBus extends Object implements EventBus
 {
     private $identifier;
-    private $handlerConfigurations = array();
+    private $descriptors = array();
+    private $descriptorFactory = null;
     /**
      * @var SplObjectStorage
      */
     private $handlers;
-    private $reader = null;
 
     /**
      * @param string $identifier Used for logging
      */
-    public function __construct($identifier, Reader $reader = null)
+    public function __construct($identifier, EventHandlerDescriptorFactory $factory = null)
     {
         $this->handlers = new SplObjectStorage();
         $this->identifier = (string) $identifier;
-        AnnotationRegistry::registerFile(__DIR__ . '/EventHandlingAnnotations.php');
-        if ($reader == null) {
-            $reader = new AnnotationReader();
+        if ($factory === null) {
+            $factory = new AnnotatedEventHandlerDescriptorFactory();
         }
-        $this->reader = $reader;
+        $this->descriptorFactory = $factory;
     }
 
     abstract protected function innerPost(Event $event);
@@ -74,8 +74,8 @@ abstract class AbstractEventBus extends Object implements EventBus
     {
         $forwarded = false;
         foreach ($this->handlers as $handler) {
-            $config = $this->handlerConfigurations[$handler->getClassName()];
-            $methods = $config->getHandlerMethodsFor($event);
+            $config = $this->descriptors[$handler->getClassName()];
+            $methods = $config->getHandlerMethodsFor($event->getObjectClass());
             foreach ($methods as $method) {
                 try {
                     $method->invoke($handler, $event);
@@ -94,9 +94,9 @@ abstract class AbstractEventBus extends Object implements EventBus
     public function register(EventHandler $handler)
     {
         $this->handlers->attach($handler);
-        $handlerClass = $handler->getClassName();
-        if (!array_key_exists($handlerClass, $this->handlerConfigurations)) {
-            $this->handlerConfigurations[$handlerClass] = new EventHandlerConfiguration($handler->getObjectClass(), $this->reader);
+        $className = $handler->getClassName();
+        if (!array_key_exists($className, $this->descriptors)) {
+            $this->descriptors[$className] = $this->descriptorFactory->create($handler->getObjectClass());
         }
     }
 
