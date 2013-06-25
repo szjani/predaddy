@@ -42,7 +42,7 @@ class EventHandlerConfigurationTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $handler = new AllEventHandler();
-        $this->config = new EventHandlerConfiguration($handler, new AnnotationReader());
+        $this->config = new EventHandlerConfiguration($handler->getObjectClass(), new AnnotationReader());
     }
 
     public function testGetHandleMethodFor()

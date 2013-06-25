@@ -99,4 +99,19 @@ class DirectEventBusTest extends PHPUnit_Framework_TestCase
         self::assertSame($event, $multipleSameEventHandler->lastEvent3);
         self::assertSame($event2, $multipleSameEventHandler->lastEvent4);
     }
+
+    public function testSameHandlerClassMultipleTimes()
+    {
+        $event = new SimpleEvent();
+
+        $simpleEventHandler1 = new SimpleEventHandler();
+        $simpleEventHandler2 = new SimpleEventHandler();
+        $this->bus->register($simpleEventHandler1);
+        $this->bus->register($simpleEventHandler2);
+
+        $this->bus->post($event);
+
+        self::assertSame($event, $simpleEventHandler1->lastEvent);
+        self::assertSame($event, $simpleEventHandler2->lastEvent);
+    }
 }

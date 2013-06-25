@@ -28,6 +28,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
 use Exception;
 use precore\lang\Object;
+use SplObjectStorage;
 
 /**
  * Abstract EventBus which find handler methods in the registered event handlers.
@@ -38,6 +39,10 @@ abstract class AbstractEventBus extends Object implements EventBus
 {
     private $identifier;
     private $handlerConfigurations = array();
+    /**
+     * @var SplObjectStorage
+     */
+    private $handlers;
     private $reader = null;
 
     /**
@@ -45,6 +50,7 @@ abstract class AbstractEventBus extends Object implements EventBus
      */
     public function __construct($identifier, Reader $reader = null)
     {
+        $this->handlers = new SplObjectStorage();
         $this->identifier = (string) $identifier;
         AnnotationRegistry::registerFile(__DIR__ . '/EventHandlingAnnotations.php');
         if ($reader == null) {
@@ -64,20 +70,15 @@ abstract class AbstractEventBus extends Object implements EventBus
         $this->innerPost($event);
     }
 
-    protected function callHandlerMethod(EventHandler $handler, $method, Event $event)
-    {
-        $handler->$method($event);
-    }
-
     protected function forwardEvent(Event $event)
     {
         $forwarded = false;
-        /* @var $config EventHandlerConfiguration */
-        foreach ($this->handlerConfigurations as $config) {
+        foreach ($this->handlers as $handler) {
+            $config = $this->handlerConfigurations[$handler->getClassName()];
             $methods = $config->getHandlerMethodsFor($event);
             foreach ($methods as $method) {
                 try {
-                    $this->callHandlerMethod($config->getEventHandler(), $method, $event);
+                    $method->invoke($handler, $event);
                     $forwarded = true;
                 } catch (Exception $e) {
                     self::getLogger()->error('An error occured in an event handler method!', null, $e);
@@ -92,14 +93,15 @@ abstract class AbstractEventBus extends Object implements EventBus
 
     public function register(EventHandler $handler)
     {
-        $this->handlerConfigurations[$handler->getClassName()] = new EventHandlerConfiguration($handler, $this->reader);
+        $this->handlers->attach($handler);
+        $handlerClass = $handler->getClassName();
+        if (!array_key_exists($handlerClass, $this->handlerConfigurations)) {
+            $this->handlerConfigurations[$handlerClass] = new EventHandlerConfiguration($handler->getObjectClass(), $this->reader);
+        }
     }
 
     public function unregister(EventHandler $handler)
     {
-        $key = $handler->getClassName();
-        if (array_key_exists($key, $this->handlerConfigurations)) {
-            unset($this->handlerConfigurations[$key]);
-        }
+        $this->handlers->detach($handler);
     }
 }

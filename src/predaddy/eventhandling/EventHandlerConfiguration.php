@@ -24,6 +24,8 @@
 namespace predaddy\eventhandling;
 
 use Doctrine\Common\Annotations\Reader;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * Description of EventHandlerConfiguration
@@ -32,21 +34,21 @@ use Doctrine\Common\Annotations\Reader;
  */
 class EventHandlerConfiguration
 {
-    private $eventHandler;
+    private $handlerClass;
     private $directHandlerMethods = array();
-    private $reader;
     private $compatibleHandlerMethodsCache = array();
+    private $reader;
 
-    public function __construct(EventHandler $eventHandler, Reader $reader)
+    public function __construct(ReflectionClass $handlerClass, Reader $reader)
     {
-        $this->eventHandler = $eventHandler;
+        $this->handlerClass = $handlerClass;
         $this->reader = $reader;
         $this->findHandlerMethods();
     }
 
     /**
      * @param Event $event
-     * @return array
+     * @return array of ReflectionMethod
      */
     public function getHandlerMethodsFor(Event $event)
     {
@@ -58,18 +60,10 @@ class EventHandlerConfiguration
     }
 
     /**
-     * @return EventHandler
-     */
-    public function getEventHandler()
-    {
-        return $this->eventHandler;
-    }
-
-    /**
      * Find all handler methods for a specific type of Event
      *
      * @param Event $event
-     * @return array
+     * @return array of ReflectionMethod
      */
     protected function findCompatibleMethodsFor(Event $event)
     {
@@ -86,12 +80,12 @@ class EventHandlerConfiguration
     protected function findHandlerMethods()
     {
         $eventClassName = 'predaddy\eventhandling\Event';
-        $reflClass = $this->eventHandler->getObjectClass();
-        foreach ($reflClass->getMethods() as $reflMethod) {
+        /* @var $reflMethod ReflectionMethod */
+        foreach ($this->handlerClass->getMethods() as $reflMethod) {
             if ($this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe') === null) {
                 continue;
             }
-            if (!$reflMethod->isPublic()) {
+            if (!$this->isVisible($reflMethod)) {
                 continue;
             }
             $params = $reflMethod->getParameters();
@@ -104,7 +98,12 @@ class EventHandlerConfiguration
                 || (!$paramType->isSubclassOf($eventClassName) && $paramType->getName() !== $eventClassName)) {
                 continue;
             }
-            $this->directHandlerMethods[$paramType->getName()][] = $reflMethod->getName();
+            $reflMethod->setAccessible(true);
+            $this->directHandlerMethods[$paramType->getName()][] = $reflMethod;
         }
+    }
+
+    protected function isVisible(ReflectionMethod $method) {
+        return $method->isPublic();
     }
 }
