@@ -102,7 +102,8 @@ class AnnotatedEventHandlerDescriptor implements EventHandlerDescriptor
         }
     }
 
-    protected function isVisible(ReflectionMethod $method) {
+    protected function isVisible(ReflectionMethod $method)
+    {
         return $method->isPublic();
     }
 }
