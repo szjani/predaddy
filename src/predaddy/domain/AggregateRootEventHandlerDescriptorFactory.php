@@ -35,6 +35,10 @@ class AggregateRootEventHandlerDescriptorFactory extends AnnotatedEventHandlerDe
 {
     public function create(ReflectionClass $handlerClass)
     {
-        return new AggregateRootEventHandlerDescriptor($handlerClass, $this->getReader());
+        return new AggregateRootEventHandlerDescriptor(
+            $handlerClass,
+            $this->getReader(),
+            $this->getFunctionDescriptorFactory()
+        );
     }
 }

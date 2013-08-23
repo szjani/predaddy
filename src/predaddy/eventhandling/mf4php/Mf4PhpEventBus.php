@@ -30,6 +30,7 @@ use mf4php\MessageListener;
 use predaddy\eventhandling\AbstractEventBus;
 use predaddy\eventhandling\Event;
 use predaddy\eventhandling\EventHandlerDescriptorFactory;
+use predaddy\eventhandling\FunctionDescriptorFactory;
 
 /**
  * EventBus implementation which uses mf4php to forward events.
@@ -52,9 +53,13 @@ class Mf4PhpEventBus extends AbstractEventBus implements MessageListener
     private $objectMessageFactories = array();
     private $defaultObjectMessageFactory;
 
-    public function __construct($busId, MessageDispatcher $dispatcher, EventHandlerDescriptorFactory $factory = null)
-    {
-        parent::__construct($busId, $factory);
+    public function __construct(
+        $busId,
+        MessageDispatcher $dispatcher,
+        EventHandlerDescriptorFactory $handlerDescriptorFactory = null,
+        FunctionDescriptorFactory $functionDescriptorFactory = null
+    ) {
+        parent::__construct($busId, $handlerDescriptorFactory, $functionDescriptorFactory);
         $this->dispatcher = $dispatcher;
         $this->queue = new DefaultQueue($busId);
         $this->defaultObjectMessageFactory = new DefaultObjectMessageFactory();

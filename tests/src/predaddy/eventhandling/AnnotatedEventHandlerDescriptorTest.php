@@ -43,13 +43,18 @@ class AnnotatedEventHandlerDescriptorTest extends PHPUnit_Framework_TestCase
     {
         AnnotatedEventHandlerDescriptorFactory::registerAnnotations();
         $handler = new AllEventHandler();
-        $this->config = new AnnotatedEventHandlerDescriptor($handler->getObjectClass(), new AnnotationReader());
+        $this->config = new AnnotatedEventHandlerDescriptor(
+            $handler->getObjectClass(),
+            new AnnotationReader(),
+            new DefaultFunctionDescriptorFactory()
+        );
     }
 
     public function testGetHandleMethodFor()
     {
         $event = new SimpleEvent();
-        $method = $this->config->getHandlerMethodsFor($event->getObjectClass());
-        self::assertNotNull($method);
+        $methods = $this->config->getHandlerMethodsFor($event->getObjectClass());
+        self::assertNotNull($methods);
+        self::assertEquals(1, count($methods));
     }
 }

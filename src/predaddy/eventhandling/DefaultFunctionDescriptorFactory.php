@@ -23,42 +23,23 @@
 
 namespace predaddy\eventhandling;
 
-use Closure;
+use ReflectionFunctionAbstract;
 
 /**
+ * Factory for creating FunctionDescriptor instances.
+ *
+ * @package predaddy\eventhandling
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface EventBus
+class DefaultFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
-     * Post an event on this bus. It is dispatched to all subscribed event handlers.
-     *
-     * @param Event $event
+     * @param ReflectionFunctionAbstract $function
+     * @return FunctionDescriptor
      */
-    public function post(Event $event);
-
-    /**
-     * Register the given handler to this bus. When registered, it will receive all events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function register(EventHandler $handler);
-
-    /**
-     * Unregister the given handler to this bus.
-     * When unregistered, it will no longer receive events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function unregister(EventHandler $handler);
-
-    /**
-     * @param callable $closure
-     */
-    public function registerClosure(Closure $closure);
-
-    /**
-     * @param callable $closure
-     */
-    public function unregisterClosure(Closure $closure);
+    public function create(ReflectionFunctionAbstract $function)
+    {
+        return new DefaultFunctionDescriptor($function);
+    }
 }

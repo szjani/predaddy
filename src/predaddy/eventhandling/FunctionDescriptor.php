@@ -23,42 +23,32 @@
 
 namespace predaddy\eventhandling;
 
-use Closure;
+use ReflectionClass;
+use ReflectionFunctionAbstract;
 
 /**
- * @author Szurovecz János <szjani@szjani.hu>
+ * @package predaddy\eventhandling
  */
-interface EventBus
+interface FunctionDescriptor
 {
     /**
-     * Post an event on this bus. It is dispatched to all subscribed event handlers.
-     *
-     * @param Event $event
+     * @return boolean
      */
-    public function post(Event $event);
+    public function isValid();
 
     /**
-     * Register the given handler to this bus. When registered, it will receive all events posted to this bus.
-     *
-     * @param EventHandler $handler
+     * @param ReflectionClass $eventClass
+     * @return mixed
      */
-    public function register(EventHandler $handler);
+    public function isHandlerFor(ReflectionClass $eventClass);
 
     /**
-     * Unregister the given handler to this bus.
-     * When unregistered, it will no longer receive events posted to this bus.
-     *
-     * @param EventHandler $handler
+     * @return ReflectionFunctionAbstract
      */
-    public function unregister(EventHandler $handler);
+    public function getReflectionFunction();
 
     /**
-     * @param callable $closure
+     * @return string
      */
-    public function registerClosure(Closure $closure);
-
-    /**
-     * @param callable $closure
-     */
-    public function unregisterClosure(Closure $closure);
+    public function getHandledEventClassName();
 }

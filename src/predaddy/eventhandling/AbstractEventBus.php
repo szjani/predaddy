@@ -23,8 +23,10 @@
 
 namespace predaddy\eventhandling;
 
+use Closure;
 use Exception;
 use precore\lang\Object;
+use ReflectionFunction;
 use SplObjectStorage;
 
 /**
@@ -39,24 +41,45 @@ use SplObjectStorage;
 abstract class AbstractEventBus extends Object implements EventBus
 {
     private $identifier;
-    private $descriptors = array();
-    private $descriptorFactory = null;
+    private $handlerDescriptorFactory = null;
+
     /**
      * @var SplObjectStorage
      */
     private $handlers;
 
     /**
-     * @param string $identifier Used for logging
+     * @var SplObjectStorage
      */
-    public function __construct($identifier, EventHandlerDescriptorFactory $factory = null)
-    {
+    private $closures;
+
+    /**
+     * @var FunctionDescriptorFactory
+     */
+    private $closureDescriptorFactory;
+
+    /**
+     * @param $identifier
+     * @param EventHandlerDescriptorFactory $handlerDescriptorFactory
+     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     */
+    public function __construct(
+        $identifier,
+        EventHandlerDescriptorFactory $handlerDescriptorFactory = null,
+        FunctionDescriptorFactory $functionDescriptorFactory = null
+    ) {
         $this->handlers = new SplObjectStorage();
+        $this->closures = new SplObjectStorage();
         $this->identifier = (string) $identifier;
-        if ($factory === null) {
-            $factory = new AnnotatedEventHandlerDescriptorFactory();
+
+        if ($functionDescriptorFactory === null) {
+            $functionDescriptorFactory = new DefaultFunctionDescriptorFactory();
         }
-        $this->descriptorFactory = $factory;
+        if ($handlerDescriptorFactory === null) {
+            $handlerDescriptorFactory = new AnnotatedEventHandlerDescriptorFactory(null, $functionDescriptorFactory);
+        }
+        $this->handlerDescriptorFactory = $handlerDescriptorFactory;
+        $this->closureDescriptorFactory = $functionDescriptorFactory;
     }
 
     abstract protected function innerPost(Event $event);
@@ -73,15 +96,29 @@ abstract class AbstractEventBus extends Object implements EventBus
     protected function forwardEvent(Event $event)
     {
         $forwarded = false;
+        $eventReflClass = $event->getObjectClass();
         foreach ($this->handlers as $handler) {
-            $config = $this->descriptors[$handler->getClassName()];
-            $methods = $config->getHandlerMethodsFor($event->getObjectClass());
+            $descriptor = $this->handlers[$handler];
+            $methods = $descriptor->getHandlerMethodsFor($eventReflClass);
             foreach ($methods as $method) {
                 try {
                     $method->invoke($handler, $event);
                     $forwarded = true;
                 } catch (Exception $e) {
                     self::getLogger()->error('An error occured in an event handler method!', null, $e);
+                }
+            }
+        }
+        /* @var $descriptor FunctionDescriptor */
+        foreach ($this->closures as $closure) {
+            $descriptor = $this->closures[$closure];
+            if ($descriptor->isHandlerFor($eventReflClass)) {
+                $function = $descriptor->getReflectionFunction();
+                try {
+                    $function->invoke($event);
+                    $forwarded = true;
+                } catch (Exception $e) {
+                    self::getLogger()->error('An error occured in an event handler closure!', null, $e);
                 }
             }
         }
@@ -93,15 +130,23 @@ abstract class AbstractEventBus extends Object implements EventBus
 
     public function register(EventHandler $handler)
     {
-        $this->handlers->attach($handler);
-        $className = $handler->getClassName();
-        if (!array_key_exists($className, $this->descriptors)) {
-            $this->descriptors[$className] = $this->descriptorFactory->create($handler->getObjectClass());
-        }
+        $descriptor = $this->handlerDescriptorFactory->create($handler->getObjectClass());
+        $this->handlers->attach($handler, $descriptor);
     }
 
     public function unregister(EventHandler $handler)
     {
         $this->handlers->detach($handler);
+    }
+
+    public function registerClosure(Closure $closure)
+    {
+        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure));
+        $this->closures->attach($closure, $descriptor);
+    }
+
+    public function unregisterClosure(Closure $closure)
+    {
+        $this->closures->detach($closure);
     }
 }

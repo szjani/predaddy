@@ -35,14 +35,28 @@ use ReflectionMethod;
 class AnnotatedEventHandlerDescriptor implements EventHandlerDescriptor
 {
     private $handlerClass;
-    private $directHandlerMethods = array();
-    private $compatibleHandlerMethodsCache = array();
     private $reader;
+    private $directHandlerMethodDescriptors = array();
+    private $compatibleHandlerMethodsCache = array();
 
-    public function __construct(ReflectionClass $handlerClass, Reader $reader)
-    {
+    /**
+     * @var FunctionDescriptorFactory
+     */
+    private $functionDescriptorFactory;
+
+    /**
+     * @param ReflectionClass $handlerClass
+     * @param Reader $reader
+     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     */
+    public function __construct(
+        ReflectionClass $handlerClass,
+        Reader $reader,
+        FunctionDescriptorFactory $functionDescriptorFactory
+    ) {
         $this->handlerClass = $handlerClass;
         $this->reader = $reader;
+        $this->functionDescriptorFactory = $functionDescriptorFactory;
         $this->findHandlerMethods();
     }
 
@@ -68,9 +82,13 @@ class AnnotatedEventHandlerDescriptor implements EventHandlerDescriptor
     protected function findCompatibleMethodsFor(ReflectionClass $eventClass)
     {
         $result = array();
-        foreach ($this->directHandlerMethods as $handlerEventClass => $methods) {
-            if ($eventClass->getName() === $handlerEventClass || $eventClass->isSubclassOf($handlerEventClass)) {
-                $result = array_merge($result, $methods);
+        foreach ($this->directHandlerMethodDescriptors as $handlerEventClass => $funcDescriptors) {
+            $firstDesc = $funcDescriptors[0];
+            /* @var $firstDesc FunctionDescriptor */
+            if ($firstDesc->isHandlerFor($eventClass)) {
+                foreach ($funcDescriptors as $fDesc) {
+                    $result[] = $fDesc->getReflectionFunction();
+                }
             }
         }
         return $result;
@@ -78,7 +96,6 @@ class AnnotatedEventHandlerDescriptor implements EventHandlerDescriptor
 
     protected function findHandlerMethods()
     {
-        $eventClassName = 'predaddy\eventhandling\Event';
         /* @var $reflMethod ReflectionMethod */
         foreach ($this->handlerClass->getMethods() as $reflMethod) {
             if ($this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe') === null) {
@@ -87,18 +104,12 @@ class AnnotatedEventHandlerDescriptor implements EventHandlerDescriptor
             if (!$this->isVisible($reflMethod)) {
                 continue;
             }
-            $params = $reflMethod->getParameters();
-            if (count($params) !== 1) {
-                continue;
-            }
-            /* @var $paramType ReflectionClass */
-            $paramType = $params[0]->getClass();
-            if ($paramType === null
-                || (!$paramType->isSubclassOf($eventClassName) && $paramType->getName() !== $eventClassName)) {
+            $funcDescriptor = $this->functionDescriptorFactory->create($reflMethod);
+            if (!$funcDescriptor->isValid()) {
                 continue;
             }
             $reflMethod->setAccessible(true);
-            $this->directHandlerMethods[$paramType->getName()][] = $reflMethod;
+            $this->directHandlerMethodDescriptors[$funcDescriptor->getHandledEventClassName()][] = $funcDescriptor;
         }
     }
 

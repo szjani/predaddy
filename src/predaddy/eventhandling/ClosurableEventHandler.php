@@ -23,42 +23,17 @@
 
 namespace predaddy\eventhandling;
 
-use Closure;
+use precore\lang\Object;
+use predaddy\eventhandling\Subscribe;
 
-/**
- * @author Szurovecz János <szjani@szjani.hu>
- */
-interface EventBus
+class ClosurebleEventHandler extends Object implements EventHandler
 {
     /**
-     * Post an event on this bus. It is dispatched to all subscribed event handlers.
-     *
+     * @Subscribe
      * @param Event $event
      */
-    public function post(Event $event);
+    public function handler(Event $event)
+    {
 
-    /**
-     * Register the given handler to this bus. When registered, it will receive all events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function register(EventHandler $handler);
-
-    /**
-     * Unregister the given handler to this bus.
-     * When unregistered, it will no longer receive events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function unregister(EventHandler $handler);
-
-    /**
-     * @param callable $closure
-     */
-    public function registerClosure(Closure $closure);
-
-    /**
-     * @param callable $closure
-     */
-    public function unregisterClosure(Closure $closure);
-}
+    }
+} 

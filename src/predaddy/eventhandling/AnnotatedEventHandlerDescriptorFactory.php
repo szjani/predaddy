@@ -36,19 +36,27 @@ use ReflectionClass;
 class AnnotatedEventHandlerDescriptorFactory implements EventHandlerDescriptorFactory
 {
     private $reader;
+    /**
+     * @var FunctionDescriptorFactory
+     */
+    private $functionDescriptorFactory;
 
     public static function registerAnnotations()
     {
         AnnotationRegistry::registerFile(__DIR__ . '/EventHandlingAnnotations.php');
     }
 
-    public function __construct(Reader $reader = null)
+    public function __construct(Reader $reader = null, FunctionDescriptorFactory $functionDescriptorFactory = null)
     {
         self::registerAnnotations();
-        if ($reader == null) {
+        if ($reader === null) {
             $reader = new AnnotationReader();
         }
+        if ($functionDescriptorFactory === null) {
+            $functionDescriptorFactory = new DefaultFunctionDescriptorFactory();
+        }
         $this->reader = $reader;
+        $this->functionDescriptorFactory = $functionDescriptorFactory;
     }
 
     /**
@@ -59,8 +67,16 @@ class AnnotatedEventHandlerDescriptorFactory implements EventHandlerDescriptorFa
         return $this->reader;
     }
 
+    /**
+     * @return \predaddy\eventhandling\FunctionDescriptorFactory
+     */
+    public function getFunctionDescriptorFactory()
+    {
+        return $this->functionDescriptorFactory;
+    }
+
     public function create(ReflectionClass $handlerClass)
     {
-        return new AnnotatedEventHandlerDescriptor($handlerClass, $this->reader);
+        return new AnnotatedEventHandlerDescriptor($handlerClass, $this->reader, $this->functionDescriptorFactory);
     }
 }

@@ -23,42 +23,21 @@
 
 namespace predaddy\eventhandling;
 
-use Closure;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+use ReflectionFunction;
 
-/**
- * @author Szurovecz János <szjani@szjani.hu>
- */
-interface EventBus
+require_once 'SimpleEvent.php';
+
+class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Post an event on this bus. It is dispatched to all subscribed event handlers.
-     *
-     * @param Event $event
-     */
-    public function post(Event $event);
-
-    /**
-     * Register the given handler to this bus. When registered, it will receive all events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function register(EventHandler $handler);
-
-    /**
-     * Unregister the given handler to this bus.
-     * When unregistered, it will no longer receive events posted to this bus.
-     *
-     * @param EventHandler $handler
-     */
-    public function unregister(EventHandler $handler);
-
-    /**
-     * @param callable $closure
-     */
-    public function registerClosure(Closure $closure);
-
-    /**
-     * @param callable $closure
-     */
-    public function unregisterClosure(Closure $closure);
-}
+    public function testIsHandlerFor()
+    {
+        $function = function (Event $event) {};
+        $descriptor = new DefaultFunctionDescriptor(new ReflectionFunction($function));
+        self::assertTrue($descriptor->isHandlerFor(SimpleEvent::objectClass()));
+        self::assertTrue($descriptor->isHandlerFor(new ReflectionClass(__NAMESPACE__ . '\Event')));
+        self::assertTrue($descriptor->isHandlerFor(DeadEvent::objectClass()));
+        self::assertFalse($descriptor->isHandlerFor(new ReflectionClass('\stdClass')));
+    }
+} 

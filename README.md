@@ -54,3 +54,18 @@ events into that. The bus itself is a MessageListener, so all messages sent to t
 solution, all features shipped with mf4php can be used like transaction listening or asynchronous message handling
 (see Beanstalk mf4php implementation). If you want to delay some events, you can register ObjectMessageFactory object
 which can create the appropriate DelayableMessage instances for the defined event class.
+
+History
+-------
+
+### 1.1
+
+Closures are supported. Useful in unit tests or in simple cases.
+
+```php
+$closure = function (Event $event) {
+    echo 'will be called with all events';
+};
+$bus->registerClosure($closure);
+$bus->post(new SimpleEvent());
+```
