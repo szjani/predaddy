@@ -60,7 +60,14 @@ History
 
 ### 1.1
 
-Closures are supported. Useful in unit tests or in simple cases.
+#### Allowed private variables in events
+
+Until now you had to override serialize and unserialize methods if you added any private members to your event classes even if you extended EventBase.
+Serialization now uses reflection which might have small performance drawback but it is quite handy. So if you extend EventBase, you can forget this problem.
+
+#### Closures are supported
+
+Useful in unit tests or in simple cases.
 
 ```php
 $closure = function (Event $event) {
