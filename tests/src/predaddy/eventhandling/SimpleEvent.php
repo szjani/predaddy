@@ -31,4 +31,29 @@ namespace predaddy\eventhandling;
 class SimpleEvent extends EventBase
 {
     public $data = 'hello';
+    protected $protectedData;
+    private $privateData;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->privateData = 'private';
+        $this->protectedData = 'protected';
+    }
+
+    /**
+     * @return string
+     */
+    public function getProtectedData()
+    {
+        return $this->protectedData;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrivateData()
+    {
+        return $this->privateData;
+    }
 }

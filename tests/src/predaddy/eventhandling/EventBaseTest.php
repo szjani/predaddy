@@ -49,4 +49,23 @@ class EventBaseTest extends PHPUnit_Framework_TestCase
         self::assertInstanceOf('DateTime', $event->getTimestamp());
         self::assertTrue($event->getTimestamp() <= new DateTime());
     }
+
+    public function testSerialize()
+    {
+        $event = new SimpleEvent();
+        $text = serialize($event);
+        $deserialized = unserialize($text);
+        self::assertEquals($event->getPrivateData(), $deserialized->getPrivateData());
+        self::assertEquals($event->getProtectedData(), $deserialized->getProtectedData());
+        self::assertEquals($event->getEventIdentifier(), $deserialized->getEventIdentifier());
+    }
+
+    public function testDeserializeFromOldFormatWherePrivateDataIsMissing()
+    {
+        $oldFormat = 'C:34:"predaddy\eventhandling\SimpleEvent":253:{a:4:{s:4:"data";s:5:"hello";s:13:"protectedData";s:9:"protected";s:2:"id";s:36:"65b76f03-b066-4259-b16c-a9f621e5e880";s:9:"timestamp";O:8:"DateTime":3:{s:4:"date";s:19:"2013-08-25 15:29:37";s:13:"timezone_type";i:3;s:8:"timezone";s:13:"Europe/Berlin";}}}';
+        /* @var $event SimpleEvent */
+        $event = unserialize($oldFormat);
+        self::assertNull($event->getPrivateData());
+        self::assertNotEquals('', $event->getProtectedData());
+    }
 }

@@ -62,13 +62,26 @@ abstract class EventBase extends Object implements Event
 
     public function serialize()
     {
-        return serialize(get_object_vars($this));
+        $array = array();
+        $properties = $this->getObjectClass()->getProperties();
+        /* @var $property \ReflectionProperty */
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            $array[$property->getName()] = $property->getValue($this);
+        }
+        return serialize($array);
     }
 
     public function unserialize($serialized)
     {
-        foreach (unserialize($serialized) as $key => $value) {
-            $this->$key = $value;
+        $array = unserialize($serialized);
+        $properties = $this->getObjectClass()->getProperties();
+        /* @var $property \ReflectionProperty */
+        foreach ($properties as $property) {
+            if (array_key_exists($property->getName(), $array)) {
+                $property->setAccessible(true);
+                $property->setValue($this, $array[$property->getName()]);
+            }
         }
     }
 
