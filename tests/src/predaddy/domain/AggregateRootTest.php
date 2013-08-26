@@ -25,6 +25,7 @@ namespace predaddy\domain;
 
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
+use predaddy\eventhandling\DirectEventBus;
 
 require_once __DIR__ . '/User.php';
 require_once __DIR__ . '/IncrementedEvent.php';
@@ -36,25 +37,49 @@ require_once __DIR__ . '/IncrementedEvent.php';
  */
 class AggregateRootTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var DirectEventBus
+     */
+    private $eventBus;
+
     protected function setUp()
     {
         parent::setUp();
-        AggregateRoot::setEventBus($this->getMock('\predaddy\eventhandling\EventBus'));
+        $this->eventBus = new DirectEventBus(__CLASS__);
+        AggregateRoot::setEventBus($this->eventBus);
     }
 
     public function testCallHandleMethod()
     {
         $user = new User();
         self::assertEquals(0, $user->value);
+
+        $eventRaised = false;
+        $this->eventBus->registerClosure(
+            function (IncrementedEvent $event) use (&$eventRaised) {
+                $eventRaised = true;
+            }
+        );
+
         $user->increment();
         self::assertEquals(1, $user->value);
+        self::assertTrue($eventRaised);
     }
 
     public function testLoadFromHistory()
     {
         $user = new User();
         $event = new IncrementedEvent($user->getId()->toString());
+
+        $eventRaised = false;
+        $this->eventBus->registerClosure(
+            function (IncrementedEvent $event) use (&$eventRaised) {
+                $eventRaised = true;
+            }
+        );
+
         $user->loadFromHistory(new ArrayIterator(array($event, $event, $event)));
         self::assertEquals(3, $user->value);
+        self::assertFalse($eventRaised);
     }
 }
