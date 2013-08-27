@@ -94,3 +94,4 @@ $closure = function (Event $event) {
 };
 $bus->registerClosure($closure);
 $bus->post(new SimpleEvent());
+```
