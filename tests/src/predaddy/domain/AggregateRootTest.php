@@ -70,28 +70,42 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
     public function testLoadFromHistory()
     {
         $raisedEvents = array();
+        $lastEvent = null;
 
         $this->eventBus->registerClosure(
-            function (DomainEvent $event) use (&$raisedEvents) {
+            function (DomainEvent $event) use (&$raisedEvents, &$lastEvent) {
                 $raisedEvents[] = $event;
+                $lastEvent = $event;
             }
         );
 
         $user = new User();
         self::assertEquals(User::DEFAULT_VALUE, $user->value);
+        self::assertInstanceOf(UserCreated::className(), $lastEvent);
+
+        // increment 3 times
         $user->increment();
         $user->increment();
         $user->increment();
 
+        // 1 create and 3 increment events raised
         self::assertEquals(4, count($raisedEvents));
 
         /* @var $replayedUser User */
-        $replayedUser = User::loadFromHistory(new ArrayIterator($raisedEvents));
+        $replayedUser = User::createEmpty();
+        $replayedUser->loadFromHistory(new ArrayIterator($raisedEvents));
 
+        // the two user have the same values
         self::assertEquals($user->getId(), $replayedUser->getId());
         self::assertEquals($user->value, $replayedUser->value);
 
+        // increment only $replayedUser's value
         $replayedUser->increment();
         self::assertEquals($user->value + 1, $replayedUser->value);
+        self::assertEquals(5, count($raisedEvents));
+
+        // replay the last event coming from $replayedUser on the original user
+        $user->loadFromHistory(new ArrayIterator(array($lastEvent)));
+        self::assertEquals($user->value, $replayedUser->value);
     }
 }

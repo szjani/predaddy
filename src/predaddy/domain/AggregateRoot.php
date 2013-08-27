@@ -53,6 +53,14 @@ abstract class AggregateRoot extends Object implements Entity, EventHandler
     private static $descriptorFactory = null;
     private $innerEventBus = null;
 
+    private static function getDescriptorFactory()
+    {
+        if (self::$descriptorFactory == null) {
+            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory();
+        }
+        return self::$descriptorFactory;
+    }
+
     /**
      * @param EventBus $eventBus
      */
@@ -62,18 +70,26 @@ abstract class AggregateRoot extends Object implements Entity, EventHandler
     }
 
     /**
+     * Useful to replay events with loadFromHistory() from the scratch.
+     * Should be used if the entity's constructor has any parameters.
+     *
+     * @return AggregateRoot
+     */
+    final public static function createEmpty()
+    {
+        return unserialize(sprintf('O:%u:"%s":0:{}', strlen(static::className()), static::className()));
+    }
+
+    /**
      * Useful in case of Event Sourcing.
      *
      * @param Traversable $events
-     * @return AggregateRoot
      */
-    public static function loadFromHistory(Traversable $events)
+    public function loadFromHistory(Traversable $events)
     {
-        $entity = unserialize(sprintf('O:%u:"%s":0:{}', strlen(static::className()), static::className()));
         foreach ($events as $event) {
-            $entity->handleEventInAggregate($event);
+            $this->handleEventInAggregate($event);
         }
-        return $entity;
     }
 
     private function getInnerEventBus()
@@ -88,14 +104,6 @@ abstract class AggregateRoot extends Object implements Entity, EventHandler
     private function handleEventInAggregate(DomainEvent $event)
     {
         $this->getInnerEventBus()->post($event);
-    }
-
-    private static function getDescriptorFactory()
-    {
-        if (self::$descriptorFactory == null) {
-            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory();
-        }
-        return self::$descriptorFactory;
     }
 
     protected function raise(DomainEvent $event)
