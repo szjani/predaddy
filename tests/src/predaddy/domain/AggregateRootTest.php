@@ -29,6 +29,7 @@ use predaddy\eventhandling\DirectEventBus;
 
 require_once __DIR__ . '/User.php';
 require_once __DIR__ . '/IncrementedEvent.php';
+require_once __DIR__ . '/UserCreated.php';
 
 /**
  * Description of AggregateRootTest
@@ -52,7 +53,7 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
     public function testCallHandleMethod()
     {
         $user = new User();
-        self::assertEquals(0, $user->value);
+        self::assertEquals(User::DEFAULT_VALUE, $user->value);
 
         $eventRaised = false;
         $this->eventBus->registerClosure(
@@ -62,24 +63,35 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
         );
 
         $user->increment();
-        self::assertEquals(1, $user->value);
+        self::assertEquals(2, $user->value);
         self::assertTrue($eventRaised);
     }
 
     public function testLoadFromHistory()
     {
-        $user = new User();
-        $event = new IncrementedEvent($user->getId()->toString());
+        $raisedEvents = array();
 
-        $eventRaised = false;
         $this->eventBus->registerClosure(
-            function (IncrementedEvent $event) use (&$eventRaised) {
-                $eventRaised = true;
+            function (DomainEvent $event) use (&$raisedEvents) {
+                $raisedEvents[] = $event;
             }
         );
 
-        $user->loadFromHistory(new ArrayIterator(array($event, $event, $event)));
-        self::assertEquals(3, $user->value);
-        self::assertFalse($eventRaised);
+        $user = new User();
+        self::assertEquals(User::DEFAULT_VALUE, $user->value);
+        $user->increment();
+        $user->increment();
+        $user->increment();
+
+        self::assertEquals(4, count($raisedEvents));
+
+        /* @var $replayedUser User */
+        $replayedUser = User::loadFromHistory(new ArrayIterator($raisedEvents));
+
+        self::assertEquals($user->getId(), $replayedUser->getId());
+        self::assertEquals($user->value, $replayedUser->value);
+
+        $replayedUser->increment();
+        self::assertEquals($user->value + 1, $replayedUser->value);
     }
 }

@@ -25,6 +25,7 @@ namespace predaddy\domain;
 
 use BadMethodCallException;
 use precore\lang\Object;
+use precore\lang\ObjectInterface;
 use predaddy\eventhandling\DirectEventBus;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventHandler;
@@ -64,12 +65,15 @@ abstract class AggregateRoot extends Object implements Entity, EventHandler
      * Useful in case of Event Sourcing.
      *
      * @param Traversable $events
+     * @return AggregateRoot
      */
-    public function loadFromHistory(Traversable $events)
+    public static function loadFromHistory(Traversable $events)
     {
+        $entity = unserialize(sprintf('O:%u:"%s":0:{}', strlen(static::className()), static::className()));
         foreach ($events as $event) {
-            $this->handleEventInAggregate($event);
+            $entity->handleEventInAggregate($event);
         }
+        return $entity;
     }
 
     private function getInnerEventBus()

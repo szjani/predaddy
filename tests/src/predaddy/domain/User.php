@@ -23,6 +23,7 @@
 
 namespace predaddy\domain;
 
+use precore\lang\ObjectInterface;
 use precore\util\UUID;
 use predaddy\eventhandling\Subscribe;
 
@@ -33,12 +34,14 @@ use predaddy\eventhandling\Subscribe;
  */
 class User extends AggregateRoot
 {
+    const DEFAULT_VALUE = 1;
+
     private $id;
-    public $value = 0;
+    public $value = self::DEFAULT_VALUE;
 
     public function __construct()
     {
-        $this->id = UUID::randomUUID();
+        $this->raise(new UserCreated(UUID::randomUUID()->toString()));
     }
 
     public function getId()
@@ -48,7 +51,12 @@ class User extends AggregateRoot
 
     public function increment()
     {
-        $this->raise(new IncrementedEvent($this->id->toString()));
+        $this->raise(new IncrementedEvent($this->id));
+    }
+
+    private function handleCreated(UserCreated $event)
+    {
+        $this->id = $event->getUserId();
     }
 
     /**
