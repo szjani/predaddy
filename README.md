@@ -69,7 +69,7 @@ $sort = Sort::create('name', Direction::$DESC);
 $request = new PageRequest($page, $size, $sort);
 
 /* @var $page Page */
-$page = $userFinder->getPage(Pageable $pageable);
+$page = $userFinder->getPage($request);
 ```
 
 In the above example the `$page` object stores the users and a lot of information to be able to create a paginator on the UI.
