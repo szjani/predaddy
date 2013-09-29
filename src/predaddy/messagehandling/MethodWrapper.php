@@ -23,9 +23,10 @@
 
 namespace predaddy\messagehandling;
 
+use precore\lang\Object;
 use ReflectionMethod;
 
-class MethodWrapper implements CallableWrapper
+class MethodWrapper extends Object implements CallableWrapper
 {
     /**
      * @var
@@ -33,7 +34,7 @@ class MethodWrapper implements CallableWrapper
     private $object;
 
     /**
-     * @var \ReflectionMethod
+     * @var ReflectionMethod
      */
     private $method;
 
@@ -47,5 +48,9 @@ class MethodWrapper implements CallableWrapper
     {
         return $this->method->invoke($this->object, $message);
     }
+
+    public function toString()
+    {
+        return parent::toString() . '[' . get_class($this->object) . '::' . $this->method->getName() . ']';
+    }
 }
- 

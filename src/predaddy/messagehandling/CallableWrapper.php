@@ -23,7 +23,9 @@
 
 namespace predaddy\messagehandling;
 
-interface CallableWrapper
+use precore\lang\ObjectInterface;
+
+interface CallableWrapper extends ObjectInterface
 {
     public function invoke(Message $message);
 }

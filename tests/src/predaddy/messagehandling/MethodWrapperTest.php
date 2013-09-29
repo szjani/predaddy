@@ -23,24 +23,15 @@
 
 namespace predaddy\messagehandling;
 
-use Closure;
-use precore\lang\Object;
 
-class ClosureWrapper extends Object implements CallableWrapper
+use PHPUnit_Framework_TestCase;
+use ReflectionMethod;
+
+class MethodWrapperTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var Closure
-     */
-    private $closure;
-
-    public function __construct(Closure $closure)
+    public function testToString()
     {
-        $this->closure = $closure;
-    }
-
-    public function invoke(Message $message)
-    {
-        return call_user_func($this->closure, $message);
+        $wrapper = new MethodWrapper($this, new ReflectionMethod($this, 'testToString'));
+        self::assertTrue(false !== strpos($wrapper->toString(), get_class($this)));
     }
 }
- 

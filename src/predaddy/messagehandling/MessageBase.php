@@ -89,4 +89,9 @@ abstract class MessageBase extends Object implements Message
     {
         return $object instanceof self && $this->id === $object->id;
     }
+
+    public function toString()
+    {
+        return parent::toString() . '[id=' . $this->id . ', timestamp=' . $this->timestamp->format('Y-m-d H:i:s') . ']';
+    }
 }
