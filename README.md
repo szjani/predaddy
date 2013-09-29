@@ -3,7 +3,7 @@ predaddy
 [![Latest Stable Version](https://poser.pugx.org/predaddy/predaddy/v/stable.png)](https://packagist.org/packages/predaddy/predaddy)
 
 master: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy) [![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)
-1.2: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://github.com/szjani/predaddy/tree/1.2) [![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)
+1.2: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy) [![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)
 
 It is a library which gives you some usable classes to be able to use common DDD patterns.
 You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
