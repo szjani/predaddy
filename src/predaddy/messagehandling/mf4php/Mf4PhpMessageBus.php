@@ -29,6 +29,7 @@ use mf4php\MessageDispatcher;
 use mf4php\MessageListener;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\Message;
+use predaddy\messagehandling\MessageCallback;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 
@@ -121,7 +122,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      *
      * @param Message $message
      */
-    protected function innerPost(Message $message)
+    protected function innerPost(Message $message, MessageCallback $callback = null)
     {
         $mf4phpMessage = $this->findObjectMessageFactory($message)->createMessage($message);
         $this->dispatcher->send($this->queue, $mf4phpMessage);
