@@ -1,6 +1,9 @@
 predaddy
 ========
 
+master: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy)
+1.2: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://github.com/szjani/predaddy/tree/1.2)
+
 It is a library which gives you some usable classes to be able to use common DDD patterns.
 You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
 
