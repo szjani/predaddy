@@ -29,7 +29,7 @@ use RuntimeException;
 
 require_once 'SimpleCommand.php';
 
-class SimpleCommandBusTest extends PHPUnit_Framework_TestCase
+class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
 {
     private $tm;
 
@@ -40,7 +40,7 @@ class SimpleCommandBusTest extends PHPUnit_Framework_TestCase
 
     public function testNoHandler()
     {
-        $commandBus = new SimpleCommandBus(__METHOD__, $this->tm);
+        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
 
         $this->tm
             ->expects(self::never())
@@ -57,7 +57,7 @@ class SimpleCommandBusTest extends PHPUnit_Framework_TestCase
 
     public function testTransactionWrapping()
     {
-        $commandBus = new SimpleCommandBus(__METHOD__, $this->tm);
+        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
         $commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
@@ -80,7 +80,7 @@ class SimpleCommandBusTest extends PHPUnit_Framework_TestCase
 
     public function testRollback()
     {
-        $commandBus = new SimpleCommandBus(__METHOD__, $this->tm);
+        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
         $commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
@@ -104,7 +104,7 @@ class SimpleCommandBusTest extends PHPUnit_Framework_TestCase
 
     public function testSetInterceptor()
     {
-        $commandBus = new SimpleCommandBus(__METHOD__, $this->tm);
+        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
         $commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
@@ -134,7 +134,7 @@ class SimpleCommandBusTest extends PHPUnit_Framework_TestCase
 
     public function testExactCommandType()
     {
-        $commandBus = new SimpleCommandBus(__METHOD__, $this->tm);
+        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
         $commandBus->registerClosure(
             function (Command $command) use (&$called) {

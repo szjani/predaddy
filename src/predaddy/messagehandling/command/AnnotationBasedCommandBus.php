@@ -33,7 +33,7 @@ use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use trf4php\TransactionManager;
 
-class SimpleCommandBus extends SimpleMessageBus
+class AnnotationBasedCommandBus extends SimpleMessageBus
 {
     private static $defaultFunctionDescriptorFactory;
     private static $defaultMessageHandlerDescriptorFactory;
@@ -71,13 +71,19 @@ class SimpleCommandBus extends SimpleMessageBus
     /**
      * @param $identifier
      * @param TransactionManager $transactionManager
+     * @param AnnotatedMessageHandlerDescriptorFactory $handlerDescriptorFactory
      */
-    public function __construct($identifier, TransactionManager $transactionManager)
-    {
-        $defaultFunctionDescriptorFactory = new CommandFunctionDescriptorFactory();
+    public function __construct(
+        $identifier,
+        TransactionManager $transactionManager,
+        AnnotatedMessageHandlerDescriptorFactory $handlerDescriptorFactory = null
+    ) {
+        if ($handlerDescriptorFactory === null) {
+            $handlerDescriptorFactory = self::getDefaultMessageHandlerDescriptorFactory();
+        }
         parent::__construct(
             $identifier,
-            self::getDefaultMessageHandlerDescriptorFactory(),
+            $handlerDescriptorFactory,
             self::getDefaultFunctionDescriptorFactory()
         );
         $this->transactionManager = $transactionManager;
