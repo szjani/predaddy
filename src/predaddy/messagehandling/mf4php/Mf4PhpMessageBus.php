@@ -55,6 +55,12 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
     private $objectMessageFactories = array();
     private $defaultObjectMessageFactory;
 
+    /**
+     * @param $busId
+     * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
+     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param MessageDispatcher $dispatcher
+     */
     public function __construct(
         $busId,
         MessageHandlerDescriptorFactory $handlerDescriptorFactory,

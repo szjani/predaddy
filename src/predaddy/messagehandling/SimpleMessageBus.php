@@ -84,7 +84,7 @@ class SimpleMessageBus extends Object implements MessageBus
 
     public function post(Message $message, MessageCallback $callback = null)
     {
-        self::getLogger()->info(
+        self::getLogger()->debug(
             "Message '{}' has been posted to '{}' message bus",
             array($message->getClassName(), $this->identifier)
         );
@@ -158,6 +158,7 @@ class SimpleMessageBus extends Object implements MessageBus
     {
         try {
             $result = $this->doDispatch($message, $callable);
+            self::getLogger()->debug("Message '{}' has been dispatched to handler '{}'", array($message, $callable));
             if ($callback !== null) {
                 $callback->onSuccess($result);
             }
