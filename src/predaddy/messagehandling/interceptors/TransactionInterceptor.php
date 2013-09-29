@@ -21,24 +21,48 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\interceptors;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use Exception;
+use precore\lang\Object;
+use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\InterceptorChain;
+use predaddy\messagehandling\Message;
+use trf4php\TransactionManager;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Wraps the command dispatch process with transaction.
+ *
+ * @package predaddy\messagehandling\interceptors
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class TransactionInterceptor extends Object implements HandlerInterceptor
 {
-    public function create($handler)
+    /**
+     * @var TransactionManager
+     */
+    private $transactionManager;
+
+    /**
+     * @param TransactionManager $transactionManager
+     */
+    public function __construct(TransactionManager $transactionManager)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        $this->transactionManager = $transactionManager;
+    }
+
+    public function invoke(Message $message, InterceptorChain $chain)
+    {
+        $this->transactionManager->beginTransaction();
+        try {
+            $res = $chain->proceed();
+            $this->transactionManager->commit();
+            return $res;
+        } catch (Exception $e) {
+            $this->transactionManager->rollback();
+            self::getLogger()->warn("Transaction rollback invoked!", array(), $e);
+            throw $e;
+        }
     }
 }

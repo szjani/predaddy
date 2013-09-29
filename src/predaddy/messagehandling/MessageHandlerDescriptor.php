@@ -21,24 +21,20 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use ReflectionClass;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Finds and provide handler methods in the given message.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+interface MessageHandlerDescriptor
 {
-    public function create($handler)
-    {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
-    }
+    /**
+     * @param Message $message
+     * @return array of ReflectionMethod
+     */
+    public function getHandlerMethodsFor(Message $message);
 }

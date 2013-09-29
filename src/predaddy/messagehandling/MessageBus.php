@@ -21,24 +21,52 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use Closure;
+use Iterator;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+interface MessageBus
 {
-    public function create($handler)
-    {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
-    }
+    /**
+     * Post a message on this bus. It is dispatched to all subscribed handlers.
+     *
+     * @param Message $message
+     * @return void
+     */
+    public function post(Message $message);
+
+    /**
+     * @param Iterator $interceptors HandlerInterceptor instances
+     * @return void
+     */
+    public function setInterceptors(Iterator $interceptors);
+
+    /**
+     * Register the given handler to this bus. When registered, it will receive all messages posted to this bus.
+     *
+     * @param mixed $handler
+     */
+    public function register($handler);
+
+    /**
+     * Un-register the given handler to this bus.
+     * When unregistered, it will no longer receive messages posted to this bus.
+     *
+     * @param object $handler
+     */
+    public function unregister($handler);
+
+    /**
+     * @param callable $closure
+     */
+    public function registerClosure(Closure $closure);
+
+    /**
+     * @param callable $closure
+     */
+    public function unregisterClosure(Closure $closure);
 }

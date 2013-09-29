@@ -21,20 +21,52 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptor;
-use ReflectionMethod;
+require_once 'AbstractMessageHandler.php';
+
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
- * Handler methods must be private or protected in aggregate roots.
+ * Description of MultipleSameMessageHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
+class MultipleSameMessageHandler extends AbstractMessageHandler
 {
-    protected function isVisible(ReflectionMethod $method)
+    public $lastMessage2;
+    public $lastMessage3;
+    public $lastMessage4;
+
+    /**
+     * @Subscribe
+     */
+    public function handle1(SimpleMessage $message)
     {
-        return $method->isProtected() || $method->isPrivate();
+        $this->lastMessage = $message;
+    }
+
+    /**
+     * @Subscribe
+     */
+    public function handle2(Message $message)
+    {
+        $this->lastMessage2 = $message;
+    }
+
+    /**
+     * @Subscribe
+     */
+    public function handle3(SimpleMessage $message)
+    {
+        $this->lastMessage3 = $message;
+    }
+
+    /**
+     * @Subscribe
+     */
+    public function handle4(MessageBase $message)
+    {
+        $this->lastMessage4 = $message;
     }
 }

@@ -21,24 +21,25 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+require_once 'AbstractMessageHandler.php';
+
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Description of DeadMessageHandler
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class DeadMessageHandler extends AbstractMessageHandler
 {
-    public function create($handler)
+    /**
+     * @Subscribe
+     * @param DeadMessage $message
+     */
+    public function handle(DeadMessage $message)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        $this->lastMessage = $message;
     }
 }

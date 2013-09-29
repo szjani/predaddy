@@ -21,24 +21,21 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+require_once 'SimpleMessage.php';
+
+class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
 {
-    public function create($handler)
+    public function testIsHandlerFor()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        $function = function (Message $message) {};
+        $descriptor = new DefaultFunctionDescriptor(new ReflectionFunction($function));
+        self::assertTrue($descriptor->isHandlerFor(new SimpleMessage()));
+        self::assertTrue($descriptor->isHandlerFor(new DeadMessage(new SimpleMessage())));
     }
-}
+} 

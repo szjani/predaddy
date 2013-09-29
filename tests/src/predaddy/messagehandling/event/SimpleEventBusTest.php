@@ -21,24 +21,29 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\event;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use ArrayIterator;
+use PHPUnit_Framework_TestCase;
+use RuntimeException;
 
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+require_once 'SimpleEvent.php';
+
+class SimpleEventBusTest extends PHPUnit_Framework_TestCase
 {
-    public function create($handler)
+    public function testNoHandler()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
+        $commandBus = new AnnotationBasedEventBus(__METHOD__);
+
+        $event = new SimpleEvent();
+        $called = false;
+        $commandBus->registerClosure(
+            function(Event $incomingEvent) use (&$called, $event) {
+                $called = true;
+                SimpleEventBusTest::assertSame($event, $incomingEvent);
+            }
         );
+        $commandBus->post($event);
+        self::assertTrue($called);
     }
 }

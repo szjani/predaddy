@@ -21,24 +21,14 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\event;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use predaddy\messagehandling\DefaultFunctionDescriptor;
 
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class EventFunctionDescriptor extends DefaultFunctionDescriptor
 {
-    public function create($handler)
+    protected function getBaseMessageClassName()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return __NAMESPACE__ . '\Event';
     }
 }

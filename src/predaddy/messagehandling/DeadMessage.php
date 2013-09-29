@@ -21,24 +21,31 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
-
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+namespace predaddy\messagehandling;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Wraps a message which has not been handled by handlers.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class DeadMessage extends MessageBase
 {
-    public function create($handler)
+    private $message;
+
+    /**
+     * @param Message $message
+     */
+    public function __construct(Message $message)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        parent::__construct();
+        $this->message = $message;
+    }
+
+    /**
+     * @return Message
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 }

@@ -21,24 +21,28 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\event;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use DateTime;
+use precore\lang\Object;
+use precore\lang\ObjectInterface;
+use precore\util\UUID;
+use predaddy\messagehandling\MessageBase;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Base class for all types of events. Contains the event identifier and timestamp.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+abstract class EventBase extends MessageBase implements Event
 {
-    public function create($handler)
+    /**
+     * Returns the identifier of this event.
+     *
+     * @return string
+     */
+    public function getEventIdentifier()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return $this->getMessageIdentifier();
     }
 }

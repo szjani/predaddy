@@ -23,7 +23,7 @@
 
 namespace predaddy\domain;
 
-use predaddy\eventhandling\EventBase;
+use predaddy\messagehandling\event\EventBase;
 
 /**
  * Base class for all Domain Events.

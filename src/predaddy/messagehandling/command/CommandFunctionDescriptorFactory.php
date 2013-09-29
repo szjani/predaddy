@@ -20,25 +20,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+namespace predaddy\messagehandling\command;
 
-namespace predaddy\domain;
+use predaddy\messagehandling\FunctionDescriptor;
+use predaddy\messagehandling\FunctionDescriptorFactory;
+use ReflectionFunctionAbstract;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
-
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class CommandFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
-    public function create($handler)
+    /**
+     * @param ReflectionFunctionAbstract $function
+     * @return FunctionDescriptor
+     */
+    public function create(ReflectionFunctionAbstract $function)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return new CommandFunctionDescriptor($function);
     }
 }
+ 

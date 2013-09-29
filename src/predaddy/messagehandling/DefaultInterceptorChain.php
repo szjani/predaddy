@@ -21,24 +21,46 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use Iterator;
 
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class DefaultInterceptorChain implements InterceptorChain
 {
-    public function create($handler)
+    /**
+     * @var Message
+     */
+    private $message;
+
+    /**
+     * @var Iterator
+     */
+    private $handlerInterceptors;
+
+    /**
+     * @var CallableWrapper
+     */
+    private $callable;
+
+    /**
+     * @param Message $message
+     * @param Iterator $handlerInterceptors
+     * @param CallableWrapper $callable
+     */
+    public function __construct(Message $message, Iterator $handlerInterceptors, CallableWrapper $callable)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        $this->message = $message;
+        $this->handlerInterceptors = $handlerInterceptors;
+        $this->callable = $callable;
+    }
+
+    public function proceed()
+    {
+        $current = $this->handlerInterceptors->current();
+        if ($this->handlerInterceptors->valid()) {
+            $this->handlerInterceptors->next();
+            return $current->invoke($this->message, $this);
+        }
+        return $this->callable->invoke($this->message);
     }
 }

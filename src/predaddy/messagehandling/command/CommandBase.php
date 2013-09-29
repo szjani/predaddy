@@ -21,24 +21,28 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\command;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use DateTime;
+use precore\lang\Object;
+use precore\lang\ObjectInterface;
+use precore\util\UUID;
+use predaddy\messagehandling\MessageBase;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Base class for all types of commands. Contains the command identifier and timestamp.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+abstract class CommandBase extends MessageBase implements Command
 {
-    public function create($handler)
+    /**
+     * Returns the identifier of this command.
+     *
+     * @return string
+     */
+    public function getCommandIdentifier()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return $this->getMessageIdentifier();
     }
 }

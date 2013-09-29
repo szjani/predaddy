@@ -21,24 +21,25 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\event;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use DateTime;
+use precore\lang\ObjectInterface;
+use predaddy\messagehandling\Message;
+use Serializable;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Base interface for all events in the application.
+ * All classes that represent an event should implement this interface.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+interface Event extends Message
 {
-    public function create($handler)
-    {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
-    }
+    /**
+     * Returns the identifier of this event.
+     *
+     * @return string
+     */
+    public function getEventIdentifier();
 }
