@@ -3,53 +3,48 @@ namespace sample;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use precore\lang\Object;
-use predaddy\eventhandling\DirectEventBus;
-use predaddy\eventhandling\EventBase;
-use predaddy\eventhandling\EventHandler;
-use predaddy\eventhandling\Subscribe;
+use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\annotation\Subscribe;
 
-class SampleEvent1 extends EventBase
+class SampleMessage1 extends MessageBase
 {
 }
 
-class SampleEvent2 extends EventBase
+class SampleMessage2 extends MessageBase
 {
 }
 
-class SampleEventHandler extends Object implements EventHandler
+class SampleMessageHandler
 {
     /**
      * @Subscribe
-     * @param \sample\SampleEvent1 $event
      */
-    public function handleOne(SampleEvent1 $event)
+    public function handleOne(SampleMessage1 $event)
     {
         printf(
-            "handleOne: Incoming event %s sent %s\n",
-            $event->getEventIdentifier(),
+            "handleOne: Incoming message %s sent %s\n",
+            $event->getMessageIdentifier(),
             $event->getTimestamp()->format('Y-m-d H:i:s')
         );
     }
 
     /**
      * @Subscribe
-     * @param \sample\SampleEvent2 $event
      */
-    public function handleTwo(SampleEvent2 $event)
+    public function handleTwo(SampleMessage2 $event)
     {
         printf(
-            "handleTwo: Incoming event %s sent %s\n",
-            $event->getEventIdentifier(),
+            "handleTwo: Incoming message %s sent %s\n",
+            $event->getMessageIdentifier(),
             $event->getTimestamp()->format('Y-m-d H:i:s')
         );
     }
 }
 
-$bus = new DirectEventBus('sample2');
-$bus->register(new SampleEventHandler());
+$bus = require_once 'sampleBus.php';
+$bus->register(new SampleMessageHandler());
 
-$bus->post(new SampleEvent1());
-$bus->post(new SampleEvent2());
-$bus->post(new SampleEvent1());
-$bus->post(new SampleEvent2());
+$bus->post(new SampleMessage1());
+$bus->post(new SampleMessage2());
+$bus->post(new SampleMessage1());
+$bus->post(new SampleMessage2());

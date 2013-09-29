@@ -3,35 +3,31 @@ namespace sample;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use precore\lang\Object;
-use predaddy\eventhandling\DirectEventBus;
-use predaddy\eventhandling\Event;
-use predaddy\eventhandling\EventBase;
-use predaddy\eventhandling\EventHandler;
-use predaddy\eventhandling\Subscribe;
+use predaddy\messagehandling\Message;
+use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\annotation\Subscribe;
 
-class SampleEvent1 extends EventBase
+class SampleMessage1 extends MessageBase
 {
 }
 
-class SampleEvent2 extends EventBase
+class SampleMessage2 extends MessageBase
 {
 }
 
-class AllEventHandler extends Object implements EventHandler
+class AllMessageHandler
 {
     /**
      * @Subscribe
-     * @param \predaddy\eventhandling\Event $event
      */
-    public function handleEvents(Event $event)
+    public function handleEvents(Message $message)
     {
-        printf("Instance of %s has been caught\n", $event->getClassName());
+        printf("Instance of %s has been caught\n", $message->getClassName());
     }
 }
 
-$bus = new DirectEventBus('sample3');
-$bus->register(new AllEventHandler());
+$bus = require_once 'sampleBus.php';
+$bus->register(new AllMessageHandler());
 
-$bus->post(new SampleEvent1());
-$bus->post(new SampleEvent2());
+$bus->post(new SampleMessage1());
+$bus->post(new SampleMessage2());
