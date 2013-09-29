@@ -21,24 +21,25 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\command;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use DateTime;
+use precore\lang\ObjectInterface;
+use predaddy\messagehandling\Message;
+use Serializable;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Base interface for all commands in the application.
+ * All classes that represent a command should implement this interface.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+interface Command extends Message
 {
-    public function create($handler)
-    {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
-    }
+    /**
+     * Returns the identifier of this command.
+     *
+     * @return string
+     */
+    public function getCommandIdentifier();
 }

@@ -21,24 +21,23 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\mf4php;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use mf4php\ObjectMessage;
+use predaddy\messagehandling\Message;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Used to create ObjectMessage object for Message objects.
+ * Useful if you want to define a delay or priority
+ * for the message will be sent to mf4php dispatcher.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+interface ObjectMessageFactory
 {
-    public function create($handler)
-    {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
-    }
+    /**
+     * @param Message $message
+     * @return ObjectMessage
+     */
+    public function createMessage(Message $message);
 }

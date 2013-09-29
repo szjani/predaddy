@@ -12,14 +12,15 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use mf4php\memory\TransactedMemoryMessageDispatcher;
 use precore\lang\Object;
-use predaddy\eventhandling\EventBase;
-use predaddy\eventhandling\EventHandler;
-use predaddy\eventhandling\mf4php\Mf4PhpEventBus;
-use trf4php\doctrine\DoctrineTransactionManager;
 use Exception;
-use predaddy\eventhandling\Subscribe;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
+use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\mf4php\Mf4PhpMessageBus;
+use trf4php\doctrine\DoctrineTransactionManager;
+use trf4php\TransactionManager;
 
-class UserRegistered extends EventBase
+class UserRegistered extends MessageBase
 {
     protected $email;
 
@@ -35,15 +36,14 @@ class UserRegistered extends EventBase
     }
 }
 
-class EmailSender extends Object implements EventHandler
+class EmailSender
 {
     /**
      * @Subscribe
-     * @param \sample\UserRegistered $event
      */
-    public function sendMail(UserRegistered $event)
+    public function sendMail(UserRegistered $message)
     {
-        printf("Sending email to %s...\n", $event->getEmail());
+        printf("Sending email to %s...\n", $message->getEmail());
     }
 }
 
@@ -56,7 +56,9 @@ $transactionManager = new DoctrineTransactionManager($em);
 $dispatcher = new TransactedMemoryMessageDispatcher($transactionManager);
 
 // event bus initialization
-$bus = new Mf4PhpEventBus('mf4php_event_bus', $dispatcher);
+$functionDescFactory = new DefaultFunctionDescriptorFactory();
+$messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(null, $functionDescFactory);
+$bus = new Mf4PhpMessageBus('mf4php_event_bus', $messageHandlerDescFactory, $functionDescFactory, $dispatcher);
 $bus->register(new EmailSender());
 
 
@@ -65,6 +67,7 @@ $bus->register(new EmailSender());
  */
 
 // use transaction
+/* @var $transactionManager TransactionManager */
 $transactionManager->beginTransaction();
 try {
     // database modifications ...

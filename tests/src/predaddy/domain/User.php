@@ -25,7 +25,7 @@ namespace predaddy\domain;
 
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
-use predaddy\eventhandling\Subscribe;
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
  * Description of User

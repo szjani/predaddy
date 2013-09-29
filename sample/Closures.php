@@ -1,24 +1,27 @@
 <?php
 namespace sample;
 
-use predaddy\eventhandling\DirectEventBus;
-use predaddy\eventhandling\Event;
-use predaddy\eventhandling\EventBase;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
+use predaddy\messagehandling\Message;
+use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\SimpleMessageBus;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class SampleEvent extends EventBase
+class SampleMessage extends MessageBase
 {
 }
 
-$bus = new DirectEventBus(__FILE__);
+$bus = require_once 'sampleBus.php';
+
 $bus->registerClosure(
-    function (Event $event) {
+    function (Message $message) {
         printf(
-            "Incoming event %s sent %s\n",
-            $event->getEventIdentifier(),
-            $event->getTimestamp()->format('Y-m-d H:i:s')
+            "Incoming message %s sent %s\n",
+            $message->getMessageIdentifier(),
+            $message->getTimestamp()->format('Y-m-d H:i:s')
         );
     }
 );
-$bus->post(new SampleEvent());
+$bus->post(new SampleMessage());

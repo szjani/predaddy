@@ -1,0 +1,174 @@
+<?php
+/*
+ * Copyright (c) 2013 Szurovecz János
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+namespace predaddy\messagehandling;
+
+use ArrayIterator;
+use Closure;
+use Exception;
+use Iterator;
+use precore\lang\Object;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
+use ReflectionMethod;
+use SplObjectStorage;
+
+/**
+ * MessageBus which find handler methods in the registered message handlers.
+ *
+ * Handler method finding mechanism can be modified by an MessageHandlerDescriptorFactory.
+ * If no factory is passed to the constructor, annotation based scanning
+ * will be used with  AnnotatedMessageHandlerDescriptorFactory.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class SimpleMessageBus extends Object implements MessageBus
+{
+    private $identifier;
+    private $handlerDescriptorFactory = null;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $handlers;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $closures;
+
+    /**
+     * @var FunctionDescriptorFactory
+     */
+    private $closureDescriptorFactory;
+
+    private $interceptors;
+
+    /**
+     * @param $identifier
+     * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
+     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     */
+    public function __construct(
+        $identifier,
+        MessageHandlerDescriptorFactory $handlerDescriptorFactory,
+        FunctionDescriptorFactory $functionDescriptorFactory
+    ) {
+        $this->handlers = new SplObjectStorage();
+        $this->closures = new SplObjectStorage();
+        $this->identifier = (string) $identifier;
+        $this->handlerDescriptorFactory = $handlerDescriptorFactory;
+        $this->closureDescriptorFactory = $functionDescriptorFactory;
+        $this->interceptors = new ArrayIterator();
+    }
+
+    public function post(Message $message, MessageCallback $callback = null)
+    {
+        self::getLogger()->debug(
+            "Message '{}' has been posted to '{}' message bus",
+            array($message->getClassName(), $this->identifier)
+        );
+        $this->innerPost($message, $callback);
+    }
+
+    protected function innerPost(Message $message, MessageCallback $callback = null)
+    {
+        $this->forwardMessage($message, $callback);
+    }
+
+    protected function forwardMessage(Message $message, MessageCallback $callback = null)
+    {
+        $forwarded = false;
+        foreach ($this->handlers as $handler) {
+            /* @var $descriptor MessageHandlerDescriptor */
+            $descriptor = $this->handlers[$handler];
+            $methods = $descriptor->getHandlerMethodsFor($message);
+            /* @var $method ReflectionMethod */
+            foreach ($methods as $method) {
+                $forwarded = $this->dispatch($message, new MethodWrapper($handler, $method), $callback) || $forwarded;
+            }
+        }
+        /* @var $descriptor FunctionDescriptor */
+        foreach ($this->closures as $closure) {
+            $descriptor = $this->closures[$closure];
+            if ($descriptor->isHandlerFor($message)) {
+                $forwarded = $this->dispatch($message, new ClosureWrapper($closure), $callback) || $forwarded;
+            }
+        }
+        if (!$forwarded && !($message instanceof DeadMessage)) {
+            self::getLogger()->info("DeadMessage has been posted to '{}' message bus", array($this->identifier));
+            $this->forwardMessage(new DeadMessage($message));
+        }
+    }
+
+    public function setInterceptors(Iterator $interceptors)
+    {
+        $this->interceptors = $interceptors;
+    }
+
+    public function register($handler)
+    {
+        $descriptor = $this->handlerDescriptorFactory->create($handler);
+        $this->handlers->attach($handler, $descriptor);
+    }
+
+    public function unregister($handler)
+    {
+        $this->handlers->detach($handler);
+    }
+
+    public function registerClosure(Closure $closure)
+    {
+        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure));
+        $this->closures->attach($closure, $descriptor);
+    }
+
+    public function unregisterClosure(Closure $closure)
+    {
+        $this->closures->detach($closure);
+    }
+
+    private function doDispatch(Message $message, CallableWrapper $callable)
+    {
+        $chain = new DefaultInterceptorChain($message, $this->interceptors, $callable);
+        return $chain->proceed();
+    }
+
+    private function dispatch(Message $message, CallableWrapper $callable, MessageCallback $callback = null)
+    {
+        try {
+            $result = $this->doDispatch($message, $callable);
+            self::getLogger()->debug("Message '{}' has been dispatched to handler '{}'", array($message, $callable));
+            if ($callback !== null) {
+                $callback->onSuccess($result);
+            }
+            return true;
+        } catch (Exception $e) {
+            self::getLogger()->warn('An error occured in a message handler method!', null, $e);
+            if ($callback !== null) {
+                $callback->onFailure($e);
+            }
+            return false;
+        }
+    }
+}

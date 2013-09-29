@@ -26,6 +26,7 @@ namespace predaddy\domain;
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
 use predaddy\eventhandling\DirectEventBus;
+use predaddy\messagehandling\event\AnnotationBasedEventBus;
 
 require_once __DIR__ . '/User.php';
 require_once __DIR__ . '/IncrementedEvent.php';
@@ -46,7 +47,7 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->eventBus = new DirectEventBus(__CLASS__);
+        $this->eventBus = new AnnotationBasedEventBus(__CLASS__);
         AggregateRoot::setEventBus($this->eventBus);
     }
 

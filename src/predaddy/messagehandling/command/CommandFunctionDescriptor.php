@@ -21,24 +21,21 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\command;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use predaddy\messagehandling\DefaultFunctionDescriptor;
+use predaddy\messagehandling\Message;
 
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class CommandFunctionDescriptor extends DefaultFunctionDescriptor
 {
-    public function create($handler)
+    protected function getBaseMessageClassName()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return __NAMESPACE__ . '\Command';
+    }
+
+    protected function canHandleValidMessage(Message $message)
+    {
+        $messageClass = $message->getObjectClass();
+        return $messageClass->getName() === $this->getHandledMessageClassName();
     }
 }

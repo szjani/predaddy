@@ -21,24 +21,39 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
-
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+namespace predaddy\messagehandling;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Description of SimpleMessage
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class SimpleMessage extends MessageBase
 {
-    public function create($handler)
+    public $data = 'hello';
+    protected $protectedData;
+    private $privateData;
+
+    public function __construct()
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        parent::__construct();
+        $this->privateData = 'private';
+        $this->protectedData = 'protected';
+    }
+
+    /**
+     * @return string
+     */
+    public function getProtectedData()
+    {
+        return $this->protectedData;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrivateData()
+    {
+        return $this->privateData;
     }
 }

@@ -21,24 +21,20 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\mf4php;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use mf4php\ObjectMessage;
+use predaddy\messagehandling\Message;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Default ObjectMessageFactory.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class DefaultObjectMessageFactory implements ObjectMessageFactory
 {
-    public function create($handler)
+    public function createMessage(Message $message)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return new ObjectMessage($message);
     }
 }

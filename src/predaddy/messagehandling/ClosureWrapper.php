@@ -21,24 +21,26 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+use Closure;
+use precore\lang\Object;
 
-/**
- * Description of AggregateRootEventHandlerDescriptorFactory
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class ClosureWrapper extends Object implements CallableWrapper
 {
-    public function create($handler)
+    /**
+     * @var Closure
+     */
+    private $closure;
+
+    public function __construct(Closure $closure)
     {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        $this->closure = $closure;
+    }
+
+    public function invoke(Message $message)
+    {
+        return call_user_func($this->closure, $message);
     }
 }
+ 

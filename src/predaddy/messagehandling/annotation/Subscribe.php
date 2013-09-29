@@ -21,24 +21,16 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
-
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
+namespace predaddy\messagehandling\annotation;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Mark handle methods in your EventHandler classes with this annotation.
+ *
+ * @Annotation
+ * @Target("METHOD")
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+final class Subscribe
 {
-    public function create($handler)
-    {
-        return new AggregateRootEventHandlerDescriptor(
-            new ReflectionClass($handler),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
-    }
 }
