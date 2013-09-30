@@ -8,6 +8,8 @@ master: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master
 It is a library which gives you some usable classes to be able to use common DDD patterns.
 You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
 
+Predaddy uses [lf4php](https://github.com/szjani/lf4php) for logging.
+
 MessageBus
 ----------
 
@@ -55,7 +57,7 @@ must implement `Event` interface.
 
 If you raise events in your domain models, then I bet that you want to dispatch these events if and only if the already started
 transaction has finished successfully. It means that the events must be buffered until the commit is executed properly. This feature
-is already implemented in another library called mf4php. `Mf4phpMessageBus` wraps a `MessageDispatcher` which can be an instance of
+is already implemented in another library called [mf4php](https://github.com/szjani/mf4php). `Mf4phpMessageBus` wraps a `MessageDispatcher` which can be an instance of
 `TransactedMessageDispatcher`. One of the available implementations of it is `TransactedMemoryMessageDispatcher`, which is a synchronized
 solution. Unfortunately, PHP does not support threads so it's not easy to achieve asynchronous processing. However, there is
 a Beanstalk based mf4php implementation which supports both transaction based and asynchronous event processing.
