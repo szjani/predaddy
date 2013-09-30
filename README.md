@@ -12,19 +12,19 @@ MessageBus
 ----------
 
 MessageBus provides a general interface for message handling. The basic concept is that message handlers can
-be registered and the bus forward each incoming messages to the appropriate handler. Message handlers
-can be objects or closures as well.
+be registered to the bus which forwards each incoming messages to the appropriate handler. Message handlers
+can be either objects or closures.
 
-SimpleMessageBus is a basic implementation of the MessageBus interface. All other MessageBus implementation extend this class.
+SimpleMessageBus is a basic implementation of the MessageBus interface. Currently, all other MessageBus implementations extend this class.
 
-If you use CQRS, then I highly recommend to use the preconfigured AnnotationBasedEventBus and AnnotationBasedCommandBus classes.
-For more information scroll down.
+If you use CQRS, then I highly recommend to use the pre-configured `AnnotationBasedEventBus` and `AnnotationBasedCommandBus` classes.
+For more information, please scroll down.
 
 ### Handler methods/functions
 
 Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods should have one parameter with typehint.
-The typehint defines which Message objects can be handled, by default. If you want to handle all `Message` objects,
-you just have to use `Message` typehint. This kind of solution provide an easy way to use and distinguish a huge amount of
+The typehint defines which `Message` objects can be handled, by default. If you want to handle all `Message` objects,
+you just have to use `Message` typehint. This kind of solution provides an easy way to use and distinguish a huge amount of
 message classes. Interface and abstract class typehints also work as expected.
 
 ### Annotations
@@ -35,28 +35,28 @@ of this class, predaddy is automatically finding these methods.
 
 ### Interceptors
 
-It's possible to extend bus behaviour when messages are being dispatched to message handlers. HandlerInterceptor objects wrap
-the concrete dispatch process and are able to modify that. It is usable for logging, using transactions, etc.
+It's possible to extend bus behaviour when messages are being dispatched to message handlers. `HandlerInterceptor` objects wrap
+the concrete dispatch process and are able to modify that. It is usable for logging, transactions, etc.
 
-There is one builtin interceptor: `TransactionInterceptor`. If you pass it to a `MessageBus`, all message dispatch process
-will be wrapped into a transaction.
+There is one builtin interceptor: `TransactionInterceptor`. If you pass it to a `MessageBus`, all message dispatch processes
+will be wrapped into a separated transaction.
 
 ### AnnotationBasedCommandBus
 
-This kind of message bus uses annotation based configuration, and `TransactionInterceptor` is already registered. Message objects
-must implement `Command` interface. The typehint in the handler method must exactly the same as the command object's type.
+This kind of message bus uses annotation based configuration, and `TransactionInterceptor` is already registered. `Message` objects
+must implement `Command` interface. The typehint in the handler method must be exactly the same as the command object's type.
 
 ### AnnotationBasedEventBus
 
-This message bus implementation is annotation based, use the default typehint handling (subclass handling, etc.). Message objects
+This message bus implementation is annotation based, uses the default typehint handling (subclass handling, etc.). Message objects
 must implement `Event` interface.
 
 ### Mf4phpMessageBus
 
-If you raise events in your domain models, then I bet you want to dispatch these events if and only if the already started
-transaction finishes successful. It means that the events bust be buffered until the commit is executed properly. This feature
+If you raise events in your domain models, then I bet that you want to dispatch these events if and only if the already started
+transaction has finished successfully. It means that the events must be buffered until the commit is executed properly. This feature
 is already implemented in another library called mf4php. `Mf4phpMessageBus` wraps a `MessageDispatcher` which can be an instance of
-`TransactedMessageDispatcher`. One of the available implementation of it is `TransactedMemoryMessageDispatcher` which is synchronized
+`TransactedMessageDispatcher`. One of the available implementations of it is `TransactedMemoryMessageDispatcher`, which is a synchronized
 solution. Unfortunately, PHP does not support threads so it's not easy to achieve asynchronous processing. However, there is
 a Beanstalk based mf4php implementation which supports both transaction based and asynchronous event processing.
 
@@ -92,12 +92,12 @@ class User extends AggregateRoot
 }
 ```
 
-Predaddy gives an AggregateRoot class which provide some opportunities. You should validate incoming parameters in
-public methods and if everything is fine, fire a domain event. AggregateRoot pass this event immediately to the handler method
-inside the aggregate root (visibility must be protected or private). After that, this event will be passed to the $domainEventBus,
-which is probably synchronized to transaction. Fetching the existing user object from a persistent storage and calling the modifyEmailAddress method
-is a command handler's responsibility. After the command bus has been committed the transaction, the event will be dispatched to the proper
-event handlers registered in $domainEventBus. These handlers might send another command to achieve eventually consistency.
+Predaddy gives an `AggregateRoot` class which provides some opportunities. You should validate incoming parameters in
+public methods and if everything is fine, fire a domain event. `AggregateRoot` passes this event immediately to the handler method
+inside the aggregate root (which visibility must be protected or private). After that, this event will be passed to the $domainEventBus,
+which is probably synchronized to transactions. Fetching the existing user object from a persistent storage and calling the modifyEmailAddress method
+are a command handler's responsibilities. After the command bus has committed the transaction, the event will be dispatched to the proper
+event handlers registered in $domainEventBus. These handlers might send another commands to achieve eventually consistency.
 
 Paginator components
 --------------------
