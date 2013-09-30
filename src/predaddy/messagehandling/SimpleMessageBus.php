@@ -36,16 +36,22 @@ use SplObjectStorage;
 /**
  * MessageBus which find handler methods in the registered message handlers.
  *
- * Handler method finding mechanism can be modified by an MessageHandlerDescriptorFactory.
- * If no factory is passed to the constructor, annotation based scanning
- * will be used with  AnnotatedMessageHandlerDescriptorFactory.
+ * Handler method finding mechanism can be modified by the given
+ * MessageHandlerDescriptorFactory and FunctionDescriptorFactory instances.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class SimpleMessageBus extends Object implements MessageBus
 {
+    /**
+     * @var string
+     */
     private $identifier;
-    private $handlerDescriptorFactory = null;
+
+    /**
+     * @var MessageHandlerDescriptorFactory
+     */
+    private $handlerDescriptorFactory;
 
     /**
      * @var SplObjectStorage
@@ -62,6 +68,9 @@ class SimpleMessageBus extends Object implements MessageBus
      */
     private $closureDescriptorFactory;
 
+    /**
+     * @var ArrayIterator
+     */
     private $interceptors;
 
     /**
@@ -82,13 +91,59 @@ class SimpleMessageBus extends Object implements MessageBus
         $this->interceptors = new ArrayIterator();
     }
 
+    /**
+     * @param Message $message
+     * @param MessageCallback $callback
+     */
     public function post(Message $message, MessageCallback $callback = null)
     {
         self::getLogger()->debug(
-            "Message '{}' has been posted to '{}' message bus",
-            array($message->getClassName(), $this->identifier)
+            "The following message has been posted to '{}' message bus: {}",
+            array($this->identifier, $message)
         );
         $this->innerPost($message, $callback);
+    }
+
+    /**
+     * @param Iterator $interceptors
+     */
+    public function setInterceptors(Iterator $interceptors)
+    {
+        $this->interceptors = $interceptors;
+    }
+
+    /**
+     * @param object $handler
+     */
+    public function register($handler)
+    {
+        $descriptor = $this->handlerDescriptorFactory->create($handler);
+        $this->handlers->attach($handler, $descriptor);
+    }
+
+    /**
+     * @param object $handler
+     */
+    public function unregister($handler)
+    {
+        $this->handlers->detach($handler);
+    }
+
+    /**
+     * @param callable $closure
+     */
+    public function registerClosure(Closure $closure)
+    {
+        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure));
+        $this->closures->attach($closure, $descriptor);
+    }
+
+    /**
+     * @param callable $closure
+     */
+    public function unregisterClosure(Closure $closure)
+    {
+        $this->closures->detach($closure);
     }
 
     protected function innerPost(Message $message, MessageCallback $callback = null)
@@ -116,55 +171,38 @@ class SimpleMessageBus extends Object implements MessageBus
             }
         }
         if (!$forwarded && !($message instanceof DeadMessage)) {
-            self::getLogger()->info("DeadMessage has been posted to '{}' message bus", array($this->identifier));
+            self::getLogger()->debug(
+                "The following message as a DeadMessage has been posted to '{}' message bus: {}",
+                array($this->identifier, $message)
+            );
             $this->forwardMessage(new DeadMessage($message));
         }
     }
 
-    public function setInterceptors(Iterator $interceptors)
-    {
-        $this->interceptors = $interceptors;
-    }
-
-    public function register($handler)
-    {
-        $descriptor = $this->handlerDescriptorFactory->create($handler);
-        $this->handlers->attach($handler, $descriptor);
-    }
-
-    public function unregister($handler)
-    {
-        $this->handlers->detach($handler);
-    }
-
-    public function registerClosure(Closure $closure)
-    {
-        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure));
-        $this->closures->attach($closure, $descriptor);
-    }
-
-    public function unregisterClosure(Closure $closure)
-    {
-        $this->closures->detach($closure);
-    }
-
-    private function doDispatch(Message $message, CallableWrapper $callable)
+    protected function doDispatch(Message $message, CallableWrapper $callable)
     {
         $chain = new DefaultInterceptorChain($message, $this->interceptors, $callable);
         return $chain->proceed();
     }
 
-    private function dispatch(Message $message, CallableWrapper $callable, MessageCallback $callback = null)
+    protected function dispatch(Message $message, CallableWrapper $callable, MessageCallback $callback = null)
     {
         try {
             $result = $this->doDispatch($message, $callable);
-            self::getLogger()->debug("Message '{}' has been dispatched to handler '{}'", array($message, $callable));
+            self::getLogger()->debug(
+                "The following message has been dispatched to handler '{}' through message bus '{}': {}",
+                array($callable, $this->identifier, $message)
+            );
             if ($callback !== null) {
                 $callback->onSuccess($result);
             }
             return true;
         } catch (Exception $e) {
-            self::getLogger()->warn('An error occured in a message handler method!', null, $e);
+            self::getLogger()->warn(
+                "An error occured in the following message handler through message bus '{}': {}, message is {}!",
+                array($this->identifier, $callable, $message),
+                $e
+            );
             if ($callback !== null) {
                 $callback->onFailure($e);
             }
