@@ -160,4 +160,21 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         $this->bus->post($message, $callback);
         self::assertTrue($called);
     }
+
+    public function testInterceptorReset()
+    {
+        $interceptors = $this->getMock('Iterator');
+        $interceptors
+            ->expects(self::exactly(2))
+            ->method('rewind');
+        $this->bus->setInterceptors($interceptors);
+
+        $this->bus->registerClosure(
+            function (SimpleMessage $message) {
+            }
+        );
+
+        $this->bus->post(new SimpleMessage());
+        $this->bus->post(new SimpleMessage());
+    }
 }

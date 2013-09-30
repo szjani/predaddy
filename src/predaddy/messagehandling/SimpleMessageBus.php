@@ -181,6 +181,7 @@ class SimpleMessageBus extends Object implements MessageBus
 
     protected function doDispatch(Message $message, CallableWrapper $callable)
     {
+        $this->interceptors->rewind();
         $chain = new DefaultInterceptorChain($message, $this->interceptors, $callable);
         return $chain->proceed();
     }
