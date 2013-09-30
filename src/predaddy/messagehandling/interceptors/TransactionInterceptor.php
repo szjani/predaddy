@@ -61,7 +61,7 @@ class TransactionInterceptor extends Object implements HandlerInterceptor
             return $res;
         } catch (Exception $e) {
             $this->transactionManager->rollback();
-            self::getLogger()->warn("Transaction rollback invoked!", array(), $e);
+            self::getLogger()->warn("Transaction rollback invoked!");
             throw $e;
         }
     }
