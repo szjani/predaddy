@@ -33,11 +33,15 @@ interface MessageBus
 {
     /**
      * Post a message on this bus. It is dispatched to all subscribed handlers.
+     * MessageCallback will be notified with each message handler calls.
+     *
+     * MessageCallback is not necessarily supported by all implementations!
      *
      * @param Message $message
+     * @param MessageCallback $callback
      * @return void
      */
-    public function post(Message $message);
+    public function post(Message $message, MessageCallback $callback = null);
 
     /**
      * @param Iterator $interceptors HandlerInterceptor instances

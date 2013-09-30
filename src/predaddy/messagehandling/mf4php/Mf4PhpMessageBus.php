@@ -121,6 +121,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      * Send the message to the message queue.
      *
      * @param Message $message
+     * @param MessageCallback $callback
      */
     protected function innerPost(Message $message, MessageCallback $callback = null)
     {
