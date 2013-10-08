@@ -66,9 +66,11 @@ If you want to delay some events, you can register `ObjectMessageFactory` object
 which can create the appropriate `DelayableMessage` instances for the defined message class. This feature is highly depending
 on the current mf4php implementation.
 
-### Recommended CQRS usage
+### Recommended CQRS usage (without read side)
 
 Let's take the following example:
+
+#### Configuration
 
 ```php
 // you can use any ObservableTransactionManager implementation, see trf4php
@@ -85,7 +87,15 @@ $domainEventBus = new Mf4PhpMessageBus('domain-bus', $messageHandlerDescFactory,
 
 // use the configured $domainEventBus in all aggregate root
 AggregateRoot::setEventBus($domainEventBus);
+$domainEventBus->register(new UserEventHandler());
 
+$commandBus = new AnnotationBasedCommandBus('default-command-bus', $transactionManager);
+$commandBus->register(new UserCommandHandler());
+```
+
+#### The domain model
+
+```php
 class User extends AggregateRoot
 {
     private $id;
@@ -107,30 +117,30 @@ class User extends AggregateRoot
 }
 ```
 
-An event handler
+#### An event handler
 
 ```php
 class UserEventHandler
 {
     /**
      * @Subscribe
+     * will be called just after the transaction has been committed
      */
     public function handleEmailModification(UserEmailModified $event)
     {
-        // other tasks, fire new commands, etc.
+        // other tasks, fire new commands, update read model, etc.
     }
 }
-$domainEventBus->register(new UserEventHandler());
-// UserEventHandler::handleEmailModification() will be called just after the transaction will be committed
 ```
 
-The appropriate command handler:
+#### The command handler
 
 ```php
 class UserCommandHandler
 {
     /**
      * @Subscribe
+     * will be called and wrapped in a transaction
      */
     public function handleCommand(ModifyEmail $command)
     {
@@ -139,11 +149,12 @@ class UserCommandHandler
         $email->modifyEmailAddress($command->getEmail());
     }
 }
-$commandBus = new AnnotationBasedCommandBus('default-command-bus', $transactionManager);
-$commandBus->register(new UserCommandHandler());
+```
 
+#### Sending a command
+
+```php
 $commandBus->post(new ModifyEmail($userId, $email));
-// UserCommandHandler::handleCommand() will be called and wrapped in a transaction
 ```
 
 Predaddy gives an `AggregateRoot` class which provides some opportunities. You should validate incoming parameters in
