@@ -38,7 +38,7 @@ require_once __DIR__ . '/../AllMessageHandler.php';
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AnnotatedEventHandlerDescriptorTest extends PHPUnit_Framework_TestCase
+class AnnotatedMessageHandlerDescriptorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var AnnotatedMessageHandlerDescriptor

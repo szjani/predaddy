@@ -76,20 +76,27 @@ Let's take the following example:
 // you can use any ObservableTransactionManager implementation, see trf4php
 $transactionManager = new DoctrineTransactionManager($entityManager);
 
-/* $domainEventBus should be synchronized to transaction, so you should use Mf4PhpMessageBus
+/* Event bus should be synchronized to transactions, so you should use it
 with the same TransactionManager which is used in the command bus.
-The following setup provide you annotation based event listening. */
+The following setup provide you an annotation based message listening. */
 
-$funcHandlerDescFactory = new DefaultFunctionDescriptorFactory();
-$messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($funcHandlerDescFactory);
-$dispatcher = new TransactedMemoryMessageDispatcher($transactionManager);
-$domainEventBus = new Mf4PhpMessageBus('domain-bus', $messageHandlerDescFactory, $funcHandlerDescFactory, $dispatcher);
+// configure event bus
+$eventFuncHandlerDescFactory = new EventFunctionDescriptorFactory();
+$eventHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($eventFuncHandlerDescFactory);
+$domainEventBus = new EventBus('domain-event-bus', $eventHandlerDescFactory, $eventFuncHandlerDescFactory, $transactionManager);
 
 // use the configured $domainEventBus in all aggregate root
 AggregateRoot::setEventBus($domainEventBus);
+
+// register the event handlers
 $domainEventBus->register(new UserEventHandler());
 
-$commandBus = new AnnotationBasedCommandBus('default-command-bus', $transactionManager);
+// configure command bus
+$commandFuncHandlerDescFactory = new CommandFunctionDescriptorFactory();
+$commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($commandFuncHandlerDescFactory);
+$commandBus = new CommandBus('command-bus', $commandHandlerDescFactory, $commandFuncHandlerDescFactory, $transactionManager);
+
+// register the command handlers
 $commandBus->register(new UserCommandHandler());
 ```
 

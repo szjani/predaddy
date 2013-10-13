@@ -27,65 +27,46 @@ use AppendIterator;
 use ArrayIterator;
 use EmptyIterator;
 use Iterator;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\interceptors\TransactionInterceptor;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use trf4php\TransactionManager;
 
-class AnnotationBasedCommandBus extends SimpleMessageBus
+/**
+ * A typical command bus has the following behaviours:
+ *  - all command handler methods are wrapped by a unique transaction
+ *  - the type of the message must be exactly the same as the parameter in the handler method
+ *
+ * It's highly recommended to use a CommandFunctionDescriptorFactory instance to automatically achieve
+ * the second criteria. In that case Messages must implement the Command interface.
+ *
+ * If you use it with a CommandBus, use the same TransactionManager instance.
+ *
+ * @package predaddy\messagehandling\command
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class CommandBus extends SimpleMessageBus
 {
-    private static $defaultFunctionDescriptorFactory;
-    private static $defaultMessageHandlerDescriptorFactory;
-
     /**
      * @var TransactionManager
      */
     private $transactionManager;
 
     /**
-     * @return CommandFunctionDescriptorFactory
-     */
-    public static function getDefaultFunctionDescriptorFactory()
-    {
-        if (self::$defaultFunctionDescriptorFactory === null) {
-            self::$defaultFunctionDescriptorFactory = new CommandFunctionDescriptorFactory();
-        }
-        return self::$defaultFunctionDescriptorFactory;
-    }
-
-    /**
-     * @return MessageHandlerDescriptorFactory
-     */
-    public static function getDefaultMessageHandlerDescriptorFactory()
-    {
-        if (self::$defaultMessageHandlerDescriptorFactory === null) {
-            self::$defaultMessageHandlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
-                null,
-                self::getDefaultFunctionDescriptorFactory()
-            );
-        }
-        return self::$defaultMessageHandlerDescriptorFactory;
-    }
-
-    /**
      * @param $identifier
+     * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
+     * @param FunctionDescriptorFactory $functionDescriptorFactory
      * @param TransactionManager $transactionManager
-     * @param AnnotatedMessageHandlerDescriptorFactory $handlerDescriptorFactory
      */
     public function __construct(
         $identifier,
-        TransactionManager $transactionManager,
-        AnnotatedMessageHandlerDescriptorFactory $handlerDescriptorFactory = null
+        MessageHandlerDescriptorFactory $handlerDescriptorFactory,
+        FunctionDescriptorFactory $functionDescriptorFactory,
+        TransactionManager $transactionManager
     ) {
-        if ($handlerDescriptorFactory === null) {
-            $handlerDescriptorFactory = self::getDefaultMessageHandlerDescriptorFactory();
-        }
-        parent::__construct(
-            $identifier,
-            $handlerDescriptorFactory,
-            self::getDefaultFunctionDescriptorFactory()
-        );
+        parent::__construct($identifier, $handlerDescriptorFactory, $functionDescriptorFactory);
         $this->transactionManager = $transactionManager;
         $this->setInterceptors(new EmptyIterator());
     }

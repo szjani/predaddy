@@ -32,12 +32,17 @@ use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use ReflectionClass;
 
 /**
- * Description of AnnotatedEventHandlerDescriptorFactory
+ * Uses Doctrine annotation reader and creates AnnotatedMessageHandlerDescriptor object for each handlers.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescriptorFactory
 {
+    private static $defaultReader;
+
+    /**
+     * @var Reader
+     */
     private $reader;
 
     /**
@@ -50,14 +55,23 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
         AnnotationRegistry::registerFile(__DIR__ . '/MessageHandlingAnnotations.php');
     }
 
-    public function __construct(Reader $reader = null, FunctionDescriptorFactory $functionDescriptorFactory = null)
+    private static function getDefaultReader()
+    {
+        if (self::$defaultReader === null) {
+            self::$defaultReader = new AnnotationReader();
+        }
+        return self::$defaultReader;
+    }
+
+    /**
+     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param Reader $reader if null, an AnnotationReader instance will be used
+     */
+    public function __construct(FunctionDescriptorFactory $functionDescriptorFactory, Reader $reader = null)
     {
         self::registerAnnotations();
         if ($reader === null) {
-            $reader = new AnnotationReader();
-        }
-        if ($functionDescriptorFactory === null) {
-            $functionDescriptorFactory = new DefaultFunctionDescriptorFactory();
+            $reader = self::getDefaultReader();
         }
         $this->reader = $reader;
         $this->functionDescriptorFactory = $functionDescriptorFactory;

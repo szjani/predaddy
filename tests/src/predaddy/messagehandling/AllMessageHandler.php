@@ -42,4 +42,41 @@ class AllMessageHandler extends AbstractMessageHandler
     {
         $this->lastMessage = $message;
     }
+
+    /**
+     * @Subscribe
+     * @param Message $message
+     * @param null $param
+     */
+    public function invalidHandleWithParameter(Message $message, $param = null)
+    {
+        $this->lastMessage = $message;
+    }
+
+    /**
+     * @Subscribe
+     * @param $message
+     */
+    public function invalidHandleWithNoMessage($message)
+    {
+        $this->lastMessage = $message;
+    }
+
+    /**
+     * @Subscribe
+     * @param Message $message
+     */
+    private function privateHandler(Message $message)
+    {
+        $this->lastMessage = $message;
+    }
+
+    /**
+     * @Subscribe
+     * @param Message $message
+     */
+    private function protectedHandler(Message $message)
+    {
+        $this->lastMessage = $message;
+    }
 }

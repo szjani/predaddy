@@ -25,23 +25,39 @@ namespace predaddy\messagehandling\command;
 
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use RuntimeException;
 
 require_once 'SimpleCommand.php';
 
-class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
+class CommandBusTest extends PHPUnit_Framework_TestCase
 {
     private $tm;
 
+    private $functionDescriptorFactory;
+
+    private $handlerDescriptorFactory;
+
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
     public function setUp()
     {
-        $this->tm = $this->getMock('\trf4php\TransactionManager');
+        $this->tm = $this->getMock('trf4php\TransactionManager');
+        $this->functionDescriptorFactory = new CommandFunctionDescriptorFactory();
+        $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($this->functionDescriptorFactory);
+        $this->commandBus = new CommandBus(
+            __CLASS__,
+            $this->handlerDescriptorFactory,
+            $this->functionDescriptorFactory,
+            $this->tm
+        );
     }
 
     public function testNoHandler()
     {
-        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
-
         $this->tm
             ->expects(self::never())
             ->method('beginTransaction');
@@ -52,16 +68,16 @@ class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::never())
             ->method('rollback');
 
-        $commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand());
     }
 
     public function testTransactionWrapping()
     {
-        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
-        $commandBus->registerClosure(
+        $this->commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
                 $called = true;
+                CommandBusTest::assertEquals($command->getMessageIdentifier(), $command->getCommandIdentifier());
             }
         );
         $this->tm
@@ -74,15 +90,14 @@ class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::never())
             ->method('rollback');
 
-        $commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand());
         self::assertTrue($called);
     }
 
     public function testRollback()
     {
-        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
-        $commandBus->registerClosure(
+        $this->commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
                 $called = true;
                 throw new RuntimeException("Oops");
@@ -98,15 +113,14 @@ class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('rollback');
 
-        $commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand());
         self::assertTrue($called);
     }
 
     public function testSetInterceptor()
     {
-        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
-        $commandBus->registerClosure(
+        $this->commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
                 $called = true;
             }
@@ -116,7 +130,7 @@ class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('invoke')
             ->will(self::throwException(new RuntimeException("Ooops")));
-        $commandBus->setInterceptors(new ArrayIterator(array($interceptor)));
+        $this->commandBus->setInterceptors(new ArrayIterator(array($interceptor)));
 
         $this->tm
             ->expects(self::once())
@@ -128,15 +142,14 @@ class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('rollback');
 
-        $commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand());
         self::assertFalse($called);
     }
 
     public function testExactCommandType()
     {
-        $commandBus = new AnnotationBasedCommandBus(__METHOD__, $this->tm);
         $called = false;
-        $commandBus->registerClosure(
+        $this->commandBus->registerClosure(
             function (Command $command) use (&$called) {
                 $called = true;
             }
@@ -151,7 +164,7 @@ class AnnotationBasedCommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::never())
             ->method('rollback');
 
-        $commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand());
         self::assertFalse($called);
     }
 }

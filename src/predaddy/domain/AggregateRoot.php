@@ -27,7 +27,9 @@ use BadMethodCallException;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use predaddy\messagehandling\event\AnnotationBasedEventBus;
+use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
+use predaddy\messagehandling\SimpleMessageBus;
 use Traversable;
 
 /**
@@ -52,10 +54,15 @@ abstract class AggregateRoot extends Object implements Entity
     private static $descriptorFactory = null;
     private $innerEventBus = null;
 
+    /**
+     * @return AggregateRootEventHandlerDescriptorFactory
+     */
     private static function getDescriptorFactory()
     {
-        if (self::$descriptorFactory == null) {
-            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory();
+        if (self::$descriptorFactory === null) {
+            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory(
+                new EventFunctionDescriptorFactory()
+            );
         }
         return self::$descriptorFactory;
     }
@@ -94,7 +101,11 @@ abstract class AggregateRoot extends Object implements Entity
     private function getInnerEventBus()
     {
         if ($this->innerEventBus === null) {
-            $this->innerEventBus = new AnnotationBasedEventBus($this->getClassName(), self::getDescriptorFactory());
+            $this->innerEventBus = new SimpleMessageBus(
+                $this->getClassName(),
+                self::getDescriptorFactory(),
+                self::getDescriptorFactory()->getFunctionDescriptorFactory()
+            );
             $this->innerEventBus->register($this);
         }
         return $this->innerEventBus;

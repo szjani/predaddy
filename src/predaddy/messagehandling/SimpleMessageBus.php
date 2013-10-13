@@ -76,18 +76,18 @@ class SimpleMessageBus extends Object implements MessageBus
     /**
      * @param $identifier
      * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
-     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param FunctionDescriptorFactory $closureDescriptorFactory
      */
     public function __construct(
         $identifier,
         MessageHandlerDescriptorFactory $handlerDescriptorFactory,
-        FunctionDescriptorFactory $functionDescriptorFactory
+        FunctionDescriptorFactory $closureDescriptorFactory
     ) {
         $this->handlers = new SplObjectStorage();
         $this->closures = new SplObjectStorage();
         $this->identifier = (string) $identifier;
         $this->handlerDescriptorFactory = $handlerDescriptorFactory;
-        $this->closureDescriptorFactory = $functionDescriptorFactory;
+        $this->closureDescriptorFactory = $closureDescriptorFactory;
         $this->interceptors = new ArrayIterator();
     }
 

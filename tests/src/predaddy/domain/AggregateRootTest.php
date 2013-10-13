@@ -26,7 +26,10 @@ namespace predaddy\domain;
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
 use predaddy\eventhandling\DirectEventBus;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\event\AnnotationBasedEventBus;
+use predaddy\messagehandling\event\EventBus;
+use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 
 require_once __DIR__ . '/User.php';
 require_once __DIR__ . '/IncrementedEvent.php';
@@ -40,14 +43,17 @@ require_once __DIR__ . '/UserCreated.php';
 class AggregateRootTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var DirectEventBus
+     * @var EventBus
      */
     private $eventBus;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->eventBus = new AnnotationBasedEventBus(__CLASS__);
+        $functionDescriptorFactory = new EventFunctionDescriptorFactory();
+        $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
+        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
+        $this->eventBus = new EventBus(__CLASS__, $handlerDescriptorFactory, $functionDescriptorFactory, $transactionManager);
         AggregateRoot::setEventBus($this->eventBus);
     }
 
@@ -56,16 +62,20 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
         $user = new User();
         self::assertEquals(User::DEFAULT_VALUE, $user->value);
 
+        $id = null;
+
         $eventRaised = false;
         $this->eventBus->registerClosure(
-            function (IncrementedEvent $event) use (&$eventRaised) {
+            function (IncrementedEvent $event) use (&$eventRaised, &$id) {
                 $eventRaised = true;
+                $id = $event->getAggregateIdentifier();
             }
         );
 
         $user->increment();
         self::assertEquals(2, $user->value);
         self::assertTrue($eventRaised);
+        self::assertEquals($id, $user->getId());
     }
 
     public function testLoadFromHistory()

@@ -25,22 +25,33 @@ namespace predaddy\messagehandling\event;
 
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
 use RuntimeException;
 
 require_once 'SimpleEvent.php';
 
-class SimpleEventBusTest extends PHPUnit_Framework_TestCase
+class EventBusTest extends PHPUnit_Framework_TestCase
 {
     public function testNoHandler()
     {
-        $commandBus = new AnnotationBasedEventBus(__METHOD__);
+        $functionDescriptorFactory = new EventFunctionDescriptorFactory();
+        $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
+        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
+        $commandBus = new EventBus(
+            __METHOD__,
+            $handlerDescriptorFactory,
+            $functionDescriptorFactory,
+            $transactionManager
+        );
 
         $event = new SimpleEvent();
         $called = false;
         $commandBus->registerClosure(
             function(Event $incomingEvent) use (&$called, $event) {
                 $called = true;
-                SimpleEventBusTest::assertSame($event, $incomingEvent);
+                EventBusTest::assertEquals($incomingEvent->getMessageIdentifier(), $incomingEvent->getEventIdentifier());
+                EventBusTest::assertSame($event, $incomingEvent);
             }
         );
         $commandBus->post($event);
