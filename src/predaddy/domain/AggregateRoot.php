@@ -29,6 +29,7 @@ use precore\lang\ObjectInterface;
 use predaddy\messagehandling\event\AnnotationBasedEventBus;
 use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
+use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use Traversable;
 
@@ -39,7 +40,8 @@ use Traversable;
  * inside the aggregate root, after that they will be sent to all outer event handlers.
  *
  * Handler methods must be annotated with "Subscribe"
- * and must be private or protected in the aggregate root itself.
+ * and must be private or protected in the aggregate root itself. You can override this behaviour if you
+ * with setInnerDescriptorFactory() method.
  *
  * If you are using event sourcing, you can initialize your aggregate roots through loadFromHistory method.
  *
@@ -57,7 +59,7 @@ abstract class AggregateRoot extends Object implements Entity
     /**
      * @return AggregateRootEventHandlerDescriptorFactory
      */
-    private static function getDescriptorFactory()
+    public static function getInnerDescriptorFactory()
     {
         if (self::$descriptorFactory === null) {
             self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory(
@@ -65,6 +67,16 @@ abstract class AggregateRoot extends Object implements Entity
             );
         }
         return self::$descriptorFactory;
+    }
+
+    /**
+     * It's recommended to use AggregateRootEventHandlerDescriptorFactory.
+     *
+     * @param MessageHandlerDescriptorFactory $descriptorFactory
+     */
+    public static function setInnerDescriptorFactory(MessageHandlerDescriptorFactory $descriptorFactory)
+    {
+        self::$descriptorFactory = $descriptorFactory;
     }
 
     /**
@@ -103,8 +115,8 @@ abstract class AggregateRoot extends Object implements Entity
         if ($this->innerEventBus === null) {
             $this->innerEventBus = new SimpleMessageBus(
                 $this->getClassName(),
-                self::getDescriptorFactory(),
-                self::getDescriptorFactory()->getFunctionDescriptorFactory()
+                self::getInnerDescriptorFactory(),
+                self::getInnerDescriptorFactory()->getFunctionDescriptorFactory()
             );
             $this->innerEventBus->register($this);
         }
