@@ -57,8 +57,8 @@ $dispatcher = new TransactedMemoryMessageDispatcher($transactionManager);
 
 // event bus initialization
 $functionDescFactory = new DefaultFunctionDescriptorFactory();
-$messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(null, $functionDescFactory);
-$bus = new Mf4PhpMessageBus('mf4php_event_bus', $messageHandlerDescFactory, $functionDescFactory, $dispatcher);
+$messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory);
+$bus = new Mf4PhpMessageBus('mf4php_message_bus', $messageHandlerDescFactory, $functionDescFactory, $dispatcher);
 $bus->register(new EmailSender());
 
 
