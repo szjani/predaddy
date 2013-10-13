@@ -51,7 +51,7 @@ will be wrapped into a separated transaction.
 ### EventBus
 
 This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
-must implement `Event` interface. Messages are buffered until the transaction is committed. It extends Mf4phpMessageBus class
+must implement `Event` interface. Messages are buffered until the transaction is committed. It extends `Mf4phpMessageBus` class
 and uses `TransactedMemoryMessageDispatcher`.
 
 ### Mf4phpMessageBus
@@ -75,22 +75,36 @@ The following setup provide you an annotation based message listening. */
 
 // configure event bus
 $eventFuncHandlerDescFactory = new EventFunctionDescriptorFactory();
-$eventHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($eventFuncHandlerDescFactory);
-$domainEventBus = new EventBus('domain-event-bus', $eventHandlerDescFactory, $eventFuncHandlerDescFactory, $transactionManager);
+$eventHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
+    $eventFuncHandlerDescFactory
+);
+$domainEventBus = new EventBus(
+    'domain-event-bus',
+    $eventHandlerDescFactory,
+    $eventFuncHandlerDescFactory,
+    $transactionManager
+);
 
 // use the configured $domainEventBus in all aggregate root
 AggregateRoot::setEventBus($domainEventBus);
 
-// register the event handlers
-$domainEventBus->register(new UserEventHandler());
-
 // configure command bus
 $commandFuncHandlerDescFactory = new CommandFunctionDescriptorFactory();
-$commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($commandFuncHandlerDescFactory);
-$commandBus = new CommandBus('command-bus', $commandHandlerDescFactory, $commandFuncHandlerDescFactory, $transactionManager);
+$commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
+    $commandFuncHandlerDescFactory
+);
+$commandBus = new CommandBus(
+    'command-bus',
+    $commandHandlerDescFactory,
+    $commandFuncHandlerDescFactory,
+    $transactionManager
+);
 
 // register the command handlers
 $commandBus->register(new UserCommandHandler());
+
+// register the event handlers
+$domainEventBus->register(new UserEventHandler());
 ```
 
 #### The domain model
@@ -103,6 +117,7 @@ class User extends AggregateRoot
 
     public function modifyEmailAddress($email)
     {
+        // validate parameters, throw exception if necessary
         Assert::email($email);
         $this->raise(new UserEmailModified($this->id, $email));
     }
@@ -112,6 +127,7 @@ class User extends AggregateRoot
      */
     private function handleEmailModification(UserEmailModified $event)
     {
+        // no validation
         $this->email = $event->getEmail();
     }
 }
