@@ -19,7 +19,7 @@ can be either objects or closures.
 
 SimpleMessageBus is a basic implementation of the MessageBus interface. Currently, all other MessageBus implementations extend this class.
 
-If you use CQRS, then I highly recommend to use the pre-configured `AnnotationBasedEventBus` and `AnnotationBasedCommandBus` classes.
+If you use CQRS, then I highly recommend to use the pre-configured `EventBus` and `CommandBus` classes.
 For more information, please scroll down.
 
 ### Handler methods/functions
@@ -43,32 +43,25 @@ the concrete dispatch process and are able to modify that. It is usable for logg
 There is one builtin interceptor: `TransactionInterceptor`. If you pass it to a `MessageBus`, all message dispatch processes
 will be wrapped into a separated transaction.
 
-### AnnotationBasedCommandBus
+### CommandBus
 
-This kind of message bus uses annotation based configuration, and `TransactionInterceptor` is already registered. `Message` objects
-must implement `Command` interface. The typehint in the handler method must be exactly the same as the command object's type.
+`TransactionInterceptor` is already registered which indicates that all event handlers are wrapped by a unique transaction.
+`Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type.
 
-### AnnotationBasedEventBus
+### EventBus
 
-This message bus implementation is annotation based, uses the default typehint handling (subclass handling, etc.). Message objects
-must implement `Event` interface.
+This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
+must implement `Event` interface. Messages are buffered until the transaction is committed. It extends Mf4phpMessageBus class
+and uses `TransactedMemoryMessageDispatcher`.
 
 ### Mf4phpMessageBus
 
-If you raise events in your domain models, then I bet that you want to dispatch these events if and only if the already started
-transaction has finished successfully. It means that the events must be buffered until the commit is executed properly. This feature
-is already implemented in another library called [mf4php](https://github.com/szjani/mf4php). `Mf4phpMessageBus` wraps a `MessageDispatcher` which can be an instance of
-`TransactedMessageDispatcher`. One of the available implementations of it is `TransactedMemoryMessageDispatcher`, which is a synchronized
-solution. Unfortunately, PHP does not support threads so it's not easy to achieve asynchronous processing. However, there is
-a Beanstalk based mf4php implementation which supports both transaction based and asynchronous event processing.
-
-If you want to delay some events, you can register `ObjectMessageFactory` objects
-which can create the appropriate `DelayableMessage` instances for the defined message class. This feature is highly depending
-on the current mf4php implementation.
+`Mf4phpMessageBus` wraps a `MessageDispatcher`, so all features provided by [mf4php](https://github.com/szjani/mf4php) can be achieved with this class, such as
+synchronize messages to transactions and asynchronous event dispatching. For further information see the [mf4php](https://github.com/szjani/mf4php) documentation.
 
 ### Recommended CQRS usage (without read side)
 
-Let's take the following example:
+The following example uses annotation based configuration.
 
 #### Configuration
 
