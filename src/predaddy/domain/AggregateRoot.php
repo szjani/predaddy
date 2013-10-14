@@ -40,10 +40,10 @@ use Traversable;
  * inside the aggregate root, after that they will be sent to all outer event handlers.
  *
  * Handler methods must be annotated with "Subscribe"
- * and must be private or protected in the aggregate root itself. You can override this behaviour if you
+ * and must be private or protected methods. You can override this behaviour
  * with setInnerDescriptorFactory() method.
  *
- * If you are using event sourcing, you can initialize your aggregate roots through loadFromHistory method.
+ * If you are using event sourcing, you can initialize your aggregate roots through loadFromHistory() method.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
@@ -80,6 +80,9 @@ abstract class AggregateRoot extends Object implements Entity
     }
 
     /**
+     * All domain events raised in the aggregate roots
+     * are posted to $messageBus.
+     *
      * @param MessageBus $eventBus
      */
     public static function setEventBus(MessageBus $eventBus)
@@ -87,9 +90,13 @@ abstract class AggregateRoot extends Object implements Entity
         self::$eventBus = $eventBus;
     }
 
+    public static function getEventBus()
+    {
+        return self::$eventBus;
+    }
+
     /**
      * Useful to replay events with loadFromHistory() from the scratch.
-     * Should be used if the entity's constructor has any parameters.
      *
      * @return AggregateRoot
      */
@@ -101,13 +108,23 @@ abstract class AggregateRoot extends Object implements Entity
     /**
      * Useful in case of Event Sourcing.
      *
-     * @param Traversable $events
+     * @param DomainEvent[] $events
      */
-    public function loadFromHistory(Traversable $events)
+    public function loadFromHistory($events)
     {
         foreach ($events as $event) {
             $this->handleEventInAggregate($event);
         }
+    }
+
+    protected function raise(DomainEvent $event)
+    {
+        if (self::getEventBus() === null) {
+            static::getLogger()->error("Message bus has not been set to '{}'", array(static::className()));
+            throw new BadMethodCallException('Message bus has not been set to AggregateRoot!');
+        }
+        $this->handleEventInAggregate($event);
+        self::getEventBus()->post($event);
     }
 
     private function getInnerEventBus()
@@ -126,15 +143,5 @@ abstract class AggregateRoot extends Object implements Entity
     private function handleEventInAggregate(DomainEvent $event)
     {
         $this->getInnerEventBus()->post($event);
-    }
-
-    protected function raise(DomainEvent $event)
-    {
-        if (self::$eventBus === null) {
-            static::getLogger()->error("EventBus has not been set to '{}'", array(static::className()));
-            throw new BadMethodCallException('EventBus has not been set!');
-        }
-        $this->handleEventInAggregate($event);
-        self::$eventBus->post($event);
     }
 }
