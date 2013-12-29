@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use Exception;
-
 interface HandlerInterceptor
 {
     public function invoke(Message $message, InterceptorChain $chain);

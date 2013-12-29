@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use ReflectionClass;
-
 /**
  * @author Szurovecz János <szjani@szjani.hu>
  */

@@ -23,10 +23,6 @@
 
 namespace predaddy\messagehandling\command;
 
-use DateTime;
-use precore\lang\Object;
-use precore\lang\ObjectInterface;
-use precore\util\UUID;
 use predaddy\messagehandling\MessageBase;
 
 /**

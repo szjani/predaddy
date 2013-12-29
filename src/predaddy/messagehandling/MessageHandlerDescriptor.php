@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use ReflectionClass;
-
 /**
  * Finds and provide handler methods in the given message.
  *

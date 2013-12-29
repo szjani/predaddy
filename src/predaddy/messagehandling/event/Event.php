@@ -23,10 +23,7 @@
 
 namespace predaddy\messagehandling\event;
 
-use DateTime;
-use precore\lang\ObjectInterface;
 use predaddy\messagehandling\Message;
-use Serializable;
 
 /**
  * Base interface for all events in the application.

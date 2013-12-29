@@ -25,13 +25,10 @@ namespace predaddy\domain;
 
 use BadMethodCallException;
 use precore\lang\Object;
-use precore\lang\ObjectInterface;
-use predaddy\messagehandling\event\AnnotationBasedEventBus;
 use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use Traversable;
 
 /**
  * Aggregate root class.

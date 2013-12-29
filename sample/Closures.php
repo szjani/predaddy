@@ -1,13 +1,10 @@
 <?php
 namespace sample;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
+require_once __DIR__ . '/../vendor/autoload.php';
+
 use predaddy\messagehandling\Message;
 use predaddy\messagehandling\MessageBase;
-use predaddy\messagehandling\SimpleMessageBus;
-
-require_once __DIR__ . '/../vendor/autoload.php';
 
 class SampleMessage extends MessageBase
 {

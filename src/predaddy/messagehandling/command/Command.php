@@ -23,10 +23,7 @@
 
 namespace predaddy\messagehandling\command;
 
-use DateTime;
-use precore\lang\ObjectInterface;
 use predaddy\messagehandling\Message;
-use Serializable;
 
 /**
  * Base interface for all commands in the application.

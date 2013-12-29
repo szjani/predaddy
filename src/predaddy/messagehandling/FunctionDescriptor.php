@@ -23,7 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use ReflectionClass;
 use ReflectionFunctionAbstract;
 
 /**

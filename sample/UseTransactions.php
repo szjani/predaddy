@@ -11,7 +11,6 @@ namespace sample;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use mf4php\memory\TransactedMemoryMessageDispatcher;
-use precore\lang\Object;
 use Exception;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\DefaultFunctionDescriptorFactory;

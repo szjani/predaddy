@@ -29,7 +29,6 @@ use Exception;
 use Iterator;
 use precore\lang\Object;
 use ReflectionFunction;
-use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use SplObjectStorage;
 
