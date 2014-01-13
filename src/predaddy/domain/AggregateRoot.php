@@ -99,7 +99,7 @@ abstract class AggregateRoot extends Object implements Entity
      */
     final public static function createEmpty()
     {
-        return unserialize(sprintf('O:%u:"%s":0:{}', strlen(static::className()), static::className()));
+        return static::getObjectClass()->newInstanceWithoutConstructor();
     }
 
     /**
