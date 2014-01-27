@@ -161,8 +161,9 @@ class UserCommandHandler
     public function handleCommand(ModifyEmail $command)
     {
         // somehow obtain the persistent aggregate root
-        $email = $this->userRepository->find($command->getUserId());
-        $email->modifyEmailAddress($command->getEmail());
+        $user = $this->userRepository->find($command->getUserId());
+        $user->modifyEmailAddress($command->getEmail());
+        $this->userRepository->store($user, $command->getVersion());
     }
 }
 ```
@@ -170,7 +171,7 @@ class UserCommandHandler
 #### Sending a command
 
 ```php
-$commandBus->post(new ModifyEmail($userId, $email));
+$commandBus->post(new ModifyEmail($userId, $email, $version));
 ```
 
 Predaddy gives an `AggregateRoot` class which provides some opportunities. You should validate incoming parameters in
