@@ -43,6 +43,11 @@ use trf4php\ObservableTransactionManager;
 class EventBus extends Mf4PhpMessageBus
 {
     /**
+     * @var ObservableTransactionManager
+     */
+    private $transactionManager;
+
+    /**
      * @param $identifier
      * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
      * @param FunctionDescriptorFactory $functionDescriptorFactory

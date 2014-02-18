@@ -23,10 +23,12 @@
 
 namespace predaddy\messagehandling\mf4php;
 
+use InvalidArgumentException;
 use mf4php\DefaultQueue;
 use mf4php\Message as Mf4phpMessage;
 use mf4php\MessageDispatcher;
 use mf4php\MessageListener;
+use mf4php\ObjectMessage;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\Message;
 use predaddy\messagehandling\MessageCallback;
@@ -94,9 +96,13 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      * Forward incoming message to handlers.
      *
      * @param Mf4phpMessage $message
+     * @throws InvalidArgumentException
      */
     public function onMessage(Mf4phpMessage $message)
     {
+        if (!($message instanceof ObjectMessage)) {
+            throw new InvalidArgumentException("Message must be an instancee of ObjectMessage");
+        }
         $this->forwardMessage($message->getObject());
     }
 

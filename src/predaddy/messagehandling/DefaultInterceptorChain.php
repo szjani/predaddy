@@ -56,8 +56,9 @@ class DefaultInterceptorChain implements InterceptorChain
 
     public function proceed()
     {
-        $current = $this->handlerInterceptors->current();
+        $current = null;
         if ($this->handlerInterceptors->valid()) {
+            $current = $this->handlerInterceptors->current();
             $this->handlerInterceptors->next();
             return $current->invoke($this->message, $this);
         }

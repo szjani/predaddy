@@ -23,8 +23,8 @@
 
 namespace predaddy\messagehandling;
 
-use ArrayIterator;
 use Closure;
+use EmptyIterator;
 use Exception;
 use Iterator;
 use precore\lang\Object;
@@ -68,7 +68,7 @@ class SimpleMessageBus extends Object implements MessageBus
     private $closureDescriptorFactory;
 
     /**
-     * @var ArrayIterator
+     * @var Iterator
      */
     private $interceptors;
 
@@ -87,7 +87,7 @@ class SimpleMessageBus extends Object implements MessageBus
         $this->identifier = (string) $identifier;
         $this->handlerDescriptorFactory = $handlerDescriptorFactory;
         $this->closureDescriptorFactory = $closureDescriptorFactory;
-        $this->interceptors = new ArrayIterator();
+        $this->interceptors = new EmptyIterator();
     }
 
     /**
