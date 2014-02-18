@@ -94,6 +94,10 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
 
     public function create($handler)
     {
-        return new AnnotatedMessageHandlerDescriptor(new ReflectionClass($handler), $this->reader, $this->functionDescriptorFactory);
+        return new AnnotatedMessageHandlerDescriptor(
+            new ReflectionClass($handler),
+            $this->reader,
+            $this->functionDescriptorFactory
+        );
     }
 }
