@@ -51,16 +51,16 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     /**
      * @param ReflectionClass $handlerClass
      * @param Reader $reader
-     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param FunctionDescriptorFactory $functionDescFactory
      */
     public function __construct(
         ReflectionClass $handlerClass,
         Reader $reader,
-        FunctionDescriptorFactory $functionDescriptorFactory
+        FunctionDescriptorFactory $functionDescFactory
     ) {
         $this->handlerClass = $handlerClass;
         $this->reader = $reader;
-        $this->functionDescriptorFactory = $functionDescriptorFactory;
+        $this->functionDescriptorFactory = $functionDescFactory;
         $this->findHandlerMethods();
     }
 

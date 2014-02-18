@@ -63,17 +63,17 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
     }
 
     /**
-     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param FunctionDescriptorFactory $functionDescFactory
      * @param Reader $reader if null, an AnnotationReader instance will be used
      */
-    public function __construct(FunctionDescriptorFactory $functionDescriptorFactory, Reader $reader = null)
+    public function __construct(FunctionDescriptorFactory $functionDescFactory, Reader $reader = null)
     {
         self::registerAnnotations();
         if ($reader === null) {
             $reader = self::getDefaultReader();
         }
         $this->reader = $reader;
-        $this->functionDescriptorFactory = $functionDescriptorFactory;
+        $this->functionDescriptorFactory = $functionDescFactory;
     }
 
     /**

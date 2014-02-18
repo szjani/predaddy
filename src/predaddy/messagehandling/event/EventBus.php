@@ -49,20 +49,20 @@ class EventBus extends Mf4PhpMessageBus
 
     /**
      * @param $identifier
-     * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
-     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param FunctionDescriptorFactory $functionDescFactory
      * @param ObservableTransactionManager $transactionManager
      */
     public function __construct(
         $identifier,
-        MessageHandlerDescriptorFactory $handlerDescriptorFactory,
-        FunctionDescriptorFactory $functionDescriptorFactory,
+        MessageHandlerDescriptorFactory $handlerDescFactory,
+        FunctionDescriptorFactory $functionDescFactory,
         ObservableTransactionManager $transactionManager
     ) {
         parent::__construct(
             $identifier,
-            $handlerDescriptorFactory,
-            $functionDescriptorFactory,
+            $handlerDescFactory,
+            $functionDescFactory,
             new TransactedMemoryMessageDispatcher($transactionManager)
         );
         $this->transactionManager = $transactionManager;

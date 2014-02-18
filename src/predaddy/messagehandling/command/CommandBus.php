@@ -56,17 +56,17 @@ class CommandBus extends SimpleMessageBus
 
     /**
      * @param $identifier
-     * @param MessageHandlerDescriptorFactory $handlerDescriptorFactory
-     * @param FunctionDescriptorFactory $functionDescriptorFactory
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param FunctionDescriptorFactory $functionDescFactory
      * @param TransactionManager $transactionManager
      */
     public function __construct(
         $identifier,
-        MessageHandlerDescriptorFactory $handlerDescriptorFactory,
-        FunctionDescriptorFactory $functionDescriptorFactory,
+        MessageHandlerDescriptorFactory $handlerDescFactory,
+        FunctionDescriptorFactory $functionDescFactory,
         TransactionManager $transactionManager
     ) {
-        parent::__construct($identifier, $handlerDescriptorFactory, $functionDescriptorFactory);
+        parent::__construct($identifier, $handlerDescFactory, $functionDescFactory);
         $this->transactionManager = $transactionManager;
         $this->setInterceptors(new EmptyIterator());
     }

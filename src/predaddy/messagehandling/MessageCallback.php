@@ -29,5 +29,5 @@ interface MessageCallback
 {
     public function onSuccess($result);
 
-    public function onFailure(Exception $e);
+    public function onFailure(Exception $exception);
 }
