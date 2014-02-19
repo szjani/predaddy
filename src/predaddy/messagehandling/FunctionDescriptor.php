@@ -37,7 +37,7 @@ interface FunctionDescriptor
 
     /**
      * @param Message $message
-     * @return mixed
+     * @return boolean
      */
     public function isHandlerFor(Message $message);
 

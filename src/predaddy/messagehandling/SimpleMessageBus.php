@@ -129,7 +129,7 @@ class SimpleMessageBus extends Object implements MessageBus
     }
 
     /**
-     * @param callable $closure
+     * @param Closure $closure
      */
     public function registerClosure(Closure $closure)
     {
@@ -138,7 +138,7 @@ class SimpleMessageBus extends Object implements MessageBus
     }
 
     /**
-     * @param callable $closure
+     * @param Closure $closure
      */
     public function unregisterClosure(Closure $closure)
     {

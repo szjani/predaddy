@@ -53,6 +53,7 @@ interface MessageBus
      * Register the given handler to this bus. When registered, it will receive all messages posted to this bus.
      *
      * @param mixed $handler
+     * @return void
      */
     public function register($handler);
 
@@ -61,16 +62,19 @@ interface MessageBus
      * When unregistered, it will no longer receive messages posted to this bus.
      *
      * @param object $handler
+     * @return void
      */
     public function unregister($handler);
 
     /**
-     * @param callable $closure
+     * @param Closure $closure
+     * @return void
      */
     public function registerClosure(Closure $closure);
 
     /**
-     * @param callable $closure
+     * @param Closure $closure
+     * @return void
      */
     public function unregisterClosure(Closure $closure);
 }

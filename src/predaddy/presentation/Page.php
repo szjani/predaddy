@@ -34,20 +34,44 @@ use Traversable;
  */
 interface Page extends Traversable, ObjectInterface
 {
+    /**
+     * @return int
+     */
     public function getNumber();
 
+    /**
+     * @return int
+     */
     public function getSize();
 
+    /**
+     * @return int
+     */
     public function getTotalPages();
 
+    /**
+     * @return int
+     */
     public function getTotalElements();
 
+    /**
+     * @return boolean
+     */
     public function hasPreviousPage();
 
+    /**
+     * @return boolean
+     */
     public function isFirstPage();
 
+    /**
+     * @return boolean
+     */
     public function hasNextPage();
 
+    /**
+     * @return boolean
+     */
     public function isLastPage();
 
     /**
