@@ -101,7 +101,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
     public function onMessage(Mf4phpMessage $message)
     {
         if (!($message instanceof ObjectMessage)) {
-            throw new InvalidArgumentException("Message must be an instancee of ObjectMessage");
+            throw new InvalidArgumentException("Message must be an instance of ObjectMessage");
         }
         $this->forwardMessage($message->getObject());
     }
