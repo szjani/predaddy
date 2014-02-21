@@ -12,10 +12,12 @@
     "require": {
         "php": ">=5.3.2",
         "precore/precore": "~1.0",
-        "mf4php/mf4php": "1.1.*",
-        "doctrine/annotations": "1.1.*"
+        "doctrine/annotations": "~1.1",
+        "trf4php/trf4php": "~1.1",
+        "lf4php/lf4php": "~4.0"
     },
     "require-dev": {
+        "mf4php/mf4php": "~1.1",
         "satooshi/php-coveralls": "dev-master",
         "phpunit/phpunit": "3.7.*"
     },
@@ -23,6 +25,6 @@
         "psr-0": {"predaddy": "src/"}
     },
     "suggest": {
-        "mf4php/mf4php-beanstalk": "If you want to use EventBus with Beanstalk (asynchronous event handling)"
+        "mf4php/mf4php-beanstalk": "If you want to use Mf4PhpMessageBus with Beanstalk (asynchronous event handling)"
     }
 }
