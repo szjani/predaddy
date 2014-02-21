@@ -53,7 +53,7 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
         $functionDescriptorFactory = new EventFunctionDescriptorFactory();
         $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
         $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
-        $this->eventBus = new EventBus(__CLASS__, $handlerDescriptorFactory, $functionDescriptorFactory, $transactionManager);
+        $this->eventBus = new EventBus($handlerDescriptorFactory, $transactionManager);
         AggregateRoot::setEventBus($this->eventBus);
     }
 

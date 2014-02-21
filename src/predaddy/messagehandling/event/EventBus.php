@@ -23,48 +23,44 @@
 
 namespace predaddy\messagehandling\event;
 
-use mf4php\memory\TransactedMemoryMessageDispatcher;
-use predaddy\messagehandling\FunctionDescriptorFactory;
+use ArrayIterator;
+use predaddy\messagehandling\interceptors\TransactionSynchronizedBuffererInterceptor;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use predaddy\messagehandling\mf4php\Mf4PhpMessageBus;
+use predaddy\messagehandling\SimpleMessageBus;
 use trf4php\ObservableTransactionManager;
 
 /**
  * This kind of MessageBus synchronizes message dispatching with the given ObservableTransactionManager.
  * All posted messages will be buffered until the transaction is committed.
- * It uses in-memory message buffering with TransactedMemoryMessageDispatcher.
  *
- * It's recommended to use EventFunctionDescriptorFactory. In this case, messages must implement Event interface.
+ * It's highly recommended to use an EventFunctionDescriptorFactory instance.
+ * In that case Messages must implement the Event interface.
  *
  * @package predaddy\messagehandling\event
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventBus extends Mf4PhpMessageBus
+class EventBus extends SimpleMessageBus
 {
-    /**
-     * @var ObservableTransactionManager
-     */
-    private $transactionManager;
+    const DEFAULT_NAME = 'event-bus';
 
     /**
-     * @param $identifier
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param FunctionDescriptorFactory $functionDescFactory
      * @param ObservableTransactionManager $transactionManager
+     * @param $identifier
      */
     public function __construct(
-        $identifier,
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        FunctionDescriptorFactory $functionDescFactory,
-        ObservableTransactionManager $transactionManager
+        ObservableTransactionManager $transactionManager,
+        $identifier = self::DEFAULT_NAME
     ) {
-        parent::__construct(
-            $identifier,
-            $handlerDescFactory,
-            $functionDescFactory,
-            new TransactedMemoryMessageDispatcher($transactionManager)
+        parent::__construct($handlerDescFactory, $identifier);
+        $this->setInterceptors(
+            new ArrayIterator(
+                array(
+                    new TransactionSynchronizedBuffererInterceptor($transactionManager)
+                )
+            )
         );
-        $this->transactionManager = $transactionManager;
     }
 }

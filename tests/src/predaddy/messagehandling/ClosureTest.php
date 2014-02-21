@@ -35,7 +35,7 @@ class ClosureTest extends PHPUnit_Framework_TestCase
     {
         $functionDescriptorFactory = new DefaultFunctionDescriptorFactory();
         $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
-        $bus = new SimpleMessageBus(__METHOD__, $handlerDescriptorFactory, $functionDescriptorFactory);
+        $bus = new SimpleMessageBus($handlerDescriptorFactory);
         return $bus;
     }
 

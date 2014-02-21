@@ -10,16 +10,16 @@ namespace sample;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use mf4php\memory\TransactedMemoryMessageDispatcher;
 use Exception;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
+use predaddy\messagehandling\event\EventBase;
+use predaddy\messagehandling\event\EventBus;
+use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBase;
-use predaddy\messagehandling\mf4php\Mf4PhpMessageBus;
 use trf4php\doctrine\DoctrineTransactionManager;
 use trf4php\TransactionManager;
 
-class UserRegistered extends MessageBase
+class UserRegistered extends EventBase
 {
     protected $email;
 
@@ -52,13 +52,11 @@ class EmailSender
 
 /* @var $em \Doctrine\ORM\EntityManager */
 $transactionManager = new DoctrineTransactionManager($em);
-$dispatcher = new TransactedMemoryMessageDispatcher($transactionManager);
 
 // event bus initialization
-$functionDescFactory = new DefaultFunctionDescriptorFactory();
-$messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory);
-$bus = new Mf4PhpMessageBus('mf4php_message_bus', $messageHandlerDescFactory, $functionDescFactory, $dispatcher);
-$bus->register(new EmailSender());
+$messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory());
+$eventBus = new EventBus($messageHandlerDescFactory, $transactionManager);
+$eventBus->register(new EmailSender());
 
 
 /**
@@ -70,7 +68,7 @@ $bus->register(new EmailSender());
 $transactionManager->beginTransaction();
 try {
     // database modifications ...
-    $bus->post(new UserRegistered('example1@example.com'));
+    $eventBus->post(new UserRegistered('example1@example.com'));
     $transactionManager->commit();
     // EmailSender::sendMail will be called at this point
 } catch (Exception $e) {

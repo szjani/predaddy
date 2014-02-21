@@ -31,13 +31,13 @@ use predaddy\messagehandling\Message;
 use trf4php\TransactionManager;
 
 /**
- * Wraps the command dispatch process with transaction.
+ * Wraps the command dispatch process in transaction.
  *
  * @package predaddy\messagehandling\interceptors
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TransactionInterceptor extends Object implements HandlerInterceptor
+class WrapInTransactionInterceptor extends Object implements HandlerInterceptor
 {
     /**
      * @var TransactionManager

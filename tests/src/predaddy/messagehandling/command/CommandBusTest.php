@@ -26,6 +26,7 @@ namespace predaddy\messagehandling\command;
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use RuntimeException;
 
 require_once 'SimpleCommand.php';
@@ -49,9 +50,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
         $this->functionDescriptorFactory = new CommandFunctionDescriptorFactory();
         $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($this->functionDescriptorFactory);
         $this->commandBus = new CommandBus(
-            __CLASS__,
             $this->handlerDescriptorFactory,
-            $this->functionDescriptorFactory,
             $this->tm
         );
     }
@@ -130,7 +129,14 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('invoke')
             ->will(self::throwException(new RuntimeException("Ooops")));
-        $this->commandBus->setInterceptors(new ArrayIterator(array($interceptor)));
+        $this->commandBus->setInterceptors(
+            new ArrayIterator(
+                array(
+                    new WrapInTransactionInterceptor($this->tm),
+                    $interceptor
+                )
+            )
+        );
 
         $this->tm
             ->expects(self::once())

@@ -33,4 +33,9 @@ interface MessageHandlerDescriptorFactory
      * @return MessageHandlerDescriptor
      */
     public function create($handler);
+
+    /**
+     * @return FunctionDescriptorFactory
+     */
+    public function getFunctionDescriptorFactory();
 }

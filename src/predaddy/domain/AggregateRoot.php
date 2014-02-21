@@ -128,9 +128,8 @@ abstract class AggregateRoot extends Object implements Entity
     {
         if ($this->innerEventBus === null) {
             $this->innerEventBus = new SimpleMessageBus(
-                $this->getClassName(),
                 self::getInnerDescriptorFactory(),
-                self::getInnerDescriptorFactory()->getFunctionDescriptorFactory()
+                $this->getClassName()
             );
             $this->innerEventBus->register($this);
         }

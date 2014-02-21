@@ -42,6 +42,8 @@ use SplObjectStorage;
  */
 class SimpleMessageBus extends Object implements MessageBus
 {
+    const DEFAULT_NAME = 'default-bus';
+
     /**
      * @var string
      */
@@ -73,20 +75,18 @@ class SimpleMessageBus extends Object implements MessageBus
     private $interceptors;
 
     /**
-     * @param $identifier
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param FunctionDescriptorFactory $closureDescFactory
+     * @param $identifier
      */
     public function __construct(
-        $identifier,
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        FunctionDescriptorFactory $closureDescFactory
+        $identifier = self::DEFAULT_NAME
     ) {
         $this->handlers = new SplObjectStorage();
         $this->closures = new SplObjectStorage();
         $this->identifier = (string) $identifier;
         $this->handlerDescriptorFactory = $handlerDescFactory;
-        $this->closureDescriptorFactory = $closureDescFactory;
+        $this->closureDescriptorFactory = $handlerDescFactory->getFunctionDescriptorFactory();
         $this->interceptors = new EmptyIterator();
     }
 

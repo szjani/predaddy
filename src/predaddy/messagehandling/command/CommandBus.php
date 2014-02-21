@@ -23,12 +23,8 @@
 
 namespace predaddy\messagehandling\command;
 
-use AppendIterator;
 use ArrayIterator;
-use EmptyIterator;
-use Iterator;
-use predaddy\messagehandling\FunctionDescriptorFactory;
-use predaddy\messagehandling\interceptors\TransactionInterceptor;
+use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use trf4php\TransactionManager;
@@ -41,7 +37,7 @@ use trf4php\TransactionManager;
  * It's highly recommended to use a CommandFunctionDescriptorFactory instance to automatically achieve
  * the second criteria. In that case Messages must implement the Command interface.
  *
- * If you use it with a CommandBus, use the same TransactionManager instance.
+ * If you use it with an EventBus, you should use the same TransactionManager instance.
  *
  * @package predaddy\messagehandling\command
  *
@@ -49,42 +45,25 @@ use trf4php\TransactionManager;
  */
 class CommandBus extends SimpleMessageBus
 {
-    /**
-     * @var TransactionManager
-     */
-    private $transactionManager;
+    const DEFAULT_NAME = 'command-bus';
 
     /**
-     * @param $identifier
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param FunctionDescriptorFactory $functionDescFactory
      * @param TransactionManager $transactionManager
+     * @param $identifier
      */
     public function __construct(
-        $identifier,
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        FunctionDescriptorFactory $functionDescFactory,
-        TransactionManager $transactionManager
+        TransactionManager $transactionManager,
+        $identifier = self::DEFAULT_NAME
     ) {
-        parent::__construct($identifier, $handlerDescFactory, $functionDescFactory);
-        $this->transactionManager = $transactionManager;
-        $this->setInterceptors(new EmptyIterator());
-    }
-
-    /**
-     * @param Iterator $interceptors
-     */
-    public function setInterceptors(Iterator $interceptors)
-    {
-        $extendedInterceptors = new AppendIterator();
-        $extendedInterceptors->append(
+        parent::__construct($handlerDescFactory, $identifier);
+        $this->setInterceptors(
             new ArrayIterator(
                 array(
-                    new TransactionInterceptor($this->transactionManager)
+                    new WrapInTransactionInterceptor($transactionManager)
                 )
             )
         );
-        $extendedInterceptors->append($interceptors);
-        parent::setInterceptors($extendedInterceptors);
     }
 }

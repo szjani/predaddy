@@ -53,24 +53,24 @@ use predaddy\messagehandling\SimpleMessageBus;
  */
 class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
 {
+    const DEFAULT_NAME = 'mf4php-bus';
+
     private $dispatcher;
     private $queue;
     private $objectMessageFactories = array();
     private $defaultObjectMessageFactory;
 
     /**
-     * @param $busId
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param FunctionDescriptorFactory $functionDescFactory
      * @param MessageDispatcher $dispatcher
+     * @param $busId
      */
     public function __construct(
-        $busId,
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        FunctionDescriptorFactory $functionDescFactory,
-        MessageDispatcher $dispatcher
+        MessageDispatcher $dispatcher,
+        $busId = self::DEFAULT_NAME
     ) {
-        parent::__construct($busId, $handlerDescFactory, $functionDescFactory);
+        parent::__construct($handlerDescFactory, $busId);
         $this->dispatcher = $dispatcher;
         $this->queue = new DefaultQueue($busId);
         $this->defaultObjectMessageFactory = new DefaultObjectMessageFactory();

@@ -7,7 +7,7 @@ predaddy
 master: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy) [![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)
 1.2: [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy) [![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)
 
-It is a library which gives you some usable classes to be able to use common DDD patterns.
+It is a library which gives you some usable classes to be able to use common DDD patterns. Predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
 You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
 
 Predaddy uses [lf4php](https://github.com/szjani/lf4php) for logging.
@@ -22,7 +22,6 @@ can be either objects or closures.
 SimpleMessageBus is a basic implementation of the MessageBus interface. Currently, all other MessageBus implementations extend this class.
 
 If you use CQRS, then I highly recommend to use the pre-configured `EventBus` and `CommandBus` classes.
-For more information, please scroll down.
 
 ### Handler methods/functions
 
@@ -42,16 +41,21 @@ of this class, predaddy is automatically finding these methods.
 It's possible to extend bus behaviour when messages are being dispatched to message handlers. `HandlerInterceptor` objects wrap
 the concrete dispatch process and are able to modify that. It is usable for logging, transactions, etc.
 
-There is one builtin interceptor: `TransactionInterceptor`. If you pass it to a `MessageBus`, all message dispatch processes
-will be wrapped into a separated transaction.
+There are two builtin interceptors:
+
+ - `WrapInTransactionInterceptor`: All message dispatch processes will be wrapped in a new transaction.
+ - `TransactionSynchronizedBuffererInterceptor`: Message dispatching is synchronized to transactions which means that if there is an already started transaction
+ then messages are being buffered until the transaction is being committed. If the transaction is not successful then buffer is being cleared after rollback without sending out any messages.
+ Without an already started transaction buffering is disabled.
 
 ### CommandBus
 
-`TransactionInterceptor` is already registered which indicates that all event handlers are wrapped by a unique transaction.
+`WrapInTransactionInterceptor` is registered which indicates that all command handlers are wrapped in a unique transaction.
 `Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type.
 
 ### EventBus
 
+`TransactionSynchronizedBuffererInterceptor` is registered which means that event handlers are being called only after a the transaction has been successfully committed.
 This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
 must implement `Event` interface. Messages are buffered until the transaction is committed. It extends `Mf4phpMessageBus` class
 and uses `TransactedMemoryMessageDispatcher`.
@@ -71,36 +75,24 @@ The following example uses annotation based configuration.
 // you can use any ObservableTransactionManager implementation, see trf4php
 $transactionManager = new DoctrineTransactionManager($entityManager);
 
-/* Event bus should be synchronized to transactions, so you should use it
-with the same TransactionManager which is used in the command bus.
-The following setup provide you an annotation based message listening. */
+/* Event bus is synchronized to transactions, so you should use it
+with the same TransactionManager which is used by the command bus.
+The following setup provide you an annotation based configuration. */
 
 // configure event bus
-$eventFuncHandlerDescFactory = new EventFunctionDescriptorFactory();
 $eventHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
-    $eventFuncHandlerDescFactory
+    new EventFunctionDescriptorFactory()
 );
-$domainEventBus = new EventBus(
-    'domain-event-bus',
-    $eventHandlerDescFactory,
-    $eventFuncHandlerDescFactory,
-    $transactionManager
-);
+$domainEventBus = new EventBus($eventHandlerDescFactory, $transactionManager);
 
 // use the configured $domainEventBus in all aggregate root
 AggregateRoot::setEventBus($domainEventBus);
 
 // configure command bus
-$commandFuncHandlerDescFactory = new CommandFunctionDescriptorFactory();
 $commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
-    $commandFuncHandlerDescFactory
+    new CommandFunctionDescriptorFactory()
 );
-$commandBus = new CommandBus(
-    'command-bus',
-    $commandHandlerDescFactory,
-    $commandFuncHandlerDescFactory,
-    $transactionManager
-);
+$commandBus = new CommandBus($commandHandlerDescFactory, $transactionManager);
 
 // register the command handlers
 $commandBus->register(new UserCommandHandler());
@@ -205,6 +197,13 @@ In the above example the `$page` object stores the users and a lot of informatio
 
 History
 -------
+
+### 1.3
+
+ - The constructors are changed in all message bus implementations since they use the same `FunctionDescriptorFactory` for closures as the `MessageHandlerDescriptorFactory` for methods.
+ - `TransactionSynchronizedBuffererInterceptor` has been introduced thus `EventBus` does not extends `Mf4PhpMessageBus` anymore.
+ - Both `EventBus` and `CommandBus` now register theirs default interceptors in the constructor and do not override the `setInterceptors` method. If you want to register other interceptors,
+ it's your responsible to register all default interceptors if required.
 
 ### 1.2
 
