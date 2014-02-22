@@ -51,19 +51,28 @@ There are two builtin interceptors:
  then messages are being buffered until the transaction is being committed. If the transaction is not successful then buffer is being cleared after rollback without sending out any messages.
  Without an already started transaction buffering is disabled.
 
-### CommandBus
+### Unhandled messages
+
+Those messages which haven't been sent to any handlers during the dispatch process are being wrapped into an individual `DeadMessage` object and being dispatched again.
+Registering a `DeadMessage` handler is a common way to log or debug unhandled messages.
+
+### MessageBus implementations
+
+There is a default implementation of `MessageBus` interface called `SimpleMessageBus`. Predaddy also provides some other specialized implementations which extend this class.
+
+#### CommandBus
 
 `WrapInTransactionInterceptor` is registered which indicates that all command handlers are wrapped in a unique transaction.
 `Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type.
 
-### EventBus
+#### EventBus
 
 `TransactionSynchronizedBuffererInterceptor` is registered which means that event handlers are being called only after a the transaction has been successfully committed.
 This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
 must implement `Event` interface. Messages are buffered until the transaction is committed. It extends `Mf4phpMessageBus` class
 and uses `TransactedMemoryMessageDispatcher`.
 
-### Mf4phpMessageBus
+#### Mf4phpMessageBus
 
 `Mf4phpMessageBus` wraps a `MessageDispatcher`, so all features provided by [mf4php](https://github.com/szjani/mf4php) can be achieved with this class, such as
 synchronize messages to transactions and asynchronous event dispatching. For further information see the [mf4php](https://github.com/szjani/mf4php) documentation.
