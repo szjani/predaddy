@@ -27,6 +27,8 @@ use DateTime;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
+use predaddy\ReflectionSerializer;
+use predaddy\Serializer;
 
 /**
  * Base class for all types of messages. Contains the message identifier and timestamp.
@@ -37,6 +39,20 @@ abstract class MessageBase extends Object implements Message
 {
     protected $id;
     protected $timestamp;
+    private static $serializer;
+
+    public static function setSerializer(Serializer $serializer)
+    {
+        static::$serializer = $serializer;
+    }
+
+    public static function getSerializer()
+    {
+        if (self::$serializer === null) {
+            self::$serializer = new ReflectionSerializer();
+        }
+        return self::$serializer;
+    }
 
     public function __construct()
     {
@@ -62,27 +78,12 @@ abstract class MessageBase extends Object implements Message
 
     public function serialize()
     {
-        $array = array();
-        $properties = $this->getObjectClass()->getProperties();
-        /* @var $property \ReflectionProperty */
-        foreach ($properties as $property) {
-            $property->setAccessible(true);
-            $array[$property->getName()] = $property->getValue($this);
-        }
-        return serialize($array);
+        return static::getSerializer()->serialize($this);
     }
 
     public function unserialize($serialized)
     {
-        $array = unserialize($serialized);
-        $properties = $this->getObjectClass()->getProperties();
-        /* @var $property \ReflectionProperty */
-        foreach ($properties as $property) {
-            if (array_key_exists($property->getName(), $array)) {
-                $property->setAccessible(true);
-                $property->setValue($this, $array[$property->getName()]);
-            }
-        }
+        static::getSerializer()->deserialize($serialized, $this);
     }
 
     public function equals(ObjectInterface $object = null)

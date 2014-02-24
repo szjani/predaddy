@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,21 +23,28 @@
 
 namespace predaddy\domain;
 
-class UserCreated extends DomainEvent
-{
-    private $userId;
+use Iterator;
 
-    public function __construct(AggregateId $userId)
-    {
-        parent::__construct($userId);
-        $this->userId = $userId;
-    }
+interface EventStorage
+{
+    /**
+     * @param AggregateId $aggregateId
+     * @param Iterator $events
+     * @param $originatingVersion
+     * @param EventSourcedAggregateRoot $aggregateRoot
+     * @return void
+     */
+    public function saveChanges(
+        AggregateId $aggregateId,
+        Iterator $events,
+        $originatingVersion,
+        EventSourcedAggregateRoot $aggregateRoot = null
+    );
 
     /**
-     * @return AggregateId
+     * @param AggregateId $aggregateId
+     * @param int $fromVersion ">" $fromVersion
+     * @return Iterator
      */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
+    public function getEventsFor(AggregateId $aggregateId, $fromVersion = 0);
 }

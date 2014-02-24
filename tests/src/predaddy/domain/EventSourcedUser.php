@@ -23,21 +23,52 @@
 
 namespace predaddy\domain;
 
-class UserCreated extends DomainEvent
-{
-    private $userId;
+use precore\util\UUID;
+use predaddy\messagehandling\annotation\Subscribe;
 
-    public function __construct(AggregateId $userId)
+/**
+ * Description of User
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class EventSourcedUser extends EventSourcedAggregateRoot
+{
+    const DEFAULT_VALUE = 1;
+
+    private $id;
+    public $value = self::DEFAULT_VALUE;
+
+    public function __construct()
     {
-        parent::__construct($userId);
-        $this->userId = $userId;
+        $this->raise(new UserCreated(new UUIDAggregateId(UUID::randomUUID())));
     }
 
     /**
      * @return AggregateId
      */
-    public function getUserId()
+    public function getId()
     {
-        return $this->userId;
+        return $this->id;
+    }
+
+    public function increment()
+    {
+        $this->raise(new IncrementedEvent($this->id));
+    }
+
+    /**
+     * @Subscribe
+     */
+    private function handleCreated(UserCreated $event)
+    {
+        $this->id = $event->getUserId();
+    }
+
+    /**
+     * @Subscribe
+     */
+    private function handleIncrementedEvent(IncrementedEvent $event)
+    {
+        $this->value++;
     }
 }

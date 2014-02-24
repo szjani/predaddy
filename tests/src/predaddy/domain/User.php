@@ -41,7 +41,8 @@ class User extends AggregateRoot
 
     public function __construct()
     {
-        $this->raise(new UserCreated(UUID::randomUUID()->toString()));
+        $this->id = new UUIDAggregateId(UUID::randomUUID());
+        $this->raise(new UserCreated($this->id));
     }
 
     public function getId()
@@ -51,19 +52,7 @@ class User extends AggregateRoot
 
     public function increment()
     {
-        $this->raise(new IncrementedEvent($this->id));
-    }
-
-    private function handleCreated(UserCreated $event)
-    {
-        $this->id = $event->getUserId();
-    }
-
-    /**
-     * @Subscribe
-     */
-    private function handleIncrementedEvent(IncrementedEvent $event)
-    {
         $this->value++;
+        $this->raise(new IncrementedEvent($this->id));
     }
 }

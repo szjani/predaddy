@@ -34,10 +34,12 @@ class SimpleMessage extends MessageBase
     protected $protectedData;
     private $privateData;
 
+    const PRIVATE_VALUE = 'private';
+
     public function __construct()
     {
         parent::__construct();
-        $this->privateData = 'private';
+        $this->privateData = self::PRIVATE_VALUE;
         $this->protectedData = 'protected';
     }
 

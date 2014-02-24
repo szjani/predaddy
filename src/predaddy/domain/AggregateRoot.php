@@ -25,22 +25,10 @@ namespace predaddy\domain;
 
 use BadMethodCallException;
 use precore\lang\Object;
-use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use predaddy\messagehandling\SimpleMessageBus;
 
 /**
  * Aggregate root class.
- *
- * You can send an event which will be handled by all handler methods
- * inside the aggregate root, after that they will be sent to all outer event handlers.
- *
- * Handler methods must be annotated with "Subscribe"
- * and must be private or protected methods. You can override this behaviour
- * with setInnerDescriptorFactory() method.
- *
- * If you are using event sourcing, you can initialize your aggregate roots through loadFromHistory() method.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
@@ -50,31 +38,6 @@ abstract class AggregateRoot extends Object implements Entity
      * @var MessageBus
      */
     private static $eventBus;
-    private static $descriptorFactory = null;
-    private $innerEventBus = null;
-
-    /**
-     * @return AggregateRootEventHandlerDescriptorFactory
-     */
-    public static function getInnerDescriptorFactory()
-    {
-        if (self::$descriptorFactory === null) {
-            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory(
-                new EventFunctionDescriptorFactory()
-            );
-        }
-        return self::$descriptorFactory;
-    }
-
-    /**
-     * It's recommended to use AggregateRootEventHandlerDescriptorFactory.
-     *
-     * @param MessageHandlerDescriptorFactory $descriptorFactory
-     */
-    public static function setInnerDescriptorFactory(MessageHandlerDescriptorFactory $descriptorFactory)
-    {
-        self::$descriptorFactory = $descriptorFactory;
-    }
 
     /**
      * All domain events raised in the aggregate roots
@@ -93,26 +56,9 @@ abstract class AggregateRoot extends Object implements Entity
     }
 
     /**
-     * Useful to replay events with loadFromHistory() from the scratch.
-     *
-     * @return AggregateRoot
+     * @return AggregateId
      */
-    final public static function createEmpty()
-    {
-        return static::objectClass()->newInstanceWithoutConstructor();
-    }
-
-    /**
-     * Useful in case of Event Sourcing.
-     *
-     * @param DomainEvent[] $events
-     */
-    public function loadFromHistory($events)
-    {
-        foreach ($events as $event) {
-            $this->handleEventInAggregate($event);
-        }
-    }
+    abstract public function getId();
 
     protected function raise(DomainEvent $event)
     {
@@ -120,24 +66,6 @@ abstract class AggregateRoot extends Object implements Entity
             static::getLogger()->error("Message bus has not been set to '{}'", array(static::className()));
             throw new BadMethodCallException('Message bus has not been set to AggregateRoot!');
         }
-        $this->handleEventInAggregate($event);
         self::getEventBus()->post($event);
-    }
-
-    private function getInnerEventBus()
-    {
-        if ($this->innerEventBus === null) {
-            $this->innerEventBus = new SimpleMessageBus(
-                self::getInnerDescriptorFactory(),
-                $this->getClassName()
-            );
-            $this->innerEventBus->register($this);
-        }
-        return $this->innerEventBus;
-    }
-
-    private function handleEventInAggregate(DomainEvent $event)
-    {
-        $this->getInnerEventBus()->post($event);
     }
 }

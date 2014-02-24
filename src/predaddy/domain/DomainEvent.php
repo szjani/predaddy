@@ -28,7 +28,7 @@ use predaddy\messagehandling\event\EventBase;
 /**
  * Base class for all Domain Events.
  * This class contains the basic behavior expected from any event
- * to be processedby event sourcing engines and aggregates.
+ * to be processed by event sourcing engines and aggregates.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
@@ -36,12 +36,15 @@ abstract class DomainEvent extends EventBase
 {
     protected $aggregateId;
 
-    public function __construct($aggregateId)
+    public function __construct(AggregateId $aggregateId)
     {
         parent::__construct();
         $this->aggregateId = $aggregateId;
     }
 
+    /**
+     * @return AggregateId
+     */
     public function getAggregateIdentifier()
     {
         return $this->aggregateId;

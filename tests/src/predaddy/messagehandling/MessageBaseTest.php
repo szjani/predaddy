@@ -58,6 +58,7 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
         self::assertEquals($message->getPrivateData(), $deserialized->getPrivateData());
         self::assertEquals($message->getProtectedData(), $deserialized->getProtectedData());
         self::assertEquals($message->getMessageIdentifier(), $deserialized->getMessageIdentifier());
+        self::assertEquals(SimpleMessage::PRIVATE_VALUE, $deserialized->getPrivateData());
     }
 
     public function testDeserializeFromOldFormatWherePrivateDataIsMissing()
