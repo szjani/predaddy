@@ -25,6 +25,7 @@ namespace predaddy\domain\impl\doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use precore\lang\ObjectClass;
 use predaddy\domain\AggregateId;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\EventSourcingRepository;
@@ -57,7 +58,12 @@ class DoctrineEventSourcingRepository extends EventSourcingRepository
         /* @var $aggregate Aggregate */
         $aggregate = $this->entityManager->find(Aggregate::className(), $idValue);
         $this->checkAggregate($idValue, $aggregate);
-        return $aggregate->getAggregateRoot();
+        $aggregateRoot = $aggregate->getAggregateRoot();
+        if ($aggregateRoot === null) {
+            $aggregateClass = new ObjectClass($aggregate->getType());
+            $aggregateRoot = $aggregateClass->newInstanceWithoutConstructor();
+        }
+        return $aggregateRoot;
     }
 
     /**

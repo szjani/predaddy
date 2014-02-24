@@ -25,6 +25,7 @@ namespace predaddy\domain\impl\doctrine;
 
 use precore\lang\Object;
 use Doctrine\ORM\Mapping as ORM;
+use predaddy\domain\AggregateId;
 use predaddy\domain\EventSourcedAggregateRoot;
 
 /**
@@ -47,7 +48,7 @@ class Aggregate extends Object
     private $aggregateId;
 
     /**
-     * @ORM\Column(type="text", nullable=false)
+     * @ORM\Column(type="text", nullable=true)
      * @var string
      */
     private $data;
@@ -65,14 +66,10 @@ class Aggregate extends Object
      */
     private $version = 0;
 
-    /**
-     * @param EventSourcedAggregateRoot $aggregateRoot
-     */
-    public function __construct(EventSourcedAggregateRoot $aggregateRoot)
+    public function __construct(AggregateId $aggregateId, $type)
     {
-        $this->aggregateId = $aggregateRoot->getId()->getValue();
-        $this->type = $aggregateRoot->getClassName();
-        $this->data = serialize($aggregateRoot);
+        $this->aggregateId = $aggregateId->getValue();
+        $this->type = $type;
     }
 
     /**
@@ -105,10 +102,15 @@ class Aggregate extends Object
     }
 
     /**
-     * @return EventSourcedAggregateRoot
+     * @return EventSourcedAggregateRoot|null
      */
     public function getAggregateRoot()
     {
         return unserialize($this->data);
+    }
+
+    public function setAggregateRoot(EventSourcedAggregateRoot $aggregateRoot)
+    {
+        $this->data = serialize($aggregateRoot);
     }
 }

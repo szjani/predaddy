@@ -30,6 +30,8 @@ use Iterator;
 use predaddy\domain\AggregateId;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\EventStorage;
+use predaddy\domain\TrivialSnapshotStrategy;
+use predaddy\domain\SnapshotStrategy;
 
 class DoctrineOrmEventStorage implements EventStorage
 {
@@ -39,11 +41,21 @@ class DoctrineOrmEventStorage implements EventStorage
     private $entityManager;
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * @var SnapshotStrategy
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    private $snapshotStrategy;
+
+    /**
+     * @param EntityManagerInterface $entityManager
+     * @param SnapshotStrategy $snapshotStrategy
+     */
+    public function __construct(EntityManagerInterface $entityManager, SnapshotStrategy $snapshotStrategy = null)
     {
         $this->entityManager = $entityManager;
+        if ($snapshotStrategy === null) {
+            $snapshotStrategy = TrivialSnapshotStrategy::$NEVER;
+        }
+        $this->snapshotStrategy = $snapshotStrategy;
     }
 
     /**
@@ -61,13 +73,16 @@ class DoctrineOrmEventStorage implements EventStorage
     ) {
         $aggregate = $this->entityManager->find(Aggregate::className(), $aggregateId);
         if ($aggregate === null) {
-            $aggregate = new Aggregate($aggregateRoot);
+            $aggregate = new Aggregate($aggregateId, $aggregateRoot->getClassName());
             $this->entityManager->persist($aggregate);
         }
         $this->entityManager->lock($aggregate, LockMode::OPTIMISTIC, $originatingVersion);
         foreach ($events as $event) {
             $aggregate->increaseVersion();
             $this->entityManager->persist(new Event($event, $aggregateId, $aggregate->getVersion()));
+        }
+        if ($this->snapshotStrategy->snapshotRequired($aggregateRoot, $originatingVersion, $aggregate->getVersion())) {
+            $aggregate->setAggregateRoot($aggregateRoot);
         }
     }
 
