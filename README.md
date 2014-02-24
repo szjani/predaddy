@@ -69,8 +69,7 @@ There is a default implementation of `MessageBus` interface called `SimpleMessag
 
 `TransactionSynchronizedBuffererInterceptor` is registered which means that event handlers are being called only after a the transaction has been successfully committed.
 This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
-must implement `Event` interface. Messages are buffered until the transaction is committed. It extends `Mf4phpMessageBus` class
-and uses `TransactedMemoryMessageDispatcher`.
+must implement `Event` interface. Messages are buffered until the transaction is committed.
 
 #### Mf4phpMessageBus
 
