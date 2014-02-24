@@ -92,4 +92,14 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
         $user->loadFromHistory(new ArrayIterator(array($lastEvent)));
         self::assertEquals($user->value, $replayedUser->value);
     }
+
+    public function testSerialization()
+    {
+        $user = new EventSourcedUser();
+        $serialized = serialize($user);
+        /* @var $resUser EventSourcedUser */
+        $resUser = unserialize($serialized);
+        self::assertEquals($user->getId(), $resUser->getId());
+        self::assertEquals($user->value, $resUser->value);
+    }
 }
