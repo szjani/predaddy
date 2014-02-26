@@ -42,12 +42,12 @@ interface Command extends Message
     public function getCommandIdentifier();
 
     /**
-     * @return AggregateId
+     * @return AggregateId|null null if it is a create command
      */
     public function getAggregateId();
 
     /**
-     * @return int
+     * @return int 0 if it is a create command
      */
     public function getVersion();
 }

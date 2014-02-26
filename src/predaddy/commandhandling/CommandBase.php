@@ -45,7 +45,7 @@ abstract class CommandBase extends MessageBase implements Command
     private $version;
 
     /**
-     * @param string $aggregateId
+     * @param string|null $aggregateId
      * @param int $version
      */
     public function __construct($aggregateId, $version = 0)
@@ -65,11 +65,11 @@ abstract class CommandBase extends MessageBase implements Command
     }
 
     /**
-     * @return AggregateId
+     * @return null|AggregateId|DefaultAggregateId
      */
     public function getAggregateId()
     {
-        return new DefaultAggregateId($this->aggregateId);
+        return $this->aggregateId === null ? null : new DefaultAggregateId($this->aggregateId);
     }
 
     /**
