@@ -18,6 +18,12 @@ Predaddy uses [lf4php](https://github.com/szjani/lf4php) for logging.
 Components
 ----------
 
+For more details see the components:
+
+ - [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling)
+ - [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain)
+ - [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation)
+
 History
 -------
 
