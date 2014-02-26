@@ -27,8 +27,8 @@ use DateTime;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
-use predaddy\ReflectionSerializer;
-use predaddy\Serializer;
+use predaddy\serializer\ReflectionSerializer;
+use predaddy\serializer\Serializer;
 
 /**
  * Base class for all types of messages. Contains the message identifier and timestamp.

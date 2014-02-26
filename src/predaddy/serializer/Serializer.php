@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace predaddy;
+namespace predaddy\serializer;
 
 use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;

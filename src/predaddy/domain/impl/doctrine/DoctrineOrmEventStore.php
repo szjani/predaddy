@@ -32,7 +32,7 @@ use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\SnapshotEventStore;
-use predaddy\Serializer;
+use predaddy\serializer\Serializer;
 
 class DoctrineOrmEventStore implements SnapshotEventStore
 {

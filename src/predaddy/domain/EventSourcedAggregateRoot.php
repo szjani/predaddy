@@ -23,14 +23,13 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
 use Iterator;
 use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use predaddy\ReflectionSerializer;
-use predaddy\Serializer;
+use predaddy\serializer\ReflectionSerializer;
+use predaddy\serializer\Serializer;
 use Serializable;
 
 /**
@@ -40,8 +39,6 @@ use Serializable;
  * Handler methods must be annotated with "Subscribe"
  * and must be private or protected methods. You can override this behaviour
  * with setInnerDescriptorFactory() method.
- *
- * If you are using event sourcing, you can initialize your aggregate roots through loadFromHistory() method.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
@@ -117,6 +114,7 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
     /**
      * Useful in case of Event Sourcing.
      *
+     * @see EventSourcingRepository
      * @param Iterator $events DomainEvent iterator
      */
     public function loadFromHistory(Iterator $events)
