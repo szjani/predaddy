@@ -35,48 +35,49 @@ require_once __DIR__ . '/UserCreated.php';
 
 class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var EventBus
-     */
-    private $eventBus;
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $functionDescFactory = new EventFunctionDescriptorFactory();
-        $handlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory);
-        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
-        $this->eventBus = new EventBus($handlerDescFactory, $transactionManager);
-        AggregateRoot::setEventBus($this->eventBus);
-    }
+//    /**
+//     * @var EventBus
+//     */
+//    private $eventBus;
+//
+//    protected function setUp()
+//    {
+//        parent::setUp();
+//        $functionDescFactory = new EventFunctionDescriptorFactory();
+//        $handlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory);
+//        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
+//        $this->eventBus = new EventBus($handlerDescFactory, $transactionManager);
+//        AggregateRoot::setEventBus($this->eventBus);
+//    }
 
     public function testLoadFromHistory()
     {
-        $raisedEvents = array();
         $lastEvent = null;
 
-        $this->eventBus->registerClosure(
-            function (DomainEvent $event) use (&$raisedEvents, &$lastEvent) {
-                $raisedEvents[] = $event;
-                $lastEvent = $event;
-            }
-        );
+//        $this->eventBus->registerClosure(
+//            function (DomainEvent $event) use (&$raisedEvents, &$lastEvent) {
+//                $raisedEvents[] = $event;
+//                $lastEvent = $event;
+//            }
+//        );
 
         $user = new EventSourcedUser();
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE, $user->value);
-        self::assertInstanceOf(UserCreated::className(), $lastEvent);
 
         // increment 3 times
         $user->increment();
         $user->increment();
         $user->increment();
 
+        $raisedEvents = $user->getAndClearRaisedEvents();
+
         // 1 create and 3 increment events raised
+        self::assertInstanceOf(UserCreated::className(), $raisedEvents->current());
         self::assertEquals(4, count($raisedEvents));
 
         /* @var $replayedUser EventSourcedUser */
         $replayedUser = EventSourcedUser::createEmpty();
-        $replayedUser->loadFromHistory(new ArrayIterator($raisedEvents));
+        $replayedUser->loadFromHistory($raisedEvents);
 
         // the two user have the same values
         self::assertNotNull($user->getId());
@@ -85,11 +86,12 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 
         // increment only $replayedUser's value
         $replayedUser->increment();
+        $raisedEvents = $replayedUser->getAndClearRaisedEvents();
         self::assertEquals($user->value + 1, $replayedUser->value);
-        self::assertEquals(5, count($raisedEvents));
+        self::assertEquals(1, count($raisedEvents));
 
         // replay the last event coming from $replayedUser on the original user
-        $user->loadFromHistory(new ArrayIterator(array($lastEvent)));
+        $user->loadFromHistory($raisedEvents);
         self::assertEquals($user->value, $replayedUser->value);
     }
 

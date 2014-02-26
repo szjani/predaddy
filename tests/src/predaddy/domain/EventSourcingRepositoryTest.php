@@ -24,12 +24,24 @@
 namespace predaddy\domain;
 
 use ArrayIterator;
+use Iterator;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\event\EventBus;
+use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
+use trf4php\NOPTransactionManager;
+
+require_once 'EventSourcedUser.php';
 
 class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 {
-    private $eventStorage;
+    private $eventStore;
+
+    /**
+     * @var EventBus
+     */
+    private $eventBus;
 
     /**
      * @var EventSourcingRepository
@@ -38,83 +50,90 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->eventStorage = $this->getMock('\predaddy\domain\EventStorage');
-        $this->repository = $this->getMock(
-            '\predaddy\domain\EventSourcingRepository',
-            array('innerLoad', 'obtainVersion'),
-            array($this->eventStorage)
+        $this->eventBus = new EventBus(
+            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
+            new NOPTransactionManager()
+        );
+        $this->eventStore = $this->getMock('\predaddy\domain\EventStore');
+        $this->repository = new EventSourcingRepository(
+            EventSourcedUser::objectClass(),
+            $this->eventBus,
+            $this->eventStore
         );
     }
 
     public function testGetEventStorage()
     {
-        self::assertSame($this->eventStorage, $this->repository->getEventStorage());
+        self::assertSame($this->eventStore, $this->repository->getEventStorage());
     }
 
     public function testLoad()
     {
         $aggregateId = new UUIDAggregateId(UUID::randomUUID());
 
-        $aggregate = $this->getMock('\predaddy\domain\EventSourcedAggregateRoot', array('loadFromHistory', 'getId'));
-        $version = 2;
+        $aggregate = new EventSourcedUser();
 
-        $this->repository
-            ->expects(self::once())
-            ->method('innerLoad')
-            ->with($aggregateId)
-            ->will(self::returnValue($aggregate));
-
-        $this->repository
-            ->expects(self::once())
-            ->method('obtainVersion')
-            ->with($aggregateId)
-            ->will(self::returnValue(2));
-
-        $event1 = $this->getMock('\predaddy\domain\DomainEvent', array(), array(), '', false);
-        $event2 = $this->getMock('\predaddy\domain\DomainEvent', array(), array(), '', false);
-        $events = new ArrayIterator(array($event1, $event2));
-        $this->eventStorage
+        $this->eventStore
             ->expects(self::once())
             ->method('getEventsFor')
-            ->with($aggregateId, $version)
-            ->will(self::returnValue($events));
+            ->with(EventSourcedUser::className(), $aggregateId)
+            ->will(self::returnValue($aggregate->getAndClearRaisedEvents()));
 
-        $aggregate
-            ->expects(self::once())
-            ->method('loadFromHistory')
-            ->with($events);
-
-        $this->repository->load($aggregateId);
+        $replayedAggregate = $this->repository->load($aggregateId);
+        self::assertEquals($aggregate->getId(), $replayedAggregate->getId());
+        self::assertEquals($aggregate->value, $replayedAggregate->value);
     }
 
     public function testSave()
     {
-        $aggregateId = new UUIDAggregateId(UUID::randomUUID());
         $version = 3;
-        $event1 = $this->getMock('\predaddy\domain\DomainEvent', array(), array(), '', false);
-        $event2 = $this->getMock('\predaddy\domain\DomainEvent', array(), array(), '', false);
-        $events = new ArrayIterator(array($event1, $event2));
 
-        $aggregate = $this->getMock(
-            '\predaddy\domain\EventSourcedAggregateRoot',
-            array('getAndClearRaisedEvents', 'getId')
-        );
+        $aggregate = new EventSourcedUser();
+        $aggregate->increment();
 
-        $aggregate
-            ->expects(self::once())
-            ->method('getId')
-            ->will(self::returnValue($aggregateId));
-
-        $aggregate
-            ->expects(self::once())
-            ->method('getAndClearRaisedEvents')
-            ->will(self::returnValue($events));
-
-        $this->eventStorage
+        $this->eventStore
             ->expects(self::once())
             ->method('saveChanges')
-            ->with($aggregateId, $events, $version, $aggregate);
+            ->will(
+                self::returnCallback(
+                    function ($className, Iterator $events, $getVersion) use ($version) {
+                        EventSourcingRepositoryTest::assertEquals($version, $getVersion);
+                        EventSourcingRepositoryTest::assertEquals(EventSourcedUser::className(), $className);
+                        EventSourcingRepositoryTest::assertInstanceOf(UserCreated::className(), $events->current());
+                        $events->next();
+                        EventSourcingRepositoryTest::assertInstanceOf(
+                            IncrementedEvent::className(),
+                            $events->current()
+                        );
+                    }
+                )
+            );
+
+        $events = array();
+        $this->eventBus->registerClosure(
+            function (DomainEvent $event) use (&$events) {
+                $events[] = $event;
+            }
+        );
 
         $this->repository->save($aggregate, $version);
+
+        self::assertCount(2, $events);
+        self::assertInstanceOf(UserCreated::className(), $events[0]);
+        self::assertInstanceOf(IncrementedEvent::className(), $events[1]);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidId()
+    {
+        $aggregateId = new UUIDAggregateId(UUID::randomUUID());
+        $this->eventStore
+            ->expects(self::once())
+            ->method('getEventsFor')
+            ->with(EventSourcedUser::className(), $aggregateId)
+            ->will(self::returnValue(new ArrayIterator(array())));
+        $this->repository->load($aggregateId);
     }
 }

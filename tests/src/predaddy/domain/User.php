@@ -27,6 +27,9 @@ use precore\lang\ObjectInterface;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\Subscribe;
 
+require_once 'UserCreated.php';
+require_once 'IncrementedEvent.php';
+
 /**
  * Description of User
  *

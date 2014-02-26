@@ -83,7 +83,7 @@ abstract class MessageBase extends Object implements Message
 
     public function unserialize($serialized)
     {
-        static::getSerializer()->deserialize($serialized, $this);
+        static::getSerializer()->deserialize($serialized, static::objectClass(), $this);
     }
 
     public function equals(ObjectInterface $object = null)

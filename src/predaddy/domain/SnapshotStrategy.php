@@ -23,6 +23,8 @@
 
 namespace predaddy\domain;
 
+use Iterator;
+
 /**
  * Can be used in EventStore to decide whether the current version of the aggregate
  * should be persisted or not. The result actually is being a rolling snapshot.
@@ -35,8 +37,7 @@ interface SnapshotStrategy
     /**
      * @param EventSourcedAggregateRoot $aggregateRoot
      * @param int $originalVersion
-     * @param int $newVersion
      * @return boolean
      */
-    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion, $newVersion);
+    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion);
 }

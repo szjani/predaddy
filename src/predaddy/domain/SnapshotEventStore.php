@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,39 +23,26 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
-use BadMethodCallException;
-use Iterator;
-use precore\lang\Object;
-use predaddy\messagehandling\MessageBus;
-
 /**
- * Aggregate root class.
+ * Interface SnapshotEventStore
  *
- * @author Szurovecz János <szjani@szjani.hu>
+ * SnapshotEventStore.getEventsFor() method must returns all events raised since the last snapshot has been created.
+ *
+ * @package predaddy\domain
  */
-abstract class AggregateRoot extends Object implements Entity
+interface SnapshotEventStore extends EventStore
 {
-    protected $events = array();
+    /**
+     * @param string $aggregateRootClass FQCN
+     * @param AggregateId $aggregateId
+     * @return void
+     */
+    public function createSnapshot($aggregateRootClass, AggregateId $aggregateId);
 
     /**
-     * @return AggregateId
+     * @param $aggregateRootClass
+     * @param AggregateId $aggregateId
+     * @return EventSourcedAggregateRoot|null
      */
-    abstract public function getId();
-
-    /**
-     * @see AggregateRootRepository::save()
-     * @return Iterator of DomainEvent objects
-     */
-    public function getAndClearRaisedEvents()
-    {
-        $events = new ArrayIterator($this->events);
-        $this->events = array();
-        return $events;
-    }
-
-    protected function raise(DomainEvent $event)
-    {
-        $this->events[] = $event;
-    }
+    public function loadSnapshot($aggregateRootClass, AggregateId $aggregateId);
 }

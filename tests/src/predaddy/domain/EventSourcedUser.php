@@ -26,6 +26,9 @@ namespace predaddy\domain;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\Subscribe;
 
+require_once 'UserCreated.php';
+require_once 'IncrementedEvent.php';
+
 /**
  * Description of User
  *
@@ -40,7 +43,7 @@ class EventSourcedUser extends EventSourcedAggregateRoot
 
     public function __construct()
     {
-        $this->raise(new UserCreated(new UUIDAggregateId(UUID::randomUUID())));
+        $this->apply(new UserCreated(new UUIDAggregateId(UUID::randomUUID())));
     }
 
     /**
@@ -53,7 +56,7 @@ class EventSourcedUser extends EventSourcedAggregateRoot
 
     public function increment()
     {
-        $this->raise(new IncrementedEvent($this->id));
+        $this->apply(new IncrementedEvent($this->id));
     }
 
     /**

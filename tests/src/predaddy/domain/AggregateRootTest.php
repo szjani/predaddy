@@ -23,13 +23,8 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
 use PHPUnit_Framework_TestCase;
-use predaddy\eventhandling\DirectEventBus;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\event\AnnotationBasedEventBus;
-use predaddy\messagehandling\event\EventBus;
-use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 
 require_once __DIR__ . '/User.php';
 require_once __DIR__ . '/IncrementedEvent.php';
@@ -42,39 +37,15 @@ require_once __DIR__ . '/UserCreated.php';
  */
 class AggregateRootTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var EventBus
-     */
-    private $eventBus;
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $functionDescFactory = new EventFunctionDescriptorFactory();
-        $handlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory);
-        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
-        $this->eventBus = new EventBus($handlerDescFactory, $transactionManager);
-        AggregateRoot::setEventBus($this->eventBus);
-    }
-
     public function testCallHandleMethod()
     {
         $user = new User();
         self::assertEquals(User::DEFAULT_VALUE, $user->value);
 
-        $id = null;
-
-        $eventRaised = false;
-        $this->eventBus->registerClosure(
-            function (IncrementedEvent $event) use (&$eventRaised, &$id) {
-                $eventRaised = true;
-                $id = $event->getAggregateIdentifier();
-            }
-        );
-
+        $events = $user->getAndClearRaisedEvents();
         $user->increment();
         self::assertEquals(2, $user->value);
-        self::assertTrue($eventRaised);
-        self::assertEquals($id, $user->getId());
+        self::assertTrue($events->valid());
+        self::assertEquals($events->current()->getAggregateIdentifier(), $user->getId());
     }
 }

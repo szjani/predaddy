@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2014 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,22 +23,21 @@
 
 namespace predaddy\domain\impl\doctrine;
 
-use precore\lang\Object;
 use Doctrine\ORM\Mapping as ORM;
+use precore\lang\Object;
 use predaddy\domain\AggregateId;
-use predaddy\domain\EventSourcedAggregateRoot;
 
 /**
- * Meta entity to store aggregate roots. It supports snapshotting.
+ * Class Snapshot
  *
- * @package predaddy\domain\eventstore\doctrine
+ * @package predaddy\domain\impl\doctrine
  *
  * @author Szurovecz János <szjani@szjani.hu>
  *
- * @ORM\Entity
- * @ORM\Table(name="aggregate")
+ * @ORM\Entity(readOnly=true)
+ * @ORM\Table(name="snapshot")
  */
-class Aggregate extends Object
+class Snapshot extends Object
 {
     /**
      * @ORM\Id
@@ -55,11 +54,16 @@ class Aggregate extends Object
     private $type;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     * @var string
+     */
+    private $data;
+
+    /**
      * @ORM\Column(type="integer")
-     * @ORM\Version
      * @var int
      */
-    private $version = 0;
+    private $version;
 
     /**
      * @param AggregateId $aggregateId
@@ -71,10 +75,25 @@ class Aggregate extends Object
         return array('aggregateId' => $aggregateId->getValue(), 'type' => $type);
     }
 
-    public function __construct(AggregateId $aggregateId, $type)
+    /**
+     * @param Event $event
+     * @param string $aggregateRoot Serialized aggregate root
+     * @param $type
+     */
+    public function __construct(Event $event, $aggregateRoot, $type)
     {
-        $this->aggregateId = $aggregateId->getValue();
+        $this->aggregateId = $event->getAggregateId();
         $this->type = $type;
+        $this->data = $aggregateRoot;
+        $this->version = $event->getVersion();
+    }
+
+    /**
+     * @return string
+     */
+    public function getAggregateRoot()
+    {
+        return $this->data;
     }
 
     /**

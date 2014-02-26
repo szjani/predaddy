@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use ArrayIterator;
+use Iterator;
 use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
@@ -60,8 +61,6 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
      * @var MessageBus
      */
     private $innerEventBus = null;
-
-    private $events = array();
 
     /**
      * @param Serializer $serializer
@@ -118,23 +117,13 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
     /**
      * Useful in case of Event Sourcing.
      *
-     * @param DomainEvent[] $events
+     * @param Iterator $events DomainEvent iterator
      */
-    public function loadFromHistory($events)
+    public function loadFromHistory(Iterator $events)
     {
         foreach ($events as $event) {
             $this->handleEventInAggregate($event);
         }
-    }
-
-    /**
-     * @return \Iterator
-     */
-    public function getAndClearRaisedEvents()
-    {
-        $events = new ArrayIterator($this->events);
-        $this->events = array();
-        return $events;
     }
 
     public function serialize()
@@ -144,13 +133,21 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
 
     public function unserialize($serialized)
     {
-        self::getSerializer()->deserialize($serialized, $this);
+        self::getSerializer()->deserialize($serialized, static::objectClass(), $this);
         $this->events = array();
     }
 
+    /**
+     * @param DomainEvent $event
+     * @deprecated Use apply() instead
+     */
     protected function raise(DomainEvent $event)
     {
-        $this->events[] = $event;
+        $this->apply($event);
+    }
+
+    protected function apply(DomainEvent $event)
+    {
         $this->handleEventInAggregate($event);
         parent::raise($event);
     }

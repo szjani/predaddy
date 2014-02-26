@@ -48,10 +48,9 @@ class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
     /**
      * @param EventSourcedAggregateRoot $aggregateRoot
      * @param int $originalVersion
-     * @param int $newVersion
      * @return boolean
      */
-    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion, $newVersion)
+    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion)
     {
         return $this->snapshotRequired;
     }

@@ -23,6 +23,7 @@
 
 namespace predaddy;
 
+use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 use ReflectionProperty;
 
@@ -61,15 +62,15 @@ class ReflectionSerializer implements Serializer
 
     /**
      * @param string $serialized
+     * @param ObjectClass $outputClass
      * @param ObjectInterface $outputObject
      * @return ObjectInterface
      */
-    public function deserialize($serialized, ObjectInterface $outputObject = null)
+    public function deserialize($serialized, ObjectClass $outputClass, ObjectInterface $outputObject = null)
     {
         $array = unserialize($serialized);
-        $outputType = $outputObject->getObjectClass();
-        $properties = $outputType->getProperties();
-        $result = $outputObject ?: $outputType->newInstanceWithoutConstructor();
+        $properties = $outputClass->getProperties();
+        $result = $outputObject ?: $outputClass->newInstanceWithoutConstructor();
         /* @var $property \ReflectionProperty */
         foreach ($properties as $property) {
             if ($this->isSerializable($property) && array_key_exists($property->getName(), $array)) {

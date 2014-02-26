@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,39 +23,25 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
-use BadMethodCallException;
 use Iterator;
-use precore\lang\Object;
-use predaddy\messagehandling\MessageBus;
 
-/**
- * Aggregate root class.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-abstract class AggregateRoot extends Object implements Entity
+interface EventStore
 {
-    protected $events = array();
+    /**
+     * @param string $aggregateRootClass FQCN
+     * @param Iterator $events
+     * @param $originatingVersion
+     * @return void
+     */
+    public function saveChanges($aggregateRootClass, Iterator $events, $originatingVersion);
 
     /**
-     * @return AggregateId
+     * Must be return all events stored to aggregate identified by $aggregateId and $type.
+     * Events must be ordered by the version field.
+     *
+     * @param string $aggregateRootClass FQCN
+     * @param AggregateId $aggregateId
+     * @return Iterator
      */
-    abstract public function getId();
-
-    /**
-     * @see AggregateRootRepository::save()
-     * @return Iterator of DomainEvent objects
-     */
-    public function getAndClearRaisedEvents()
-    {
-        $events = new ArrayIterator($this->events);
-        $this->events = array();
-        return $events;
-    }
-
-    protected function raise(DomainEvent $event)
-    {
-        $this->events[] = $event;
-    }
+    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId);
 }

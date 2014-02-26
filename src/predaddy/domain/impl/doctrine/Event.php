@@ -23,9 +23,9 @@
 
 namespace predaddy\domain\impl\doctrine;
 
+use DateTime;
 use precore\lang\Object;
 use predaddy\domain\AggregateId;
-use predaddy\domain\DomainEvent;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -39,8 +39,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *   name="event",
  *   indexes={
- *     @ORM\Index(name="event_aggregate_id_version", columns={"aggregate_id", "version"}),
- *     @ORM\Index(name="event_created", columns={"created"})
+ *     @ORM\Index(name="event_aggregate_id_type", columns={"aggregate_id", "type"}),
+ *     @ORM\Index(name="event_created", columns={"created"}),
+ *     @ORM\Index(name="event_version", columns={"version"})
  *   }
  * )
  */
@@ -48,16 +49,29 @@ class Event extends Object
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="string", name="event_id")
-     * @var string
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     * @var int
      */
-    private $eventId;
+    private $sequenceNumber;
 
     /**
-     * @ORM\Column(type="string", name="aggregate_id", nullable=false)
+     * @ORM\Column(type="string", name="aggregate_id")
      * @var string
      */
     private $aggregateId;
+
+    /**
+     * @ORM\Column(type="string")
+     * @var string
+     */
+    private $type;
+
+    /**
+     * @ORM\Column(type="integer", name="version")
+     * @var int
+     */
+    private $version;
 
     /**
      * @ORM\Column(type="text", nullable=false)
@@ -67,23 +81,17 @@ class Event extends Object
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
-     * @var \DateTime
+     * @var DateTime
      */
     private $created;
 
-    /**
-     * @ORM\Column(type="integer", name="version", nullable=false)
-     * @var int
-     */
-    private $version;
-
-    public function __construct(DomainEvent $event, AggregateId $aggregateId, $aggregateVersion)
+    public function __construct(AggregateId $aggregateId, $type, $aggregateVersion, DateTime $created, $serializedEvent)
     {
-        $this->eventId = $event->getEventIdentifier();
-        $this->data = serialize($event);
+        $this->type = $type;
+        $this->data = $serializedEvent;
         $this->aggregateId = $aggregateId->getValue();
         $this->version = $aggregateVersion;
-        $this->created = $event->getTimestamp();
+        $this->created = $created;
     }
 
     /**
@@ -95,19 +103,11 @@ class Event extends Object
     }
 
     /**
-     * @return DomainEvent
+     * @return string
      */
     public function getData()
     {
-        return unserialize($this->data);
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventId()
-    {
-        return $this->eventId;
+        return $this->data;
     }
 
     /**
@@ -119,10 +119,30 @@ class Event extends Object
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
         return $this->created;
+    }
+
+    public function toString()
+    {
+        return sprintf(
+            'AggregateId [%s], type [%s], version [%s], created [%s], data [%s]',
+            $this->aggregateId,
+            $this->type,
+            $this->version,
+            $this->created->format('Y-m-d H:i:s'),
+            $this->data
+        );
+    }
+
+    /**
+     * @return int
+     */
+    public function getSequenceNumber()
+    {
+        return $this->sequenceNumber;
     }
 }

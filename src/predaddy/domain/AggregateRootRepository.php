@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2014 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,27 +24,47 @@
 namespace predaddy\domain;
 
 use Iterator;
+use precore\lang\Object;
+use predaddy\messagehandling\event\EventBus;
 
-interface EventStorage
+/**
+ * Can be used in DDD/CQRS architecture.
+ *
+ * @package predaddy\domain
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+abstract class AggregateRootRepository extends Object implements Repository
 {
     /**
-     * @param AggregateId $aggregateId
-     * @param Iterator $events
-     * @param $originatingVersion
-     * @param EventSourcedAggregateRoot $aggregateRoot
-     * @return void
+     * @var EventBus
      */
-    public function saveChanges(
-        AggregateId $aggregateId,
-        Iterator $events,
-        $originatingVersion,
-        EventSourcedAggregateRoot $aggregateRoot = null
-    );
+    private $eventBus;
 
     /**
-     * @param AggregateId $aggregateId
-     * @param int $fromVersion ">" $fromVersion
-     * @return Iterator
+     * @param EventBus $eventBus
      */
-    public function getEventsFor(AggregateId $aggregateId, $fromVersion = 0);
+    public function __construct(EventBus $eventBus)
+    {
+        $this->eventBus = $eventBus;
+    }
+
+    abstract protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version);
+
+    public function save(AggregateRoot $aggregateRoot, $version)
+    {
+        $events = $aggregateRoot->getAndClearRaisedEvents();
+        $this->innerSave($aggregateRoot, $events, $version);
+        foreach ($events as $event) {
+            $this->getEventBus()->post($event);
+        }
+    }
+
+    /**
+     * @return EventBus
+     */
+    public function getEventBus()
+    {
+        return $this->eventBus;
+    }
 }

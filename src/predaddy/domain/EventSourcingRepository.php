@@ -23,41 +23,66 @@
 
 namespace predaddy\domain;
 
-abstract class EventSourcingRepository
+use InvalidArgumentException;
+use Iterator;
+use precore\lang\ObjectClass;
+use predaddy\messagehandling\event\EventBus;
+
+/**
+ * Should be used for event sourcing.
+ *
+ * @package predaddy\domain
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class EventSourcingRepository extends AggregateRootRepository
 {
     /**
-     * @var EventStorage
+     * @var EventStore
      */
     private $eventStorage;
 
     /**
-     * @param EventStorage $eventStorage
+     * @var ObjectClass
      */
-    public function __construct(EventStorage $eventStorage)
-    {
-        $this->eventStorage = $eventStorage;
+    private $aggregateRootClass;
+
+    /**
+     * @var SnapshotStrategy
+     */
+    private $snapshotStrategy;
+
+    /**
+     * @param ObjectClass $aggregateRootClass Must be an EventSourcedAggregateRoot type
+     * @param EventBus $eventBus
+     * @param EventStore $eventStore
+     * @param SnapshotStrategy $snapshotStrategy
+     */
+    public function __construct(
+        ObjectClass $aggregateRootClass,
+        EventBus $eventBus,
+        EventStore $eventStore,
+        SnapshotStrategy $snapshotStrategy = null
+    ) {
+        parent::__construct($eventBus);
+        $this->eventStorage = $eventStore;
+        $this->aggregateRootClass = $aggregateRootClass;
+        if ($snapshotStrategy === null) {
+            $snapshotStrategy = TrivialSnapshotStrategy::$ALWAYS;
+        }
+        $this->snapshotStrategy = $snapshotStrategy;
     }
 
     /**
-     * Load the aggregate from the persistent storage by the given $aggregateId.
-     * In case of snapshotting it should be unserialized directly,
-     * otherwise it should be created with calling newInstanceWithoutConstructor() on its class.
-     *
-     * @param AggregateId $aggregateId
-     * @return EventSourcedAggregateRoot
-     * @throws \InvalidArgumentException If the $aggregateId is invalid
+     * @return ObjectClass
      */
-    abstract protected function innerLoad(AggregateId $aggregateId);
+    public function getAggregateRootClass()
+    {
+        return $this->aggregateRootClass;
+    }
 
     /**
-     * @param AggregateId $aggregateId
-     * @return int
-     * @throws \InvalidArgumentException If the $aggregateId is invalid
-     */
-    abstract protected function obtainVersion(AggregateId $aggregateId);
-
-    /**
-     * @return EventStorage
+     * @return EventStore
      */
     public function getEventStorage()
     {
@@ -69,23 +94,39 @@ abstract class EventSourcingRepository
      *
      * @param AggregateId $aggregateId
      * @return EventSourcedAggregateRoot
-     * @throws \InvalidArgumentException If the $aggregateId is invalid
+     * @throws InvalidArgumentException If the $aggregateId is invalid
      */
     public function load(AggregateId $aggregateId)
     {
-        $aggregate = $this->innerLoad($aggregateId);
-        $events = $this->eventStorage->getEventsFor($aggregateId, $this->obtainVersion($aggregateId));
+        $aggregate = null;
+        $events = $this->eventStorage->getEventsFor($this->aggregateRootClass->getName(), $aggregateId);
+        if ($this->eventStorage instanceof SnapshotEventStore) {
+            $aggregate = $this->eventStorage->loadSnapshot($this->aggregateRootClass->getName(), $aggregateId);
+            $this->aggregateRootClass->cast($aggregate);
+        } else {
+            $aggregate = $this->aggregateRootClass->newInstanceWithoutConstructor();
+            if (!$events->valid()) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        "Aggregate [%s] with ID [%s] does not exist",
+                        $this->aggregateRootClass->getName(),
+                        $aggregateId->getValue()
+                    )
+                );
+            }
+        }
         $aggregate->loadFromHistory($events);
         return $aggregate;
     }
 
-    /**
-     * @param EventSourcedAggregateRoot $aggregateRoot
-     * @param int $version
-     */
-    public function save(EventSourcedAggregateRoot $aggregateRoot, $version)
+    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
     {
-        $newEvents = $aggregateRoot->getAndClearRaisedEvents();
-        $this->eventStorage->saveChanges($aggregateRoot->getId(), $newEvents, $version, $aggregateRoot);
+        $this->aggregateRootClass->cast($aggregateRoot);
+        $this->eventStorage->saveChanges($this->aggregateRootClass->getName(), $events, $version);
+        if ($this->eventStorage instanceof SnapshotEventStore
+            && $this->snapshotStrategy->snapshotRequired($aggregateRoot, $version)) {
+
+            $this->eventStorage->createSnapshot($this->aggregateRootClass->getName(), $aggregateRoot->getId());
+        }
     }
 }

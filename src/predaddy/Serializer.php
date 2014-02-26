@@ -36,8 +36,9 @@ interface Serializer
 
     /**
      * @param string $serialized
+     * @param ObjectClass $outputClass
      * @param ObjectInterface $outputObject
      * @return ObjectInterface
      */
-    public function deserialize($serialized, ObjectInterface $outputObject = null);
+    public function deserialize($serialized, ObjectClass $outputClass, ObjectInterface $outputObject = null);
 }
