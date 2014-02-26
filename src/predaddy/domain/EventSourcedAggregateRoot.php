@@ -24,7 +24,7 @@
 namespace predaddy\domain;
 
 use Iterator;
-use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
+use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;

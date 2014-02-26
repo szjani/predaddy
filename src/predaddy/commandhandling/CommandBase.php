@@ -21,8 +21,10 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\command;
+namespace predaddy\commandhandling;
 
+use predaddy\domain\AggregateId;
+use predaddy\domain\DefaultAggregateId;
 use predaddy\messagehandling\MessageBase;
 
 /**
@@ -33,6 +35,26 @@ use predaddy\messagehandling\MessageBase;
 abstract class CommandBase extends MessageBase implements Command
 {
     /**
+     * @var string
+     */
+    private $aggregateId;
+
+    /**
+     * @var int
+     */
+    private $version;
+
+    /**
+     * @param string $aggregateId
+     * @param int $version
+     */
+    public function __construct($aggregateId, $version = 0)
+    {
+        $this->aggregateId = $aggregateId;
+        $this->version = $version;
+    }
+
+    /**
      * Returns the identifier of this command.
      *
      * @return string
@@ -40,5 +62,21 @@ abstract class CommandBase extends MessageBase implements Command
     public function getCommandIdentifier()
     {
         return $this->getMessageIdentifier();
+    }
+
+    /**
+     * @return AggregateId
+     */
+    public function getAggregateId()
+    {
+        return new DefaultAggregateId($this->aggregateId);
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 }

@@ -28,8 +28,8 @@ use Iterator;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\event\EventBus;
-use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
+use predaddy\eventhandling\EventBus;
+use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use trf4php\NOPTransactionManager;
 
 require_once 'EventSourcedUser.php';

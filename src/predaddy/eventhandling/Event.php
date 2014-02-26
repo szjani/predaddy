@@ -21,14 +21,22 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\event;
+namespace predaddy\eventhandling;
 
-use predaddy\messagehandling\DefaultFunctionDescriptor;
+use predaddy\messagehandling\Message;
 
-class EventFunctionDescriptor extends DefaultFunctionDescriptor
+/**
+ * Base interface for all events in the application.
+ * All classes that represent an event should implement this interface.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+interface Event extends Message
 {
-    protected function getBaseMessageClassName()
-    {
-        return __NAMESPACE__ . '\Event';
-    }
+    /**
+     * Returns the identifier of this event.
+     *
+     * @return string
+     */
+    public function getEventIdentifier();
 }

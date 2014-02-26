@@ -23,11 +23,7 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
 use PHPUnit_Framework_TestCase;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\event\EventBus;
-use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
 
 require_once __DIR__ . '/EventSourcedUser.php';
 require_once __DIR__ . '/IncrementedEvent.php';
@@ -35,32 +31,8 @@ require_once __DIR__ . '/UserCreated.php';
 
 class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 {
-//    /**
-//     * @var EventBus
-//     */
-//    private $eventBus;
-//
-//    protected function setUp()
-//    {
-//        parent::setUp();
-//        $functionDescFactory = new EventFunctionDescriptorFactory();
-//        $handlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory);
-//        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
-//        $this->eventBus = new EventBus($handlerDescFactory, $transactionManager);
-//        AggregateRoot::setEventBus($this->eventBus);
-//    }
-
     public function testLoadFromHistory()
     {
-        $lastEvent = null;
-
-//        $this->eventBus->registerClosure(
-//            function (DomainEvent $event) use (&$raisedEvents, &$lastEvent) {
-//                $raisedEvents[] = $event;
-//                $lastEvent = $event;
-//            }
-//        );
-
         $user = new EventSourcedUser();
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE, $user->value);
 

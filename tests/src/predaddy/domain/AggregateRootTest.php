@@ -24,7 +24,6 @@
 namespace predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
-use predaddy\messagehandling\event\AnnotationBasedEventBus;
 
 require_once __DIR__ . '/User.php';
 require_once __DIR__ . '/IncrementedEvent.php';

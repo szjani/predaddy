@@ -21,22 +21,9 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\event;
+namespace predaddy\commandhandling;
 
-use predaddy\messagehandling\Message;
-
-/**
- * Base interface for all events in the application.
- * All classes that represent an event should implement this interface.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-interface Event extends Message
+class SimpleCommand extends CommandBase
 {
-    /**
-     * Returns the identifier of this event.
-     *
-     * @return string
-     */
-    public function getEventIdentifier();
+    public $content;
 }

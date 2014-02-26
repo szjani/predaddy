@@ -20,21 +20,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace predaddy\messagehandling\command;
 
-use predaddy\messagehandling\FunctionDescriptor;
-use predaddy\messagehandling\FunctionDescriptorFactory;
-use ReflectionFunctionAbstract;
+namespace predaddy\eventhandling;
 
-class CommandFunctionDescriptorFactory implements FunctionDescriptorFactory
+use PHPUnit_Framework_TestCase;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+
+require_once 'SimpleEvent.php';
+
+class EventBusTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @param ReflectionFunctionAbstract $function
-     * @return FunctionDescriptor
-     */
-    public function create(ReflectionFunctionAbstract $function)
+    public function testNoHandler()
     {
-        return new CommandFunctionDescriptor($function);
+        $functionDescriptorFactory = new EventFunctionDescriptorFactory();
+        $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
+        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
+        $commandBus = new EventBus(
+            $handlerDescriptorFactory,
+            $transactionManager
+        );
+
+        $event = new SimpleEvent();
+        $called = false;
+        $commandBus->registerClosure(
+            function(Event $incomingEvent) use (&$called, $event) {
+                $called = true;
+                EventBusTest::assertEquals($incomingEvent->getMessageIdentifier(), $incomingEvent->getEventIdentifier());
+                EventBusTest::assertSame($event, $incomingEvent);
+            }
+        );
+        $commandBus->post($event);
+        self::assertTrue($called);
     }
 }
- 

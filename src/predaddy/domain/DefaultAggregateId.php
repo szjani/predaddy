@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,21 +21,30 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\event;
+namespace predaddy\domain;
 
-use predaddy\messagehandling\FunctionDescriptor;
-use predaddy\messagehandling\FunctionDescriptorFactory;
-use ReflectionFunctionAbstract;
+use precore\lang\Object;
 
-class EventFunctionDescriptorFactory implements FunctionDescriptorFactory
+class DefaultAggregateId extends Object implements AggregateId
 {
     /**
-     * @param ReflectionFunctionAbstract $function
-     * @return FunctionDescriptor
+     * @var string
      */
-    public function create(ReflectionFunctionAbstract $function)
+    private $value;
+
+    /**
+     * @param string $value
+     */
+    public function __construct($value)
     {
-        return new EventFunctionDescriptor($function);
+        $this->value = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->value;
     }
 }
- 

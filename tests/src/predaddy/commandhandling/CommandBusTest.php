@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\command;
+namespace predaddy\commandhandling;
 
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
@@ -48,7 +48,9 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
     {
         $this->tm = $this->getMock('trf4php\TransactionManager');
         $this->functionDescriptorFactory = new CommandFunctionDescriptorFactory();
-        $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($this->functionDescriptorFactory);
+        $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
+            $this->functionDescriptorFactory
+        );
         $this->commandBus = new CommandBus(
             $this->handlerDescriptorFactory,
             $this->tm
@@ -67,7 +69,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::never())
             ->method('rollback');
 
-        $this->commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand(1, 1));
     }
 
     public function testTransactionWrapping()
@@ -89,7 +91,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::never())
             ->method('rollback');
 
-        $this->commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand(1, 1));
         self::assertTrue($called);
     }
 
@@ -112,7 +114,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('rollback');
 
-        $this->commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand(1, 1));
         self::assertTrue($called);
     }
 
@@ -148,7 +150,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('rollback');
 
-        $this->commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand(1, 1));
         self::assertFalse($called);
     }
 
@@ -170,7 +172,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             ->expects(self::never())
             ->method('rollback');
 
-        $this->commandBus->post(new SimpleCommand());
+        $this->commandBus->post(new SimpleCommand(1, 1));
         self::assertFalse($called);
     }
 }

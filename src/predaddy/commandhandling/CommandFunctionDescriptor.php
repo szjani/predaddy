@@ -21,9 +21,21 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\event;
+namespace predaddy\commandhandling;
 
-class SimpleEvent extends EventBase
+use predaddy\messagehandling\DefaultFunctionDescriptor;
+use predaddy\messagehandling\Message;
+
+class CommandFunctionDescriptor extends DefaultFunctionDescriptor
 {
-    public $content;
+    protected function getBaseMessageClassName()
+    {
+        return __NAMESPACE__ . '\Command';
+    }
+
+    protected function canHandleValidMessage(Message $message)
+    {
+        $messageClass = $message->getObjectClass();
+        return $messageClass->getName() === $this->getHandledMessageClassName();
+    }
 }

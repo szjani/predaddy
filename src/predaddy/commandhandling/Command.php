@@ -21,9 +21,33 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\command;
+namespace predaddy\commandhandling;
 
-class SimpleCommand extends CommandBase
+use predaddy\domain\AggregateId;
+use predaddy\messagehandling\Message;
+
+/**
+ * Base interface for all commands in the application.
+ * All classes that represent a command should implement this interface.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+interface Command extends Message
 {
-    public $content;
+    /**
+     * Returns the identifier of this command.
+     *
+     * @return string
+     */
+    public function getCommandIdentifier();
+
+    /**
+     * @return AggregateId
+     */
+    public function getAggregateId();
+
+    /**
+     * @return int
+     */
+    public function getVersion();
 }

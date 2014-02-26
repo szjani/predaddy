@@ -24,10 +24,8 @@
 namespace predaddy\domain;
 
 use ArrayIterator;
-use BadMethodCallException;
 use Iterator;
 use precore\lang\Object;
-use predaddy\messagehandling\MessageBus;
 
 /**
  * Aggregate root class.

@@ -29,13 +29,13 @@ use precore\util\UUID;
 class UUIDAggregateId extends Object implements AggregateId
 {
     /**
-     * @var UUID
+     * @var string
      */
-    private $uuid;
+    private $identifier;
 
     public function __construct(UUID $uuid)
     {
-        $this->uuid = $uuid;
+        $this->identifier = $uuid->toString();
     }
 
     /**
@@ -43,6 +43,6 @@ class UUIDAggregateId extends Object implements AggregateId
      */
     public function getValue()
     {
-        return $this->uuid->toString();
+        return $this->identifier;
     }
 }

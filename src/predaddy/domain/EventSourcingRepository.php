@@ -26,7 +26,7 @@ namespace predaddy\domain;
 use InvalidArgumentException;
 use Iterator;
 use precore\lang\ObjectClass;
-use predaddy\messagehandling\event\EventBus;
+use predaddy\eventhandling\EventBus;
 
 /**
  * Should be used for event sourcing.

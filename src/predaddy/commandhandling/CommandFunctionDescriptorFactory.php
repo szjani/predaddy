@@ -20,23 +20,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+namespace predaddy\commandhandling;
 
-namespace predaddy\messagehandling\command;
+use predaddy\messagehandling\FunctionDescriptor;
+use predaddy\messagehandling\FunctionDescriptorFactory;
+use ReflectionFunctionAbstract;
 
-use predaddy\messagehandling\Message;
-
-/**
- * Base interface for all commands in the application.
- * All classes that represent a command should implement this interface.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-interface Command extends Message
+class CommandFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
-     * Returns the identifier of this command.
-     *
-     * @return string
+     * @param ReflectionFunctionAbstract $function
+     * @return FunctionDescriptor
      */
-    public function getCommandIdentifier();
+    public function create(ReflectionFunctionAbstract $function)
+    {
+        return new CommandFunctionDescriptor($function);
+    }
 }
+ 

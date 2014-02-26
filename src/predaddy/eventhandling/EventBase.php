@@ -21,21 +21,24 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\command;
+namespace predaddy\eventhandling;
 
-use predaddy\messagehandling\DefaultFunctionDescriptor;
-use predaddy\messagehandling\Message;
+use predaddy\messagehandling\MessageBase;
 
-class CommandFunctionDescriptor extends DefaultFunctionDescriptor
+/**
+ * Base class for all types of events. Contains the event identifier and timestamp.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+abstract class EventBase extends MessageBase implements Event
 {
-    protected function getBaseMessageClassName()
+    /**
+     * Returns the identifier of this event.
+     *
+     * @return string
+     */
+    public function getEventIdentifier()
     {
-        return __NAMESPACE__ . '\Command';
-    }
-
-    protected function canHandleValidMessage(Message $message)
-    {
-        $messageClass = $message->getObjectClass();
-        return $messageClass->getName() === $this->getHandledMessageClassName();
+        return $this->getMessageIdentifier();
     }
 }

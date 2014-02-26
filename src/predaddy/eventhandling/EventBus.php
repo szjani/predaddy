@@ -21,47 +21,44 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\command;
+namespace predaddy\eventhandling;
 
 use ArrayIterator;
-use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
+use predaddy\messagehandling\interceptors\TransactionSynchronizedBuffererInterceptor;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use trf4php\TransactionManager;
+use trf4php\ObservableTransactionManager;
 
 /**
- * A typical command bus has the following behaviours:
- *  - all command handler methods are wrapped by a unique transaction
- *  - the type of the message must be exactly the same as the parameter in the handler method
+ * This kind of MessageBus synchronizes message dispatching with the given ObservableTransactionManager.
+ * All posted messages will be buffered until the transaction is committed.
  *
- * It's highly recommended to use a CommandFunctionDescriptorFactory instance to automatically achieve
- * the second criteria. In that case Messages must implement the Command interface.
+ * It's highly recommended to use an EventFunctionDescriptorFactory instance.
+ * In that case Messages must implement the Event interface.
  *
- * If you use it with an EventBus, you should use the same TransactionManager instance.
- *
- * @package predaddy\messagehandling\command
+ * @package predaddy\messagehandling\event
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class CommandBus extends SimpleMessageBus
+class EventBus extends SimpleMessageBus
 {
-    const DEFAULT_NAME = 'command-bus';
+    const DEFAULT_NAME = 'event-bus';
 
     /**
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param TransactionManager $transactionManager
+     * @param ObservableTransactionManager $transactionManager
      * @param $identifier
      */
     public function __construct(
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        TransactionManager $transactionManager,
+        ObservableTransactionManager $transactionManager,
         $identifier = self::DEFAULT_NAME
     ) {
         parent::__construct($handlerDescFactory, $identifier);
         $this->setInterceptors(
             new ArrayIterator(
                 array(
-                    new WrapInTransactionInterceptor($transactionManager)
+                    new TransactionSynchronizedBuffererInterceptor($transactionManager)
                 )
             )
         );

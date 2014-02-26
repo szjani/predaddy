@@ -21,24 +21,14 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\event;
+namespace predaddy\eventhandling;
 
-use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\DefaultFunctionDescriptor;
 
-/**
- * Base class for all types of events. Contains the event identifier and timestamp.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-abstract class EventBase extends MessageBase implements Event
+class EventFunctionDescriptor extends DefaultFunctionDescriptor
 {
-    /**
-     * Returns the identifier of this event.
-     *
-     * @return string
-     */
-    public function getEventIdentifier()
+    protected function getBaseMessageClassName()
     {
-        return $this->getMessageIdentifier();
+        return __NAMESPACE__ . '\Event';
     }
 }
