@@ -78,7 +78,7 @@ class Snapshot extends Object
     /**
      * @param Event $event
      * @param string $aggregateRoot Serialized aggregate root
-     * @param $type
+     * @param string $type
      */
     public function __construct(Event $event, $aggregateRoot, $type)
     {

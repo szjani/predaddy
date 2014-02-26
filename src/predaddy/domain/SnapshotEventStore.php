@@ -40,7 +40,7 @@ interface SnapshotEventStore extends EventStore
     public function createSnapshot($aggregateRootClass, AggregateId $aggregateId);
 
     /**
-     * @param $aggregateRootClass
+     * @param string $aggregateRootClass FQCN
      * @param AggregateId $aggregateId
      * @return EventSourcedAggregateRoot|null
      */

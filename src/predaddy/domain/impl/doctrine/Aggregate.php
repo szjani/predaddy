@@ -26,7 +26,6 @@ namespace predaddy\domain\impl\doctrine;
 use precore\lang\Object;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\AggregateId;
-use predaddy\domain\EventSourcedAggregateRoot;
 
 /**
  * Meta entity to store aggregate roots. It supports snapshotting.
@@ -71,6 +70,10 @@ class Aggregate extends Object
         return array('aggregateId' => $aggregateId->getValue(), 'type' => $type);
     }
 
+    /**
+     * @param AggregateId $aggregateId
+     * @param string $type
+     */
     public function __construct(AggregateId $aggregateId, $type)
     {
         $this->aggregateId = $aggregateId->getValue();

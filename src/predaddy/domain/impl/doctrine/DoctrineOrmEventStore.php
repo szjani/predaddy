@@ -198,7 +198,7 @@ class DoctrineOrmEventStore implements SnapshotEventStore
     }
 
     /**
-     * @param $aggregateRootClass
+     * @param string $aggregateRootClass
      * @param AggregateId $aggregateId
      * @return Aggregate|null
      */

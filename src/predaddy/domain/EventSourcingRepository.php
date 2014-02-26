@@ -98,11 +98,12 @@ class EventSourcingRepository extends AggregateRootRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        $aggregate = null;
         $events = $this->eventStorage->getEventsFor($this->aggregateRootClass->getName(), $aggregateId);
         if ($this->eventStorage instanceof SnapshotEventStore) {
             $aggregate = $this->eventStorage->loadSnapshot($this->aggregateRootClass->getName(), $aggregateId);
-            $this->aggregateRootClass->cast($aggregate);
+            if ($aggregate !== null) {
+                $this->aggregateRootClass->cast($aggregate);
+            }
         } else {
             $aggregate = $this->aggregateRootClass->newInstanceWithoutConstructor();
             if (!$events->valid()) {

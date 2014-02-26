@@ -49,6 +49,12 @@ abstract class AggregateRootRepository extends Object implements Repository
         $this->eventBus = $eventBus;
     }
 
+    /**
+     * @param AggregateRoot $aggregateRoot
+     * @param Iterator $events
+     * @param int $version
+     * @return void
+     */
     abstract protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version);
 
     public function save(AggregateRoot $aggregateRoot, $version)

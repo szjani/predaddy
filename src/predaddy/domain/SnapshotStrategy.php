@@ -23,8 +23,6 @@
 
 namespace predaddy\domain;
 
-use Iterator;
-
 /**
  * Can be used in EventStore to decide whether the current version of the aggregate
  * should be persisted or not. The result actually is being a rolling snapshot.

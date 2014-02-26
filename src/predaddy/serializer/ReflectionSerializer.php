@@ -35,7 +35,7 @@ class ReflectionSerializer implements Serializer
     private $blackListProperties;
 
     /**
-     * @param array $blackListProperties
+     * @param string[] $blackListProperties
      */
     public function __construct(array $blackListProperties = array())
     {

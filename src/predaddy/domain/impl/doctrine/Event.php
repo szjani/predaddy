@@ -85,6 +85,13 @@ class Event extends Object
      */
     private $created;
 
+    /**
+     * @param AggregateId $aggregateId
+     * @param string $type
+     * @param int $aggregateVersion
+     * @param DateTime $created
+     * @param string $serializedEvent
+     */
     public function __construct(AggregateId $aggregateId, $type, $aggregateVersion, DateTime $created, $serializedEvent)
     {
         $this->type = $type;

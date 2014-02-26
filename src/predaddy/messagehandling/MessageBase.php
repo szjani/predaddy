@@ -43,7 +43,7 @@ abstract class MessageBase extends Object implements Message
 
     public static function setSerializer(Serializer $serializer)
     {
-        static::$serializer = $serializer;
+        self::$serializer = $serializer;
     }
 
     public static function getSerializer()
@@ -78,12 +78,12 @@ abstract class MessageBase extends Object implements Message
 
     public function serialize()
     {
-        return static::getSerializer()->serialize($this);
+        return self::getSerializer()->serialize($this);
     }
 
     public function unserialize($serialized)
     {
-        static::getSerializer()->deserialize($serialized, static::objectClass(), $this);
+        self::getSerializer()->deserialize($serialized, self::objectClass(), $this);
     }
 
     public function equals(ObjectInterface $object = null)
