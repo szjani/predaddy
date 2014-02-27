@@ -27,6 +27,7 @@ use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\RepositoryRepository;
 use predaddy\messagehandling\annotation\Subscribe;
+use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 
@@ -53,10 +54,22 @@ class DirectCommandForwarder extends Object
     }
 
     /**
+     * Workaround to be able to catch any commands since typehint has to match with the incoming command.
+     *
      * @Subscribe
+     * @param DeadMessage $deadMessage
+     */
+    public function catchDeadCommands(DeadMessage $deadMessage)
+    {
+        $innerMessage = $deadMessage->getMessage();
+        ObjectClass::forName(__NAMESPACE__ . '\Command')->cast($innerMessage);
+        $this->forwardCommand($innerMessage);
+    }
+
+    /**
      * @param DirectCommand $command
      */
-    public function forwardCommand(DirectCommand $command)
+    protected function forwardCommand(DirectCommand $command)
     {
         $class = ObjectClass::forName($command->getAggregateClass());
         $repository = $this->repositoryRepository->getRepository($class);
