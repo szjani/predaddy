@@ -33,6 +33,8 @@ use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use trf4php\NOPTransactionManager;
 
 require_once 'EventSourcedUser.php';
+require_once __DIR__ . '/CreateEventSourcedUser.php';
+require_once __DIR__ . '/Increment.php';
 
 class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 {
@@ -71,7 +73,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $aggregateId = new UUIDAggregateId(UUID::randomUUID());
 
-        $aggregate = new EventSourcedUser();
+        $aggregate = new EventSourcedUser(new CreateEventSourcedUser());
 
         $this->eventStore
             ->expects(self::once())
@@ -88,8 +90,8 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $version = 3;
 
-        $aggregate = new EventSourcedUser();
-        $aggregate->increment();
+        $aggregate = new EventSourcedUser(new CreateEventSourcedUser());
+        $aggregate->increment(new Increment());
 
         $this->eventStore
             ->expects(self::once())

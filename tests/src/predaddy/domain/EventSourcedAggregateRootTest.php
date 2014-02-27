@@ -28,18 +28,20 @@ use PHPUnit_Framework_TestCase;
 require_once __DIR__ . '/EventSourcedUser.php';
 require_once __DIR__ . '/IncrementedEvent.php';
 require_once __DIR__ . '/UserCreated.php';
+require_once __DIR__ . '/CreateEventSourcedUser.php';
+require_once __DIR__ . '/Increment.php';
 
 class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 {
     public function testLoadFromHistory()
     {
-        $user = new EventSourcedUser();
+        $user = new EventSourcedUser(new CreateEventSourcedUser());
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE, $user->value);
 
         // increment 3 times
-        $user->increment();
-        $user->increment();
-        $user->increment();
+        $user->increment(new Increment());
+        $user->increment(new Increment());
+        $user->increment(new Increment());
 
         $raisedEvents = $user->getAndClearRaisedEvents();
 
@@ -57,7 +59,7 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
         self::assertEquals($user->value, $replayedUser->value);
 
         // increment only $replayedUser's value
-        $replayedUser->increment();
+        $replayedUser->increment(new Increment());
         $raisedEvents = $replayedUser->getAndClearRaisedEvents();
         self::assertEquals($user->value + 1, $replayedUser->value);
         self::assertEquals(1, count($raisedEvents));
@@ -69,7 +71,7 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 
     public function testSerialization()
     {
-        $user = new EventSourcedUser();
+        $user = new EventSourcedUser(new CreateEventSourcedUser());
         $serialized = serialize($user);
         /* @var $resUser EventSourcedUser */
         $resUser = unserialize($serialized);

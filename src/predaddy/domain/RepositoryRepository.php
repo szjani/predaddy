@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,33 +21,15 @@
  * SOFTWARE.
  */
 
-namespace predaddy\commandhandling;
+namespace predaddy\domain;
 
-use predaddy\domain\AggregateId;
-use predaddy\messagehandling\Message;
+use precore\lang\ObjectClass;
 
-/**
- * Base interface for all commands in the application.
- * All classes that represent a command should implement this interface.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-interface Command extends Message
+interface RepositoryRepository
 {
     /**
-     * Returns the identifier of this command.
-     *
-     * @return string
+     * @param ObjectClass $aggregateClass
+     * @return Repository
      */
-    public function getCommandIdentifier();
-
-    /**
-     * @return AggregateId|null null if it is a create command
-     */
-    public function getAggregateIdentifier();
-
-    /**
-     * @return int 0 if it is a create command
-     */
-    public function getVersion();
+    public function getRepository(ObjectClass $aggregateClass);
 }

@@ -14,7 +14,8 @@
         "precore/precore": "~1.0",
         "doctrine/annotations": "~1.1",
         "trf4php/trf4php": "~1.1",
-        "lf4php/lf4php": "~4.0"
+        "lf4php/lf4php": "~4.0",
+        "ocramius/lazy-map": "~1.0"
     },
     "require-dev": {
         "mf4php/mf4php": "~1.1",

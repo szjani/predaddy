@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,31 +23,25 @@
 
 namespace predaddy\commandhandling;
 
-use predaddy\domain\AggregateId;
-use predaddy\messagehandling\Message;
+use predaddy\domain\RepositoryRepository;
+use predaddy\messagehandling\MessageHandlerDescriptorFactory;
+use trf4php\TransactionManager;
 
-/**
- * Base interface for all commands in the application.
- * All classes that represent a command should implement this interface.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-interface Command extends Message
+class DirectCommandBus extends CommandBus
 {
     /**
-     * Returns the identifier of this command.
-     *
-     * @return string
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param TransactionManager $transactionManager
+     * @param RepositoryRepository $repositoryRepository
+     * @param string $identifier
      */
-    public function getCommandIdentifier();
-
-    /**
-     * @return AggregateId|null null if it is a create command
-     */
-    public function getAggregateIdentifier();
-
-    /**
-     * @return int 0 if it is a create command
-     */
-    public function getVersion();
+    public function __construct(
+        MessageHandlerDescriptorFactory $handlerDescFactory,
+        TransactionManager $transactionManager,
+        RepositoryRepository $repositoryRepository,
+        $identifier = self::DEFAULT_NAME
+    ) {
+        parent::__construct($handlerDescFactory, $transactionManager, $identifier);
+        $this->register(new DirectCommandForwarder($repositoryRepository, $handlerDescFactory));
+    }
 }

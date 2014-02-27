@@ -41,7 +41,11 @@ class EventSourcedUser extends EventSourcedAggregateRoot
     private $id;
     public $value = self::DEFAULT_VALUE;
 
-    public function __construct()
+    /**
+     * @Subscribe
+     * @param CreateEventSourcedUser $command
+     */
+    public function __construct(CreateEventSourcedUser $command)
     {
         $this->apply(new UserCreated(new UUIDAggregateId(UUID::randomUUID())));
     }
@@ -54,7 +58,11 @@ class EventSourcedUser extends EventSourcedAggregateRoot
         return $this->id;
     }
 
-    public function increment()
+    /**
+     * @Subscribe
+     * @param Increment $command
+     */
+    public function increment(Increment $command)
     {
         $this->apply(new IncrementedEvent($this->id));
     }

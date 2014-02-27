@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,71 +23,16 @@
 
 namespace predaddy\commandhandling;
 
-use precore\lang\Object;
-use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultAggregateId;
-use predaddy\messagehandling\MessageBase;
-
-/**
- * Base class for all types of commands. Contains the command identifier and timestamp.
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-abstract class CommandBase extends MessageBase implements Command
+abstract class DirectCommandBase extends CommandBase implements DirectCommand
 {
-    /**
-     * @var string
-     */
-    protected $aggregateId;
-
-    /**
-     * @var int
-     */
-    protected $version;
-
-    /**
-     * @param string|null $aggregateId
-     * @param int $version
-     */
-    public function __construct($aggregateId = null, $version = 0)
-    {
-        $this->aggregateId = $aggregateId;
-        $this->version = $version;
-    }
-
-    /**
-     * Returns the identifier of this command.
-     *
-     * @return string
-     */
-    public function getCommandIdentifier()
-    {
-        return $this->getMessageIdentifier();
-    }
-
-    /**
-     * @return null|AggregateId|DefaultAggregateId
-     */
-    public function getAggregateIdentifier()
-    {
-        return $this->aggregateId === null ? null : new DefaultAggregateId($this->aggregateId);
-    }
-
-    /**
-     * @return int
-     */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
     public function toString()
     {
         $result = $this->getClassName() . '@' . $this->hashCode()
             . sprintf(
-                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
+                '[id=%s, timestamp=%s, aggregateClass=%s, aggregateId=%s, version=%s]',
                 $this->getCommandIdentifier(),
                 $this->getTimestamp(),
+                $this->getAggregateClass(),
                 $this->aggregateId,
                 $this->version
             );
