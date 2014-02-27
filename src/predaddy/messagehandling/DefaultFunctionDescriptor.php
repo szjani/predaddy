@@ -93,7 +93,10 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
         /* @var $paramType ReflectionClass */
         $paramType = $params[0]->getClass();
         if ($paramType === null
-            || (!$paramType->isSubclassOf($messageClassName) && $paramType->getName() !== $messageClassName)) {
+            || ($paramType->getName() !== DeadMessage::className()
+                && !$paramType->isSubclassOf(DeadMessage::className())
+                && $paramType->getName() !== $messageClassName)
+                && !$paramType->isSubclassOf($messageClassName)) {
             return false;
         }
         $this->handledMessageClassName = $paramType->getName();
