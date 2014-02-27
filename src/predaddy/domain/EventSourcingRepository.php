@@ -99,23 +99,17 @@ class EventSourcingRepository extends AggregateRootRepository
     public function load(AggregateId $aggregateId)
     {
         $events = $this->eventStorage->getEventsFor($this->aggregateRootClass->getName(), $aggregateId);
+        $aggregate = null;
         if ($this->eventStorage instanceof SnapshotEventStore) {
             $aggregate = $this->eventStorage->loadSnapshot($this->aggregateRootClass->getName(), $aggregateId);
-            if ($aggregate !== null) {
-                $this->aggregateRootClass->cast($aggregate);
-            }
-        } else {
-            $aggregate = $this->aggregateRootClass->newInstanceWithoutConstructor();
-            if (!$events->valid()) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        "Aggregate [%s] with ID [%s] does not exist",
-                        $this->aggregateRootClass->getName(),
-                        $aggregateId->getValue()
-                    )
-                );
-            }
         }
+        if ($aggregate === null) {
+            if (!$events->valid()) {
+                $this->throwInvalidAggregateIdException($aggregateId);
+            }
+            $aggregate = $this->aggregateRootClass->newInstanceWithoutConstructor();
+        }
+        $this->aggregateRootClass->cast($aggregate);
         $aggregate->loadFromHistory($events);
         return $aggregate;
     }
@@ -129,5 +123,16 @@ class EventSourcingRepository extends AggregateRootRepository
 
             $this->eventStorage->createSnapshot($this->aggregateRootClass->getName(), $aggregateRoot->getId());
         }
+    }
+
+    protected function throwInvalidAggregateIdException(AggregateId $aggregateId)
+    {
+        throw new InvalidArgumentException(
+            sprintf(
+                "Aggregate [%s] with ID [%s] does not exist",
+                $this->aggregateRootClass->getName(),
+                $aggregateId->getValue()
+            )
+        );
     }
 }
