@@ -62,7 +62,7 @@ class DirectCommandForwarder extends Object
     public function catchDeadCommands(DeadMessage $deadMessage)
     {
         $innerMessage = $deadMessage->getMessage();
-        ObjectClass::forName(__NAMESPACE__ . '\Command')->cast($innerMessage);
+        ObjectClass::forName(__NAMESPACE__ . '\DirectCommand')->cast($innerMessage);
         $this->forwardCommand($innerMessage);
     }
 
