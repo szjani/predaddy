@@ -29,11 +29,11 @@ use Doctrine\ORM\Tools\Setup;
 use PHPUnit_Framework_TestCase;
 use predaddy\domain\AggregateId;
 use predaddy\domain\CreateEventSourcedUser;
-use predaddy\domain\impl\doctrine\Aggregate;
 use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
 use predaddy\domain\impl\LazyEventSourcedRepositoryRepository;
 use predaddy\domain\Increment;
 use predaddy\domain\IncrementedEvent;
+use predaddy\domain\TrivialSnapshotStrategy;
 use predaddy\domain\UserCreated;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
@@ -59,15 +59,15 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
      */
     private $commandBus;
 
-    private $entityManager;
+    private static $entityManager;
 
-    protected function setUp()
+    public static function setUpBeforeClass()
     {
         $isDevMode = true;
         $config = Setup::createAnnotationMetadataConfiguration(
-            array(str_replace('/tests', '', __DIR__ . '/../domain/impl/doctrine')),
+            array(str_replace(DIRECTORY_SEPARATOR . 'tests', '', __DIR__ . '/../domain/impl/doctrine')),
             $isDevMode,
-            null,
+            '/tmp',
             null,
             false
         );
@@ -75,28 +75,29 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $connectionOptions = array('driver' => 'pdo_sqlite', 'memory' => true);
 
         // obtaining the entity manager
-        $this->entityManager =  EntityManager::create($connectionOptions, $config);
+        self::$entityManager =  EntityManager::create($connectionOptions, $config);
 
-        $schemaTool = new SchemaTool($this->entityManager);
+        $schemaTool = new SchemaTool(self::$entityManager);
 
-        $cmf = $this->entityManager->getMetadataFactory();
+        $cmf = self::$entityManager->getMetadataFactory();
         $classes = $cmf->getAllMetadata();
 
         $schemaTool->dropDatabase();
         $schemaTool->createSchema($classes);
+    }
 
-        $this->eventStorage = new DoctrineOrmEventStore($this->entityManager);
-
-        $transactionManager = new DoctrineTransactionManager($this->entityManager);
+    protected function setUp()
+    {
+        $transactionManager = new DoctrineTransactionManager(self::$entityManager);
         $this->eventBus = new EventBus(
             new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
             $transactionManager
         );
-        $eventStore = new DoctrineOrmEventStore($this->entityManager);
+        $eventStore = new DoctrineOrmEventStore(self::$entityManager);
         $this->commandBus = new DirectCommandBus(
             new AnnotatedMessageHandlerDescriptorFactory(new DefaultFunctionDescriptorFactory()),
             $transactionManager,
-            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore)
+            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER)
         );
     }
 
