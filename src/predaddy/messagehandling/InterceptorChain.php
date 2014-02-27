@@ -27,4 +27,3 @@ interface InterceptorChain
 {
     public function proceed();
 }
- 

@@ -37,4 +37,3 @@ class CommandFunctionDescriptorFactory implements FunctionDescriptorFactory
         return new CommandFunctionDescriptor($function);
     }
 }
- 
