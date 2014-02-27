@@ -26,6 +26,7 @@ namespace predaddy\domain\impl\doctrine;
 use ArrayIterator;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
@@ -64,6 +65,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
      * @param string $aggregateRootClass
      * @param Iterator $events
      * @param $originatingVersion
+     * @throws InvalidArgumentException
      * @return void
      */
     public function saveChanges($aggregateRootClass, Iterator $events, $originatingVersion)
@@ -84,10 +86,13 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
                 }
                 $this->entityManager->lock($aggregate, LockMode::OPTIMISTIC, $originatingVersion);
             }
+            if ($aggregate->getVersion() + 1 !== $event->getVersion()) {
+                throw new InvalidArgumentException("Event version is invalid");
+            }
             $metaEvent = new Event(
                 $event->getAggregateIdentifier(),
                 $aggregateRootClass,
-                $aggregate->getVersion() + 1,
+                $event->getVersion(),
                 $event->getTimestamp(),
                 serialize($event)
             );

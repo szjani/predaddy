@@ -146,7 +146,7 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
         self::$entityManager->transactional(
             function () use ($eventStorage, &$aggregateId, &$user) {
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
-                $user->increment(new Increment());
+                $user->increment(new Increment($aggregateId));
                 $aggregateId = $user->getId();
                 $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents(), 0);
             }
@@ -154,7 +154,7 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
 
         self::$entityManager->transactional(
             function () use ($eventStorage, &$aggregateId, &$user) {
-                $user->increment(new Increment());
+                $user->increment(new Increment($aggregateId, 1));
                 $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents(), 1);
                 $eventStorage->createSnapshot(EventSourcedUser::className(), $aggregateId);
             }
