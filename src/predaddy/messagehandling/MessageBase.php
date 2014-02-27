@@ -93,6 +93,11 @@ abstract class MessageBase extends Object implements Message
 
     public function toString()
     {
-        return parent::toString() . '[id=' . $this->id . ', timestamp=' . $this->timestamp->format('Y-m-d H:i:s') . ']';
+        return parent::toString()
+            . sprintf(
+                '[id=%s, timestamp=%s]',
+                $this->getMessageIdentifier(),
+                $this->getTimestamp()->format(DateTime::ISO8601)
+            );
     }
 }

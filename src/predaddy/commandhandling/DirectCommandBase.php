@@ -23,6 +23,8 @@
 
 namespace predaddy\commandhandling;
 
+use DateTime;
+
 /**
  * Can be used for any DirectCommand. These objects are being passed directly to the proper aggregate.
  *
@@ -34,15 +36,14 @@ abstract class DirectCommandBase extends CommandBase implements DirectCommand
 {
     public function toString()
     {
-        $result = $this->getClassName() . '@' . $this->hashCode()
+        return $this->getClassName() . '@' . $this->hashCode()
             . sprintf(
                 '[id=%s, timestamp=%s, aggregateClass=%s, aggregateId=%s, version=%s]',
                 $this->getCommandIdentifier(),
-                $this->getTimestamp(),
+                $this->getTimestamp()->format(DateTime::ISO8601),
                 $this->getAggregateClass(),
                 $this->aggregateId,
                 $this->version
             );
-        return $result;
     }
 }

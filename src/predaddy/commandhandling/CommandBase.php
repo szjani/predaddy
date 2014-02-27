@@ -23,6 +23,7 @@
 
 namespace predaddy\commandhandling;
 
+use DateTime;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\messagehandling\MessageBase;
@@ -83,14 +84,13 @@ abstract class CommandBase extends MessageBase implements Command
 
     public function toString()
     {
-        $result = $this->getClassName() . '@' . $this->hashCode()
+        return $this->getClassName() . '@' . $this->hashCode()
             . sprintf(
                 '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
                 $this->getCommandIdentifier(),
-                $this->getTimestamp(),
+                $this->getTimestamp()->format(DateTime::ISO8601),
                 $this->aggregateId,
                 $this->version
             );
-        return $result;
     }
 }

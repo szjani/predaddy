@@ -23,6 +23,7 @@
 
 namespace predaddy\domain;
 
+use DateTime;
 use predaddy\eventhandling\EventBase;
 
 /**
@@ -48,5 +49,16 @@ abstract class DomainEvent extends EventBase
     public function getAggregateIdentifier()
     {
         return $this->aggregateId;
+    }
+
+    public function toString()
+    {
+        return $this->getClassName() . '@' . $this->hashCode()
+            . sprintf(
+                '[id=%s, timestamp=%s, aggregateId=%s]',
+                $this->getEventIdentifier(),
+                $this->getTimestamp()->format(DateTime::ISO8601),
+                $this->aggregateId
+            );
     }
 }
