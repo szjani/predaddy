@@ -47,4 +47,9 @@ class DefaultAggregateId extends Object implements AggregateId
     {
         return $this->value;
     }
+
+    public function toString()
+    {
+        return parent::toString() . sprintf("[%s]", $this->getValue());
+    }
 }

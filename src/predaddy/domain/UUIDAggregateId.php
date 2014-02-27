@@ -23,26 +23,12 @@
 
 namespace predaddy\domain;
 
-use precore\lang\Object;
 use precore\util\UUID;
 
-class UUIDAggregateId extends Object implements AggregateId
+class UUIDAggregateId extends DefaultAggregateId implements AggregateId
 {
-    /**
-     * @var string
-     */
-    private $identifier;
-
     public function __construct(UUID $uuid)
     {
-        $this->identifier = $uuid->toString();
-    }
-
-    /**
-     * @return string
-     */
-    public function getValue()
-    {
-        return $this->identifier;
+        parent::__construct($uuid->toString());
     }
 }
