@@ -27,6 +27,7 @@ use ArrayIterator;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Iterator;
+use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
@@ -34,7 +35,7 @@ use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\SnapshotEventStore;
 use predaddy\serializer\Serializer;
 
-class DoctrineOrmEventStore implements SnapshotEventStore
+class DoctrineOrmEventStore extends Object implements SnapshotEventStore
 {
     /**
      * @var EntityManagerInterface
@@ -76,6 +77,10 @@ class DoctrineOrmEventStore implements SnapshotEventStore
                 if ($aggregate === null) {
                     $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
                     $this->entityManager->persist($aggregate);
+                    self::getLogger()->debug(
+                        "Aggregate [{}, {}] has been persisted",
+                        array($aggregateRootClass, $aggregateId)
+                    );
                 }
                 $this->entityManager->lock($aggregate, LockMode::OPTIMISTIC, $originatingVersion);
             }
@@ -87,6 +92,7 @@ class DoctrineOrmEventStore implements SnapshotEventStore
                 serialize($event)
             );
             $this->entityManager->persist($metaEvent);
+            self::getLogger()->debug("Event [{}] has been persisted", array($event));
         }
     }
 
@@ -149,12 +155,17 @@ class DoctrineOrmEventStore implements SnapshotEventStore
         if ($snapshot !== null) {
             $this->entityManager->remove($snapshot);
         }
+        $lastEvent = $this->getLastMetaEvent($aggregateRootClass, $aggregateId);
         $snapshot = new Snapshot(
-            $this->getLastMetaEvent($aggregateRootClass, $aggregateId),
+            $lastEvent,
             $serialized,
             $aggregateRootClass
         );
         $this->entityManager->persist($snapshot);
+        self::getLogger()->debug(
+            "Snapshot has been persisted for aggregate [{}, {}], version [{}]",
+            array($aggregateRootClass, $aggregateId, $lastEvent->getVersion())
+        );
     }
 
     /**
@@ -170,6 +181,7 @@ class DoctrineOrmEventStore implements SnapshotEventStore
         if ($snapshot !== null) {
             $reflectionClass = ObjectClass::forName($aggregateRootClass);
             $aggregateRoot = $this->serializer->deserialize($snapshot->getAggregateRoot(), $reflectionClass);
+            self::getLogger()->debug("Snapshot loaded [{}, {}]", array($aggregateRootClass, $aggregateId));
         }
         return $aggregateRoot;
     }
