@@ -11,13 +11,13 @@ namespace sample;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Exception;
+use predaddy\eventhandling\EventBase;
+use predaddy\eventhandling\EventBus;
+use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\event\EventBase;
-use predaddy\messagehandling\event\EventBus;
-use predaddy\messagehandling\event\EventFunctionDescriptorFactory;
-use predaddy\messagehandling\MessageBase;
-use trf4php\doctrine\DoctrineTransactionManager;
+use trf4php\NOPTransactionManager;
 use trf4php\TransactionManager;
+use predaddy\messagehandling\annotation\Subscribe;
 
 class UserRegistered extends EventBase
 {
@@ -50,14 +50,13 @@ class EmailSender
  * Initialization
  */
 
-/* @var $em \Doctrine\ORM\EntityManager */
-$transactionManager = new DoctrineTransactionManager($em);
+// can be used any ObservableTransactionManager, for example DoctrineTransactionManager
+$transactionManager = new NOPTransactionManager();
 
 // event bus initialization
 $messageHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory());
 $eventBus = new EventBus($messageHandlerDescFactory, $transactionManager);
 $eventBus->register(new EmailSender());
-
 
 /**
  * Code from a service class.
