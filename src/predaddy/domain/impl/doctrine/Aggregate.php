@@ -48,7 +48,7 @@ class Aggregate extends Object
 
     /**
      * @ORM\Id
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string")
      * @var string
      */
     private $type;
