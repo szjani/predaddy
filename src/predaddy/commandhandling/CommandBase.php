@@ -23,7 +23,6 @@
 
 namespace predaddy\commandhandling;
 
-use precore\lang\Object;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\messagehandling\MessageBase;
@@ -51,6 +50,7 @@ abstract class CommandBase extends MessageBase implements Command
      */
     public function __construct($aggregateId = null, $version = 0)
     {
+        parent::__construct();
         $this->aggregateId = $aggregateId;
         $this->version = $version;
     }
