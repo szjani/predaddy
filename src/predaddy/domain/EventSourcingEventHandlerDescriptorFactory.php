@@ -27,15 +27,15 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 use ReflectionClass;
 
 /**
- * Description of AggregateRootEventHandlerDescriptorFactory
+ * Description of EventSourcingEventHandlerDescriptorFactory
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
 {
     public function create($handler)
     {
-        return new AggregateRootEventHandlerDescriptor(
+        return new EventSourcingEventHandlerDescriptor(
             new ReflectionClass($handler),
             $this->getReader(),
             $this->getFunctionDescriptorFactory()

@@ -27,11 +27,11 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptor;
 use ReflectionMethod;
 
 /**
- * Handler methods must be private or protected in aggregate roots.
+ * Handler methods must be private or protected in event sourced aggregate roots.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
+class EventSourcingEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
 {
     protected function isVisible(ReflectionMethod $method)
     {

@@ -79,12 +79,12 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
     }
 
     /**
-     * @return AggregateRootEventHandlerDescriptorFactory
+     * @return EventSourcingEventHandlerDescriptorFactory
      */
     public static function getInnerDescriptorFactory()
     {
         if (self::$descriptorFactory === null) {
-            self::$descriptorFactory = new AggregateRootEventHandlerDescriptorFactory(
+            self::$descriptorFactory = new EventSourcingEventHandlerDescriptorFactory(
                 new EventFunctionDescriptorFactory()
             );
         }
