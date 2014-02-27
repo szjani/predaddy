@@ -51,7 +51,7 @@ class LazyEventSourcedRepositoryRepository implements RepositoryRepository
         $this->map = new CallbackLazyMap(
             function ($aggregateClass) use ($eventBus, $eventStore, $snapshotStrategy) {
                 return new EventSourcingRepository(
-                    new ObjectClass($aggregateClass),
+                    ObjectClass::forName($aggregateClass),
                     $eventBus,
                     $eventStore,
                     $snapshotStrategy

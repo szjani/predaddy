@@ -138,7 +138,7 @@ class DoctrineOrmEventStore implements SnapshotEventStore
         /* @var $aggregateRoot EventSourcedAggregateRoot */
         $aggregateRoot = $this->loadSnapshot($aggregateRootClass, $aggregateId);
         if ($aggregateRoot === null) {
-            $objectClass = new ObjectClass($aggregateRootClass);
+            $objectClass = ObjectClass::forName($aggregateRootClass);
             $aggregateRoot = $objectClass->newInstanceWithoutConstructor();
         }
         $aggregateRoot->loadFromHistory($events);
@@ -168,7 +168,7 @@ class DoctrineOrmEventStore implements SnapshotEventStore
         /* @var $snapshot Snapshot */
         $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
         if ($snapshot !== null) {
-            $reflectionClass = new ObjectClass($aggregateRootClass);
+            $reflectionClass = ObjectClass::forName($aggregateRootClass);
             $aggregateRoot = $this->serializer->deserialize($snapshot->getAggregateRoot(), $reflectionClass);
         }
         return $aggregateRoot;

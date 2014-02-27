@@ -58,7 +58,7 @@ class DirectCommandForwarder extends Object
      */
     public function forwardCommand(DirectCommand $command)
     {
-        $class = new ObjectClass($command->getAggregateClass());
+        $class = ObjectClass::forName($command->getAggregateClass());
         $repository = $this->repositoryRepository->getRepository($class);
         $aggregateId = $command->getAggregateIdentifier();
         if ($aggregateId === null) {
