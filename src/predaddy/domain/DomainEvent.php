@@ -36,11 +36,13 @@ use predaddy\eventhandling\EventBase;
 abstract class DomainEvent extends EventBase
 {
     protected $aggregateId;
+    protected $version;
 
-    public function __construct(AggregateId $aggregateId)
+    public function __construct(AggregateId $aggregateId, $originatedVersion)
     {
         parent::__construct();
         $this->aggregateId = $aggregateId;
+        $this->version = $originatedVersion + 1;
     }
 
     /**
@@ -51,14 +53,23 @@ abstract class DomainEvent extends EventBase
         return $this->aggregateId;
     }
 
+    /**
+     * @return int
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
     public function toString()
     {
         return $this->getClassName() . '@' . $this->hashCode()
             . sprintf(
-                '[id=%s, timestamp=%s, aggregateId=%s]',
+                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
                 $this->getEventIdentifier(),
                 $this->getTimestamp()->format(DateTime::ISO8601),
-                $this->aggregateId
+                $this->getAggregateIdentifier(),
+                $this->getVersion()
             );
     }
 }

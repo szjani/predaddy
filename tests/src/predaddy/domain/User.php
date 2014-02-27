@@ -41,11 +41,12 @@ class User extends AggregateRoot
 
     private $id;
     public $value = self::DEFAULT_VALUE;
+    private $version = 0;
 
     public function __construct()
     {
         $this->id = new UUIDAggregateId(UUID::randomUUID());
-        $this->raise(new UserCreated($this->id));
+        $this->raise(new UserCreated($this->id, $this->version));
     }
 
     public function getId()
@@ -56,6 +57,7 @@ class User extends AggregateRoot
     public function increment()
     {
         $this->value++;
-        $this->raise(new IncrementedEvent($this->id));
+        $this->version++;
+        $this->raise(new IncrementedEvent($this->id, $this->version));
     }
 }

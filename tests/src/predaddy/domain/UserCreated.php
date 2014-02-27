@@ -27,9 +27,9 @@ class UserCreated extends DomainEvent
 {
     private $userId;
 
-    public function __construct(AggregateId $userId)
+    public function __construct(AggregateId $userId, $originatedVersion)
     {
-        parent::__construct($userId);
+        parent::__construct($userId, $originatedVersion);
         $this->userId = $userId;
     }
 

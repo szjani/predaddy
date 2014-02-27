@@ -155,16 +155,18 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         if ($snapshot !== null) {
             $this->entityManager->remove($snapshot);
         }
-        $lastEvent = $this->getLastMetaEvent($aggregateRootClass, $aggregateId);
+        $events->seek($events->count() - 1);
+        $version = $events->current()->getVersion();
         $snapshot = new Snapshot(
-            $lastEvent,
+            $aggregateId,
             $serialized,
-            $aggregateRootClass
+            $aggregateRootClass,
+            $version
         );
         $this->entityManager->persist($snapshot);
         self::getLogger()->debug(
             "Snapshot has been persisted for aggregate [{}, {}], version [{}]",
-            array($aggregateRootClass, $aggregateId, $lastEvent->getVersion())
+            array($aggregateRootClass, $aggregateId, $version)
         );
     }
 
@@ -184,29 +186,6 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
             self::getLogger()->debug("Snapshot loaded [{}, {}]", array($aggregateRootClass, $aggregateId));
         }
         return $aggregateRoot;
-    }
-
-    /**
-     * @param string $aggregateRootClass
-     * @param AggregateId $aggregateId
-     * @return Event
-     */
-    protected function getLastMetaEvent($aggregateRootClass, AggregateId $aggregateId)
-    {
-        return $this->entityManager->createQueryBuilder()
-            ->select('e')
-            ->from(Event::className(), 'e')
-            ->where('e.type = :type AND e.aggregateId = :aggregateId')
-            ->orderBy('e.sequenceNumber', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->setParameters(
-                array(
-                    'type' => $aggregateRootClass,
-                    'aggregateId' => $aggregateId->getValue()
-                )
-            )
-            ->getSingleResult();
     }
 
     /**
