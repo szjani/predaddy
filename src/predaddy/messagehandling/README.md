@@ -1,5 +1,5 @@
 MessageBus
-----------
+==========
 
 MessageBus provides a general interface for message handling. The basic concept is that message handlers can
 be registered to the bus which forwards each incoming messages to the appropriate handler. Message handlers
@@ -9,12 +9,90 @@ SimpleMessageBus is a basic implementation of the MessageBus interface. Currentl
 
 If you use CQRS, then I highly recommend to use the pre-configured `EventBus` and `CommandBus` classes.
 
+## Example
+
+### Configuration
+
+You can use annotations to define message handler methods with the following configuration.
+
+```php
+$bus = new SimpleMessageBus(
+    new AnnotatedMessageHandlerDescriptorFactory(
+        new DefaultFunctionDescriptorFactory()
+    ),
+);
+```
+
+### Message
+
+Message classes must extend `Message` interface. It's convenient to extend `MessageBase` class. You can put any data into the messages, but it's highly recommended to use simple types and you should consider to create immutable message objects.
+
+```php
+class SampleMessage1 extends MessageBase
+{
+}
+```
+
+### Handlers
+
+Predaddy supports message handler objects and closures as well. Since it's not required to implement any interfaces or extend any classes, you can use any objects as message handler. Predaddy supports annotations to mark handler methods.
+
+```php
+class SampleMessageHandler
+{
+    /**
+     * @Subscribe
+     */
+    public function handleOne(SampleMessage1 $message)
+    {
+        printf(
+            "handleOne: Incoming message %s sent %s\n",
+            $message->getMessageIdentifier(),
+            $message->getTimestamp()->format('Y-m-d H:i:s')
+        );
+    }
+
+    /**
+     * @Subscribe
+     */
+    public function handleTwo(SampleMessage2 $message)
+    {
+        printf(
+            "handleTwo: Incoming message %s sent %s\n",
+            $message->getMessageIdentifier(),
+            $message->getTimestamp()->format('Y-m-d H:i:s')
+        );
+    }
+}
+```
+
+```php
+$closure = function (Message $message) {
+    echo 'a message has been caught';
+};
+```
+
+### Registering handlers
+
+```php
+$bus->register(new SampleMessageHandler());
+$bus->registerClosure($closure);
+```
+
+### Sending messages
+
+```php
+$bus->post(new SampleMessage1());
+```
+
+## More details
+
 ### Handler methods/functions
 
 Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods should have one parameter with typehint.
 The typehint defines which `Message` objects can be handled, by default. If you want to handle all `Message` objects,
 you just have to use `Message` typehint. This kind of solution provides an easy way to use and distinguish a huge amount of
-message classes. Interface and abstract class typehints also work as expected.
+message classes. Interface and abstract class typehints also work as expected. A handler class could have as many handler methods as you want.
 
 ### Annotations
 
