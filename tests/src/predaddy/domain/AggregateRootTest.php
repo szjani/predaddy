@@ -45,6 +45,6 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
         $user->increment();
         self::assertEquals(2, $user->value);
         self::assertTrue($events->valid());
-        self::assertEquals($events->current()->getAggregateIdentifier(), $user->getId());
+        self::assertEquals($events->current()->getAggregateId(), $user->getId());
     }
 }

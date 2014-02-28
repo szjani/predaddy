@@ -69,7 +69,7 @@ abstract class CommandBase extends MessageBase implements Command
     /**
      * @return null|AggregateId|DefaultAggregateId
      */
-    public function getAggregateIdentifier()
+    public function getAggregateId()
     {
         return $this->aggregateId === null ? null : new DefaultAggregateId($this->aggregateId);
     }

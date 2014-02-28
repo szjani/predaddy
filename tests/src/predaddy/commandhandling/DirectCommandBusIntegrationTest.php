@@ -106,7 +106,7 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $aggregateId = null;
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$aggregateId) {
-                $aggregateId = $event->getAggregateIdentifier();
+                $aggregateId = $event->getAggregateId();
             }
         );
         $this->commandBus->post(new CreateEventSourcedUser());
@@ -115,7 +115,7 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $incremented = false;
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$incremented, $aggregateId) {
-                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateIdentifier());
+                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
                 $incremented = true;
             }
         );

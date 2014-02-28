@@ -74,7 +74,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         /* @var $event DomainEvent */
         foreach ($events as $event) {
             if ($aggregate === null) {
-                $aggregateId = $event->getAggregateIdentifier();
+                $aggregateId = $event->getAggregateId();
                 $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
                 if ($aggregate === null) {
                     $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
@@ -90,7 +90,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
                 throw new InvalidArgumentException("Event version is invalid");
             }
             $metaEvent = new Event(
-                $event->getAggregateIdentifier(),
+                $event->getAggregateId(),
                 $aggregateRootClass,
                 $event->getVersion(),
                 $event->getTimestamp(),

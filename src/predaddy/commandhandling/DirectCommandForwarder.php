@@ -73,11 +73,11 @@ class DirectCommandForwarder extends Object
     {
         $class = ObjectClass::forName($command->getAggregateClass());
         $repository = $this->repositoryRepository->getRepository($class);
-        $aggregateId = $command->getAggregateIdentifier();
+        $aggregateId = $command->getAggregateId();
         if ($aggregateId === null) {
             $aggregate = $class->newInstanceWithoutConstructor();
         } else {
-            $aggregate = $repository->load($command->getAggregateIdentifier());
+            $aggregate = $repository->load($command->getAggregateId());
         }
         $forwarderBus = new SimpleMessageBus($this->descFact);
         $forwarderBus->register($aggregate);

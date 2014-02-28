@@ -44,7 +44,7 @@ interface Command extends Message
     /**
      * @return AggregateId|null null if it is a create command
      */
-    public function getAggregateIdentifier();
+    public function getAggregateId();
 
     /**
      * @return int 0 if it is a create command

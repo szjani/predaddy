@@ -23,9 +23,7 @@
 
 namespace predaddy\domain;
 
-use DateTime;
 use predaddy\eventhandling\Event;
-use predaddy\eventhandling\EventBase;
 
 /**
  * Base class for all Domain Events.
@@ -39,7 +37,7 @@ interface DomainEvent extends Event
     /**
      * @return AggregateId
      */
-    public function getAggregateIdentifier();
+    public function getAggregateId();
 
     /**
      * @return int
