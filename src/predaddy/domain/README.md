@@ -53,6 +53,11 @@ class User extends AggregateRoot
     private $id;
     private $email;
 
+    /**
+     * @var int Should be used for locking
+     */
+    private $version;
+
     // some missing methods
 
     public function modifyEmailAddress($email)
@@ -60,7 +65,7 @@ class User extends AggregateRoot
         // validate parameters, throw exception if necessary
         Assert::email($email);
         $this->email = $email;
-        $this->raise(new UserEmailModified($this->getId(), $email));
+        $this->raise(new UserEmailModified($this->getId(), $email, $this->version));
     }
 }
 ```
