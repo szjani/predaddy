@@ -1,7 +1,15 @@
 CQRS / Event Sourcing
 ---------------------
 
-### Recommended CQRS usage (without read side)
+There are two ways to handle commands:
+ 1. Creating command handlers which must be implemented
+ 2. Forwarding the commands directly to the aggregates
+
+All commands store the ID of the aggregate which should be passed to, and the current version of the aggregate. The version is used for optimistic locking avoiding concurrency issues. If the command is a create command, ID and version field must be null and 0 correspondingly.
+
+The CQRS example follows the first, the ES follows the second approach. The read storage synchronization is not part of the examples below.
+
+### CQRS
 
 The following example uses annotation based configuration.
 
@@ -119,4 +127,96 @@ class UserRepository extends AggregateRootRepository
 
 ```php
 $commandBus->post(new ModifyEmail($userId, $email, $version));
+```
+
+### Event Sourcing
+
+The following configuration provides you a direct command passing process, so commands are being sent directly to the aggregate roots. As you can see it uses Doctrine implementation of `ObservableTransactionManager` and `EventStore`.
+
+#### Configuration
+
+```php
+// $transactionManager can be any implementation of ObservableTransactionManager
+$transactionManager = new DoctrineTransactionManager($entityManager);
+$eventBus = new EventBus(
+    new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
+    $transactionManager
+);
+// you can use any EventStore implementation
+$eventStore = new DoctrineOrmEventStore($entityManager);
+$commandBus = new DirectCommandBus(
+    new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory()),
+    $transactionManager,
+    new LazyEventSourcedRepositoryRepository($eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER)
+);
+```
+
+#### Model
+
+```php
+class EventSourcedUser extends EventSourcedAggregateRoot
+{
+    const DEFAULT_VALUE = 1;
+
+    private $id;
+    private $value = self::DEFAULT_VALUE;
+
+    /**
+     * @Subscribe
+     * @param CreateEventSourcedUser $command
+     */
+    public function __construct(CreateEventSourcedUser $command)
+    {
+        $this->apply(new UserCreated(new UUIDAggregateId(UUID::randomUUID()), $command->getVersion()));
+    }
+
+    /**
+     * @return AggregateId
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @Subscribe
+     * @param Increment $command
+     */
+    public function increment(Increment $command)
+    {
+        $this->apply(new IncrementedEvent($this->id, $command->getVersion()));
+    }
+
+    /**
+     * @Subscribe
+     */
+    private function handleCreated(UserCreated $event)
+    {
+        $this->id = $event->getUserId();
+    }
+
+    /**
+     * @Subscribe
+     */
+    private function handleIncrementedEvent(IncrementedEvent $event)
+    {
+        $this->value++;
+    }
+}
+```
+
+#### Sending commands
+
+```php
+// catch the aggregate ID generated inside the AR
+$aggregateId = null;
+$eventBus->registerClosure(
+    function (UserCreated $event) use (&$aggregateId) {
+        $aggregateId = $event->getAggregateIdentifier();
+    }
+);
+
+$commandBus->post(new CreateEventSourcedUser());
+$commandBus->post(new Increment($aggregateId->getValue(), 1));
+$commandBus->post(new Increment($aggregateId->getValue(), 2));
 ```
