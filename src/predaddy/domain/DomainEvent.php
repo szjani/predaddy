@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use DateTime;
+use predaddy\eventhandling\Event;
 use predaddy\eventhandling\EventBase;
 
 /**
@@ -33,43 +34,15 @@ use predaddy\eventhandling\EventBase;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class DomainEvent extends EventBase
+interface DomainEvent extends Event
 {
-    protected $aggregateId;
-    protected $version;
-
-    public function __construct(AggregateId $aggregateId, $originatedVersion)
-    {
-        parent::__construct();
-        $this->aggregateId = $aggregateId;
-        $this->version = $originatedVersion + 1;
-    }
-
     /**
      * @return AggregateId
      */
-    public function getAggregateIdentifier()
-    {
-        return $this->aggregateId;
-    }
+    public function getAggregateIdentifier();
 
     /**
      * @return int
      */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    public function toString()
-    {
-        return $this->getClassName() . '@' . $this->hashCode()
-            . sprintf(
-                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
-                $this->getEventIdentifier(),
-                $this->getTimestamp()->format(DateTime::ISO8601),
-                $this->getAggregateIdentifier(),
-                $this->getVersion()
-            );
-    }
+    public function getVersion();
 }

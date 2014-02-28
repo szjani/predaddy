@@ -23,21 +23,53 @@
 
 namespace predaddy\domain;
 
-class UserCreated extends DomainEventBase
-{
-    private $userId;
+use DateTime;
+use predaddy\eventhandling\EventBase;
 
-    public function __construct(AggregateId $userId, $originatedVersion)
+/**
+ * Base class for all Domain Events.
+ * This class contains the basic behavior expected from any event
+ * to be processed by event sourcing engines and aggregates.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+abstract class DomainEventBase extends EventBase implements DomainEvent
+{
+    protected $aggregateId;
+    protected $version;
+
+    public function __construct(AggregateId $aggregateId, $originatedVersion)
     {
-        parent::__construct($userId, $originatedVersion);
-        $this->userId = $userId;
+        parent::__construct();
+        $this->aggregateId = $aggregateId;
+        $this->version = $originatedVersion + 1;
     }
 
     /**
      * @return AggregateId
      */
-    public function getUserId()
+    public function getAggregateId()
     {
-        return $this->userId;
+        return $this->aggregateId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    public function toString()
+    {
+        return $this->getClassName() . '@' . $this->hashCode()
+            . sprintf(
+                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
+                $this->getEventIdentifier(),
+                $this->getTimestamp()->format(DateTime::ISO8601),
+                $this->getAggregateId(),
+                $this->getVersion()
+            );
     }
 }

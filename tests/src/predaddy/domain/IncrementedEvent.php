@@ -28,6 +28,6 @@ namespace predaddy\domain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class IncrementedEvent extends DomainEvent
+class IncrementedEvent extends DomainEventBase
 {
 }
