@@ -41,7 +41,7 @@ abstract class MessageBase extends Object implements Message
     protected $timestamp;
     private static $serializer;
 
-    public static function setSerializer(Serializer $serializer)
+    public static function setSerializer(Serializer $serializer = null)
     {
         self::$serializer = $serializer;
     }

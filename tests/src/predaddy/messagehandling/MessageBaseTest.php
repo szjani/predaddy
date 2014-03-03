@@ -69,4 +69,19 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
         self::assertNull($event->getPrivateData());
         self::assertNotEquals('', $event->getProtectedData());
     }
+
+    public function testUseExplicitSerializer()
+    {
+        $serializer = $this->getMock('\predaddy\serializer\Serializer');
+        MessageBase::setSerializer($serializer);
+        $message = new SimpleMessage();
+
+        $serializer
+            ->expects(self::once())
+            ->method('serialize')
+            ->with($message);
+
+        serialize($message);
+        MessageBase::setSerializer(null);
+    }
 }
