@@ -32,7 +32,7 @@ History
  - The constructors are changed in all message bus implementations since they use the same `FunctionDescriptorFactory` for closures as the `MessageHandlerDescriptorFactory` for methods.
  - `TransactionSynchronizedBuffererInterceptor` has been introduced thus `EventBus` does not extends `Mf4PhpMessageBus` anymore.
  - Both `EventBus` and `CommandBus` now register their default interceptors in the constructor and do not override the `setInterceptors` method. If you want to register other interceptors,
- it's your responsible to register all default interceptors if required.
+ it's your responsibility to register all default interceptors if required.
  - Abstract message classes have been renamed and use `Abstract` prefix instead of `Base` suffix (eg. `EventBase` -> `AbstractEvent`).
  - Event Sourcing support with a built-in Doctrine implementation of `EventStore`.
  - Commands can be passed directly to the aggregate roots with `DirectCommandBus`.

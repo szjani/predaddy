@@ -154,7 +154,7 @@ $commandBus = new DirectCommandBus(
     $commandHandlerDescFactory,
     $transactionManager,
     new LazyEventSourcedRepositoryRepository($eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER),
-    new SimpleMessageBusFactory($handDesc)
+    new SimpleMessageBusFactory($commandHandlerDescFactory)
 );
 ```
 
