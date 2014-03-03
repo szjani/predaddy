@@ -66,7 +66,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetEventStorage()
     {
-        self::assertSame($this->eventStore, $this->repository->getEventStorage());
+        self::assertSame($this->eventStore, $this->repository->getEventStore());
     }
 
     public function testLoad()
@@ -142,5 +142,54 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
     public function testGetAggregateRootClass()
     {
         self::assertEquals(EventSourcedUser::objectClass(), $this->repository->getAggregateRootClass());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldBeLoadedFromSnapshot()
+    {
+        $aggregateId = new UUIDAggregateId(UUID::randomUUID());
+
+        $events = new ArrayIterator(array(new IncrementedEvent($aggregateId, 1)));
+        $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
+        $eventStore
+            ->expects(self::once())
+            ->method('getEventsFor')
+            ->with(EventSourcedUser::className(), $aggregateId)
+            ->will(self::returnValue($events));
+
+        $repository = new EventSourcingRepository(EventSourcedUser::objectClass(), $this->eventBus, $eventStore);
+        $eventStore
+            ->expects(self::once())
+            ->method('loadSnapshot')
+            ->with(EventSourcedUser::className(), $aggregateId);
+        $repository->load($aggregateId);
+    }
+
+    /**
+     * @test
+     */
+    public function snapshotShouldBeCreated()
+    {
+        $aggregateId = new UUIDAggregateId(UUID::randomUUID());
+        $aggregateRoot = $this->getMock(EventSourcedUser::className(), array('getId'), array(), '', false);
+        $aggregateRoot
+            ->expects(self::once())
+            ->method('getId')
+            ->will(self::returnValue($aggregateId));
+
+        $events = new ArrayIterator(array(new IncrementedEvent($aggregateId, 1)));
+        $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
+        $eventStore
+            ->expects(self::once())
+            ->method('saveChanges');
+
+        $repository = new EventSourcingRepository(EventSourcedUser::objectClass(), $this->eventBus, $eventStore);
+        $eventStore
+            ->expects(self::once())
+            ->method('createSnapshot')
+            ->with(EventSourcedUser::className(), $aggregateId);
+        $repository->save($aggregateRoot, 1);
     }
 }

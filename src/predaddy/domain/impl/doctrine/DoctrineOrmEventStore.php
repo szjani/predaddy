@@ -98,7 +98,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
                 serialize($event)
             );
             $this->entityManager->persist($metaEvent);
-            self::getLogger()->debug("Event [{}] has been persisted", array($event));
+            self::getLogger()->debug("Event [{}] has been persisted", array($metaEvent));
         }
     }
 

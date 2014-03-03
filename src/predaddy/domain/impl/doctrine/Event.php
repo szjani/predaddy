@@ -130,7 +130,7 @@ class Event extends Object
      */
     public function getCreated()
     {
-        return $this->created;
+        return clone $this->created;
     }
 
     public function toString()
@@ -140,7 +140,7 @@ class Event extends Object
             $this->aggregateId,
             $this->type,
             $this->version,
-            $this->created->format('Y-m-d H:i:s'),
+            $this->created->format(DateTime::ISO8601),
             $this->data
         );
     }
@@ -151,5 +151,13 @@ class Event extends Object
     public function getSequenceNumber()
     {
         return $this->sequenceNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }
