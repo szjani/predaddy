@@ -29,6 +29,10 @@
         "psr-0": {"predaddy": "src/"}
     },
     "suggest": {
-        "mf4php/mf4php-beanstalk": "If you want to use Mf4PhpMessageBus with Beanstalk (asynchronous event handling)"
+        "trf4php/trf4php-doctrine": "Requires if you want to use Doctrine EventStore implementation",
+        "mf4php/mf4php-beanstalk": "If you want to use Mf4PhpMessageBus with Beanstalk (asynchronous event handling)",
+        "lf4php/lf4php-monolog": "If you want to use Monolog for logging",
+        "lf4php/lf4php-log4php": "If you want to use log4php for logging",
+        "lf4php/lf4php-psr3": "If you want to use any PSR-3 implementation through its standard interface for logging"
     }
 }
