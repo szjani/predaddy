@@ -4,9 +4,9 @@ namespace sample;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use predaddy\messagehandling\Message;
-use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\AbstractMessage;
 
-class SampleMessage extends MessageBase
+class SampleMessage extends AbstractMessage
 {
 }
 

@@ -28,7 +28,7 @@ namespace predaddy\messagehandling;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class SimpleMessage extends MessageBase
+class SimpleMessage extends AbstractMessage
 {
     public $data = 'hello';
     protected $protectedData;

@@ -35,7 +35,7 @@ use predaddy\serializer\Serializer;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class MessageBase extends Object implements Message
+abstract class AbstractMessage extends Object implements Message
 {
     protected $id;
     protected $timestamp;

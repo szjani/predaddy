@@ -73,7 +73,7 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
     public function testUseExplicitSerializer()
     {
         $serializer = $this->getMock('\predaddy\serializer\Serializer');
-        MessageBase::setSerializer($serializer);
+        AbstractMessage::setSerializer($serializer);
         $message = new SimpleMessage();
 
         $serializer
@@ -82,6 +82,6 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
             ->with($message);
 
         serialize($message);
-        MessageBase::setSerializer(null);
+        AbstractMessage::setSerializer(null);
     }
 }

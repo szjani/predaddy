@@ -23,9 +23,9 @@
 
 namespace predaddy\domain;
 
-use predaddy\commandhandling\DirectCommandBase;
+use predaddy\commandhandling\AbstractDirectCommand;
 
-class Increment extends DirectCommandBase
+class Increment extends AbstractDirectCommand
 {
     /**
      * @return string

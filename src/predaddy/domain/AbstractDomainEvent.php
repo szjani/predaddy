@@ -21,24 +21,55 @@
  * SOFTWARE.
  */
 
-namespace predaddy\eventhandling;
+namespace predaddy\domain;
 
-use predaddy\messagehandling\MessageBase;
+use DateTime;
+use predaddy\eventhandling\AbstractEvent;
 
 /**
- * Base class for all types of events. Contains the event identifier and timestamp.
+ * Base class for all Domain Events.
+ * This class contains the basic behavior expected from any event
+ * to be processed by event sourcing engines and aggregates.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class EventBase extends MessageBase implements Event
+abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
 {
-    /**
-     * Returns the identifier of this event.
-     *
-     * @return string
-     */
-    public function getEventIdentifier()
+    protected $aggregateId;
+    protected $version;
+
+    public function __construct(AggregateId $aggregateId, $originatedVersion)
     {
-        return $this->getMessageIdentifier();
+        parent::__construct();
+        $this->aggregateId = $aggregateId;
+        $this->version = $originatedVersion + 1;
+    }
+
+    /**
+     * @return AggregateId
+     */
+    public function getAggregateId()
+    {
+        return $this->aggregateId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    public function toString()
+    {
+        return $this->getClassName() . '@' . $this->hashCode()
+            . sprintf(
+                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
+                $this->getEventIdentifier(),
+                $this->getTimestamp()->format(DateTime::ISO8601),
+                $this->getAggregateId(),
+                $this->getVersion()
+            );
     }
 }

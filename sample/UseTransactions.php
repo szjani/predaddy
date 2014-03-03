@@ -11,7 +11,7 @@ namespace sample;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Exception;
-use predaddy\eventhandling\EventBase;
+use predaddy\eventhandling\AbstractEvent;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
@@ -19,7 +19,7 @@ use trf4php\NOPTransactionManager;
 use trf4php\TransactionManager;
 use predaddy\messagehandling\annotation\Subscribe;
 
-class UserRegistered extends EventBase
+class UserRegistered extends AbstractEvent
 {
     protected $email;
 

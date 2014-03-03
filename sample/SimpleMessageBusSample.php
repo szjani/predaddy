@@ -4,9 +4,9 @@ namespace sample;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use predaddy\messagehandling\annotation\Subscribe;
-use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\AbstractMessage;
 
-class UserRegistered extends MessageBase
+class UserRegistered extends AbstractMessage
 {
     protected $email;
 

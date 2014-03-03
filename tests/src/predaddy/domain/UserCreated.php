@@ -23,7 +23,7 @@
 
 namespace predaddy\domain;
 
-class UserCreated extends DomainEventBase
+class UserCreated extends AbstractDomainEvent
 {
     private $userId;
 

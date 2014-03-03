@@ -3,14 +3,14 @@ namespace sample;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\AbstractMessage;
 use predaddy\messagehandling\annotation\Subscribe;
 
-class SampleMessage1 extends MessageBase
+class SampleMessage1 extends AbstractMessage
 {
 }
 
-class SampleMessage2 extends MessageBase
+class SampleMessage2 extends AbstractMessage
 {
 }
 

@@ -26,14 +26,14 @@ namespace predaddy\commandhandling;
 use DateTime;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DefaultAggregateId;
-use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\AbstractMessage;
 
 /**
  * Base class for all types of commands. Contains the command identifier and timestamp.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class CommandBase extends MessageBase implements Command
+abstract class AbstractCommand extends AbstractMessage implements Command
 {
     /**
      * @var string

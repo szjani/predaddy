@@ -25,10 +25,10 @@ $bus = new SimpleMessageBus(
 
 ### Message
 
-Message classes must extend `Message` interface. It's convenient to extend `MessageBase` class. You can put any data into the messages, but it's highly recommended to use simple types and you should consider to create immutable message objects.
+Message classes must extend `Message` interface. It's convenient to extend `AbstractMessage` class. You can put any data into the messages, but it's highly recommended to use simple types and you should consider to create immutable message objects.
 
 ```php
-class SampleMessage1 extends MessageBase
+class SampleMessage1 extends AbstractMessage
 {
 }
 ```

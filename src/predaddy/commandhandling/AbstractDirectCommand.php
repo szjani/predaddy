@@ -32,7 +32,7 @@ use DateTime;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class DirectCommandBase extends CommandBase implements DirectCommand
+abstract class AbstractDirectCommand extends AbstractCommand implements DirectCommand
 {
     public function toString()
     {

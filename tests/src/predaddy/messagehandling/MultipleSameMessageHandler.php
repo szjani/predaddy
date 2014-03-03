@@ -65,7 +65,7 @@ class MultipleSameMessageHandler extends AbstractMessageHandler
     /**
      * @Subscribe
      */
-    public function handle4(MessageBase $message)
+    public function handle4(AbstractMessage $message)
     {
         $this->lastMessage4 = $message;
     }

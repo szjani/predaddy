@@ -23,7 +23,7 @@
 
 namespace predaddy\commandhandling;
 
-class SimpleCommand extends CommandBase
+class SimpleCommand extends AbstractCommand
 {
     public $content;
 }

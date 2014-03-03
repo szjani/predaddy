@@ -23,7 +23,7 @@
 
 namespace predaddy\eventhandling;
 
-class SimpleEvent extends EventBase
+class SimpleEvent extends AbstractEvent
 {
     public $content;
 }

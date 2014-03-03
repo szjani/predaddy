@@ -4,10 +4,10 @@ namespace sample;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use predaddy\messagehandling\DeadMessage;
-use predaddy\messagehandling\MessageBase;
+use predaddy\messagehandling\AbstractMessage;
 use predaddy\messagehandling\annotation\Subscribe;
 
-class UnprocessedMessage extends MessageBase
+class UnprocessedMessage extends AbstractMessage
 {
 }
 

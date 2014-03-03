@@ -28,7 +28,7 @@ namespace predaddy\messagehandling;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DeadMessage extends MessageBase
+class DeadMessage extends AbstractMessage
 {
     private $message;
 
