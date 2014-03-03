@@ -27,7 +27,7 @@ use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
-use predaddy\domain\DefaultAggregateRoot;
+use predaddy\domain\AbstractAggregateRoot;
 use predaddy\messagehandling\DeadMessage;
 
 class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
@@ -164,7 +164,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
     }
 }
 
-class TestAggregate extends DefaultAggregateRoot
+class TestAggregate extends AbstractAggregateRoot
 {
     /**
      * @return AggregateId

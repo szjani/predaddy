@@ -35,7 +35,7 @@ require_once 'IncrementedEvent.php';
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class User extends DefaultAggregateRoot
+class User extends AbstractAggregateRoot
 {
     const DEFAULT_VALUE = 1;
 

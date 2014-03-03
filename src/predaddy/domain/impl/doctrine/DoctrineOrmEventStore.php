@@ -31,7 +31,7 @@ use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultEventSourcedAggregateRoot;
+use predaddy\domain\AbstractEventSourcedAggregateRoot;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\SnapshotEventStore;
@@ -57,7 +57,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
     {
         $this->entityManager = $entityManager;
         if ($serializer === null) {
-            $serializer = DefaultEventSourcedAggregateRoot::getSerializer();
+            $serializer = AbstractEventSourcedAggregateRoot::getSerializer();
         }
         $this->serializer = $serializer;
     }

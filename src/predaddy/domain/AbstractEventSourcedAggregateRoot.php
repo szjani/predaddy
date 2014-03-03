@@ -44,7 +44,7 @@ use Serializable;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class DefaultEventSourcedAggregateRoot extends DefaultAggregateRoot implements EventSourcedAggregateRoot
+abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot implements EventSourcedAggregateRoot
 {
     private static $messageBusFactory = null;
 

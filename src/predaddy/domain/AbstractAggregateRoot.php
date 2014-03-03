@@ -32,7 +32,7 @@ use precore\lang\Object;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class DefaultAggregateRoot extends Object implements AggregateRoot
+abstract class AbstractAggregateRoot extends Object implements AggregateRoot
 {
     protected $events = array();
 

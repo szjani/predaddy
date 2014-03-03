@@ -34,7 +34,7 @@ require_once 'IncrementedEvent.php';
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventSourcedUser extends DefaultEventSourcedAggregateRoot
+class EventSourcedUser extends AbstractEventSourcedAggregateRoot
 {
     const DEFAULT_VALUE = 1;
 
