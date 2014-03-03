@@ -20,9 +20,9 @@ Components
 
 For more details see the components:
 
- - [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling)
- - [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain)
- - [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation)
+ - [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling#messagebus)
+ - [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain#cqrs--event-sourcing)
+ - [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation#paginator-components)
 
 History
 -------
@@ -31,8 +31,13 @@ History
 
  - The constructors are changed in all message bus implementations since they use the same `FunctionDescriptorFactory` for closures as the `MessageHandlerDescriptorFactory` for methods.
  - `TransactionSynchronizedBuffererInterceptor` has been introduced thus `EventBus` does not extends `Mf4PhpMessageBus` anymore.
- - Both `EventBus` and `CommandBus` now register theirs default interceptors in the constructor and do not override the `setInterceptors` method. If you want to register other interceptors,
+ - Both `EventBus` and `CommandBus` now register their default interceptors in the constructor and do not override the `setInterceptors` method. If you want to register other interceptors,
  it's your responsible to register all default interceptors if required.
+ - Abstract message classes have been renamed and use `Abstract` prefix instead of `Base` suffix (eg. `EventBase` -> `AbstractEvent`).
+ - Event Sourcing support with a built-in Doctrine implementation of `EventStore`.
+ - Commands can be passed directly to the aggregate roots with `DirectCommandBus`.
+ - Event and aggregate serialization can be customized with any `Serializer` implementation.
+ - Events are not posted to the `EventBus` from the aggregate, it is managed by the repository when you are saving the aggregate.
 
 ### 1.2
 
