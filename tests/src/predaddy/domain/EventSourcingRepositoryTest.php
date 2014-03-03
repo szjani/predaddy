@@ -138,4 +138,9 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             ->will(self::returnValue(new ArrayIterator(array())));
         $this->repository->load($aggregateId);
     }
+
+    public function testGetAggregateRootClass()
+    {
+        self::assertEquals(EventSourcedUser::objectClass(), $this->repository->getAggregateRootClass());
+    }
 }
