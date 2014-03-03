@@ -26,8 +26,10 @@ namespace predaddy\domain;
 use Iterator;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
+use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
+use predaddy\messagehandling\SimpleMessageBusFactory;
 use predaddy\serializer\ReflectionSerializer;
 use predaddy\serializer\Serializer;
 use Serializable;
@@ -42,12 +44,9 @@ use Serializable;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serializable
+abstract class EventSourcedAggregateRoot extends DefaultAggregateRoot implements Serializable
 {
-    /**
-     * @var MessageHandlerDescriptorFactory
-     */
-    private static $descriptorFactory = null;
+    private static $messageBusFactory = null;
 
     /**
      * @var Serializer
@@ -79,26 +78,26 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
     }
 
     /**
-     * @return EventSourcingEventHandlerDescriptorFactory
+     * @param MessageBusFactory $messageBusFactory
      */
-    public static function getInnerDescriptorFactory()
+    public static function setInnerMessageBusFactory(MessageBusFactory $messageBusFactory)
     {
-        if (self::$descriptorFactory === null) {
-            self::$descriptorFactory = new EventSourcingEventHandlerDescriptorFactory(
-                new EventFunctionDescriptorFactory()
-            );
-        }
-        return self::$descriptorFactory;
+        self::$messageBusFactory = $messageBusFactory;
     }
 
     /**
-     * It's recommended to use AggregateRootEventHandlerDescriptorFactory.
-     *
-     * @param MessageHandlerDescriptorFactory $descriptorFactory
+     * @return SimpleMessageBusFactory
      */
-    public static function setInnerDescriptorFactory(MessageHandlerDescriptorFactory $descriptorFactory)
+    protected static function getInnerMessageBusFactory()
     {
-        self::$descriptorFactory = $descriptorFactory;
+        if (self::$messageBusFactory === null) {
+            self::$messageBusFactory = new SimpleMessageBusFactory(
+                new EventSourcingEventHandlerDescriptorFactory(
+                    new EventFunctionDescriptorFactory()
+                )
+            );
+        }
+        return self::$messageBusFactory;
     }
 
     /**
@@ -153,10 +152,7 @@ abstract class EventSourcedAggregateRoot extends AggregateRoot implements Serial
     private function getInnerEventBus()
     {
         if ($this->innerEventBus === null) {
-            $this->innerEventBus = new SimpleMessageBus(
-                self::getInnerDescriptorFactory(),
-                $this->getClassName()
-            );
+            $this->innerEventBus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
             $this->innerEventBus->register($this);
         }
         return $this->innerEventBus;
