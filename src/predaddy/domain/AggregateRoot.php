@@ -32,28 +32,16 @@ use precore\lang\Object;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AggregateRoot extends Object implements Entity
+interface AggregateRoot extends Entity
 {
-    protected $events = array();
-
     /**
      * @return AggregateId
      */
-    abstract public function getId();
+    public function getId();
 
     /**
      * @see AggregateRootRepository::save()
      * @return Iterator of DomainEvent objects
      */
-    public function getAndClearRaisedEvents()
-    {
-        $events = new ArrayIterator($this->events);
-        $this->events = array();
-        return $events;
-    }
-
-    protected function raise(DomainEvent $event)
-    {
-        $this->events[] = $event;
-    }
+    public function getAndClearRaisedEvents();
 }

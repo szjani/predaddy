@@ -23,41 +23,32 @@
 
 namespace predaddy\domain;
 
-use precore\lang\ObjectInterface;
-use precore\util\UUID;
-use predaddy\messagehandling\annotation\Subscribe;
-
-require_once 'UserCreated.php';
-require_once 'IncrementedEvent.php';
+use ArrayIterator;
+use Iterator;
+use precore\lang\Object;
 
 /**
- * Description of User
+ * Aggregate root class.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class User extends DefaultAggregateRoot
+abstract class DefaultAggregateRoot extends Object implements AggregateRoot
 {
-    const DEFAULT_VALUE = 1;
+    protected $events = array();
 
-    private $id;
-    public $value = self::DEFAULT_VALUE;
-    private $version = 0;
-
-    public function __construct()
+    /**
+     * @see AggregateRootRepository::save()
+     * @return Iterator of DomainEvent objects
+     */
+    public function getAndClearRaisedEvents()
     {
-        $this->id = new UUIDAggregateId(UUID::randomUUID());
-        $this->raise(new UserCreated($this->id, $this->version));
+        $events = new ArrayIterator($this->events);
+        $this->events = array();
+        return $events;
     }
 
-    public function getId()
+    protected function raise(DomainEvent $event)
     {
-        return $this->id;
-    }
-
-    public function increment()
-    {
-        $this->value++;
-        $this->version++;
-        $this->raise(new IncrementedEvent($this->id, $this->version));
+        $this->events[] = $event;
     }
 }
