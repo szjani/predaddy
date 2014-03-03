@@ -28,8 +28,11 @@ use precore\lang\ObjectClass;
 use predaddy\domain\RepositoryRepository;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
+use predaddy\messagehandling\MessageBus;
+use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
+use predaddy\messagehandling\SimpleMessageBusFactory;
 
 class DirectCommandForwarder extends Object
 {
@@ -39,18 +42,20 @@ class DirectCommandForwarder extends Object
     private $repositoryRepository;
 
     /**
-     * @var MessageHandlerDescriptorFactory
+     * @var MessageBusFactory
      */
-    private $descFact;
+    private $messageBusFactory;
 
     /**
      * @param RepositoryRepository $repositoryRepository
-     * @param MessageHandlerDescriptorFactory $descFact Should be the same as used in command bus
+     * @param MessageBusFactory $messageBusFactory
      */
-    public function __construct(RepositoryRepository $repositoryRepository, MessageHandlerDescriptorFactory $descFact)
-    {
+    public function __construct(
+        RepositoryRepository $repositoryRepository,
+        MessageBusFactory $messageBusFactory
+    ) {
         $this->repositoryRepository = $repositoryRepository;
-        $this->descFact = $descFact;
+        $this->messageBusFactory = $messageBusFactory;
     }
 
     /**
@@ -59,7 +64,7 @@ class DirectCommandForwarder extends Object
      * @Subscribe
      * @param DeadMessage $deadMessage
      */
-    public function catchDeadCommands(DeadMessage $deadMessage)
+    public function catchDeadCommand(DeadMessage $deadMessage)
     {
         $innerMessage = $deadMessage->getMessage();
         ObjectClass::forName(__NAMESPACE__ . '\DirectCommand')->cast($innerMessage);
@@ -79,7 +84,7 @@ class DirectCommandForwarder extends Object
         } else {
             $aggregate = $repository->load($aggregateId);
         }
-        $forwarderBus = new SimpleMessageBus($this->descFact);
+        $forwarderBus = $this->messageBusFactory->createBus($class->getName());
         $forwarderBus->register($aggregate);
         $forwarderBus->post($command);
         $repository->save($aggregate, $command->getVersion());

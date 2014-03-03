@@ -38,6 +38,7 @@ use predaddy\domain\UserCreated;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\SimpleMessageBusFactory;
 use trf4php\doctrine\DoctrineTransactionManager;
 
 require_once __DIR__ . '/../domain/EventSourcedUser.php';
@@ -46,6 +47,14 @@ require_once __DIR__ . '/../domain/UserCreated.php';
 require_once __DIR__ . '/../domain/CreateEventSourcedUser.php';
 require_once __DIR__ . '/../domain/Increment.php';
 
+/**
+ * Class DirectCommandBusIntegrationTest
+ *
+ * @package predaddy\commandhandling
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ * @group integration
+ */
 class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -93,10 +102,12 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
             $transactionManager
         );
         $eventStore = new DoctrineOrmEventStore(self::$entityManager);
+        $handDesc = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
         $this->commandBus = new DirectCommandBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory()),
+            $handDesc,
             $transactionManager,
-            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER)
+            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER),
+            new SimpleMessageBusFactory($handDesc)
         );
     }
 
