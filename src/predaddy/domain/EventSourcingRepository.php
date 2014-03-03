@@ -40,7 +40,7 @@ class EventSourcingRepository extends AggregateRootRepository
     /**
      * @var EventStore
      */
-    private $eventStorage;
+    private $eventStore;
 
     /**
      * @var ObjectClass
@@ -65,7 +65,7 @@ class EventSourcingRepository extends AggregateRootRepository
         SnapshotStrategy $snapshotStrategy = null
     ) {
         parent::__construct($eventBus);
-        $this->eventStorage = $eventStore;
+        $this->eventStore = $eventStore;
         $this->aggregateRootClass = $aggregateRootClass;
         if ($snapshotStrategy === null) {
             $snapshotStrategy = TrivialSnapshotStrategy::$ALWAYS;
@@ -84,9 +84,9 @@ class EventSourcingRepository extends AggregateRootRepository
     /**
      * @return EventStore
      */
-    public function getEventStorage()
+    public function getEventStore()
     {
-        return $this->eventStorage;
+        return $this->eventStore;
     }
 
     /**
@@ -98,10 +98,10 @@ class EventSourcingRepository extends AggregateRootRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        $events = $this->eventStorage->getEventsFor($this->aggregateRootClass->getName(), $aggregateId);
+        $events = $this->eventStore->getEventsFor($this->aggregateRootClass->getName(), $aggregateId);
         $aggregate = null;
-        if ($this->eventStorage instanceof SnapshotEventStore) {
-            $aggregate = $this->eventStorage->loadSnapshot($this->aggregateRootClass->getName(), $aggregateId);
+        if ($this->eventStore instanceof SnapshotEventStore) {
+            $aggregate = $this->eventStore->loadSnapshot($this->aggregateRootClass->getName(), $aggregateId);
         }
         if ($aggregate === null) {
             if (!$events->valid()) {
@@ -117,11 +117,11 @@ class EventSourcingRepository extends AggregateRootRepository
     protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
     {
         $this->aggregateRootClass->cast($aggregateRoot);
-        $this->eventStorage->saveChanges($this->aggregateRootClass->getName(), $events, $version);
-        if ($this->eventStorage instanceof SnapshotEventStore
+        $this->eventStore->saveChanges($this->aggregateRootClass->getName(), $events, $version);
+        if ($this->eventStore instanceof SnapshotEventStore
             && $this->snapshotStrategy->snapshotRequired($aggregateRoot, $version)) {
 
-            $this->eventStorage->createSnapshot($this->aggregateRootClass->getName(), $aggregateRoot->getId());
+            $this->eventStore->createSnapshot($this->aggregateRootClass->getName(), $aggregateRoot->getId());
         }
     }
 
