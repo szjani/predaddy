@@ -23,34 +23,14 @@
 
 namespace predaddy\commandhandling;
 
-use precore\lang\Object;
-use predaddy\domain\Repository;
+use PHPUnit_Framework_TestCase;
 
-/**
- * Basic command handler which provides you the ability to use the proper repository.
- * Should be used if explicit command handlers are used on a CommandBus.
- *
- * @package predaddy\commandhandling
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-abstract class AbstractCommandHandler extends Object
+class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var Repository
-     */
-    private $repository;
-
-    public function __construct(Repository $repository)
+    public function testGetRepository()
     {
-        $this->repository = $repository;
-    }
-
-    /**
-     * @return Repository
-     */
-    public function getRepository()
-    {
-        return $this->repository;
+        $repository = $this->getMock('\predaddy\domain\Repository');
+        $handler = $this->getMockForAbstractClass(__NAMESPACE__ . '\AbstractCommandHandler', array($repository));
+        self::assertSame($repository, $handler->getRepository());
     }
 }
