@@ -61,7 +61,7 @@ abstract class EventSourcedAggregateRoot extends DefaultAggregateRoot implements
     /**
      * @param Serializer $serializer
      */
-    public static function setSerializer(Serializer $serializer)
+    public static function setSerializer(Serializer $serializer = null)
     {
         self::$serializer = $serializer;
     }
@@ -80,7 +80,7 @@ abstract class EventSourcedAggregateRoot extends DefaultAggregateRoot implements
     /**
      * @param MessageBusFactory $messageBusFactory
      */
-    public static function setInnerMessageBusFactory(MessageBusFactory $messageBusFactory)
+    public static function setInnerMessageBusFactory(MessageBusFactory $messageBusFactory = null)
     {
         self::$messageBusFactory = $messageBusFactory;
     }
@@ -88,7 +88,7 @@ abstract class EventSourcedAggregateRoot extends DefaultAggregateRoot implements
     /**
      * @return SimpleMessageBusFactory
      */
-    protected static function getInnerMessageBusFactory()
+    public static function getInnerMessageBusFactory()
     {
         if (self::$messageBusFactory === null) {
             self::$messageBusFactory = new SimpleMessageBusFactory(
@@ -143,6 +143,11 @@ abstract class EventSourcedAggregateRoot extends DefaultAggregateRoot implements
         $this->apply($event);
     }
 
+    /**
+     * Fire a domain event from a handler method.
+     *
+     * @param DomainEvent $event
+     */
     protected function apply(DomainEvent $event)
     {
         $this->handleEventInAggregate($event);

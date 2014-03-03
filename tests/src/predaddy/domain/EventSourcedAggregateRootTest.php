@@ -78,4 +78,25 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
         self::assertEquals($user->getId(), $resUser->getId());
         self::assertEquals($user->value, $resUser->value);
     }
+
+    public function testExplicitSerializer()
+    {
+        $serializer = $this->getMock('\predaddy\serializer\Serializer');
+        EventSourcedAggregateRoot::setSerializer($serializer);
+        self::assertSame($serializer, EventSourcedAggregateRoot::getSerializer());
+        EventSourcedAggregateRoot::setSerializer(null);
+        self::assertInstanceOf('\predaddy\serializer\ReflectionSerializer', EventSourcedAggregateRoot::getSerializer());
+    }
+
+    public function testExplicitMessageBusFactory()
+    {
+        $factory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
+        EventSourcedAggregateRoot::setInnerMessageBusFactory($factory);
+        self::assertSame($factory, EventSourcedAggregateRoot::getInnerMessageBusFactory());
+        EventSourcedAggregateRoot::setInnerMessageBusFactory(null);
+        self::assertInstanceOf(
+            '\predaddy\messagehandling\SimpleMessageBusFactory',
+            EventSourcedAggregateRoot::getInnerMessageBusFactory()
+        );
+    }
 }
