@@ -38,6 +38,14 @@ require_once __DIR__ . '/../../UserCreated.php';
 require_once __DIR__ . '/../../CreateEventSourcedUser.php';
 require_once __DIR__ . '/../../Increment.php';
 
+/**
+ * Class DoctrineOrmEventStoreTest
+ *
+ * @package predaddy\domain\impl\doctrine
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ * @group integration
+ */
 class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
 {
     /**
