@@ -112,7 +112,7 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
         $storedEvents->next();
         self::assertEquals($raisedEvents[1], $storedEvents->current());
 
-        $user2 = EventSourcedUser::createEmpty();
+        $user2 = EventSourcedUser::objectClass()->newInstanceWithoutConstructor();
         $user2->loadFromHistory($this->eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId));
         self::assertEquals($user->value, $user2->value);
     }

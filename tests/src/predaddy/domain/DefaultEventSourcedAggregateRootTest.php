@@ -50,7 +50,7 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
         self::assertEquals(4, count($raisedEvents));
 
         /* @var $replayedUser EventSourcedUser */
-        $replayedUser = EventSourcedUser::createEmpty();
+        $replayedUser = EventSourcedUser::objectClass()->newInstanceWithoutConstructor();
         $replayedUser->loadFromHistory($raisedEvents);
 
         // the two user have the same values

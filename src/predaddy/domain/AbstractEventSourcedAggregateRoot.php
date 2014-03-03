@@ -101,16 +101,6 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
     }
 
     /**
-     * Useful to replay events with loadFromHistory() from the scratch.
-     *
-     * @return EventSourcedAggregateRoot
-     */
-    final public static function createEmpty()
-    {
-        return static::objectClass()->newInstanceWithoutConstructor();
-    }
-
-    /**
      * Useful in case of Event Sourcing.
      *
      * @see EventSourcingRepository
