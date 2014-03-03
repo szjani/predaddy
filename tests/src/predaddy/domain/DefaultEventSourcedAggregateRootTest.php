@@ -82,21 +82,24 @@ class EventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
     public function testExplicitSerializer()
     {
         $serializer = $this->getMock('\predaddy\serializer\Serializer');
-        EventSourcedAggregateRoot::setSerializer($serializer);
-        self::assertSame($serializer, EventSourcedAggregateRoot::getSerializer());
-        EventSourcedAggregateRoot::setSerializer(null);
-        self::assertInstanceOf('\predaddy\serializer\ReflectionSerializer', EventSourcedAggregateRoot::getSerializer());
+        DefaultEventSourcedAggregateRoot::setSerializer($serializer);
+        self::assertSame($serializer, DefaultEventSourcedAggregateRoot::getSerializer());
+        DefaultEventSourcedAggregateRoot::setSerializer(null);
+        self::assertInstanceOf(
+            '\predaddy\serializer\ReflectionSerializer',
+            DefaultEventSourcedAggregateRoot::getSerializer()
+        );
     }
 
     public function testExplicitMessageBusFactory()
     {
         $factory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
-        EventSourcedAggregateRoot::setInnerMessageBusFactory($factory);
-        self::assertSame($factory, EventSourcedAggregateRoot::getInnerMessageBusFactory());
-        EventSourcedAggregateRoot::setInnerMessageBusFactory(null);
+        DefaultEventSourcedAggregateRoot::setInnerMessageBusFactory($factory);
+        self::assertSame($factory, DefaultEventSourcedAggregateRoot::getInnerMessageBusFactory());
+        DefaultEventSourcedAggregateRoot::setInnerMessageBusFactory(null);
         self::assertInstanceOf(
             '\predaddy\messagehandling\SimpleMessageBusFactory',
-            EventSourcedAggregateRoot::getInnerMessageBusFactory()
+            DefaultEventSourcedAggregateRoot::getInnerMessageBusFactory()
         );
     }
 }
