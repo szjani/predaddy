@@ -48,7 +48,7 @@ $domainEventBus->register(new UserEventHandler());
 #### The domain model
 
 ```php
-class User extends AggregateRoot
+class User extends AbstractAggregateRoot
 {
     private $id;
     private $email;
@@ -149,17 +149,19 @@ $eventBus = new EventBus(
 );
 // you can use any EventStore implementation
 $eventStore = new DoctrineOrmEventStore($entityManager);
+$commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
 $commandBus = new DirectCommandBus(
-    new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory()),
+    $commandHandlerDescFactory,
     $transactionManager,
-    new LazyEventSourcedRepositoryRepository($eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER)
+    new LazyEventSourcedRepositoryRepository($eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER),
+    new SimpleMessageBusFactory($handDesc)
 );
 ```
 
 #### Model
 
 ```php
-class EventSourcedUser extends EventSourcedAggregateRoot
+class EventSourcedUser extends AbstractEventSourcedAggregateRoot
 {
     const DEFAULT_VALUE = 1;
 
