@@ -23,9 +23,16 @@
 
 namespace predaddy\domain;
 
+/**
+ * Repository interface for loading and persisting aggregates.
+ *
+ * @package predaddy\domain
+ */
 interface Repository
 {
     /**
+     * Load the aggregate identified by $aggregateId from the persistent storage.
+     *
      * @param AggregateId $aggregateId
      * @return AggregateRoot
      * @throws \InvalidArgumentException If the $aggregateId is invalid
@@ -33,6 +40,9 @@ interface Repository
     public function load(AggregateId $aggregateId);
 
     /**
+     * Persisting the given $aggregateRoot, $version can be used for locking.
+     * Events raised in $aggregateRoot should be posted to the domain event bus.
+     *
      * @param AggregateRoot $aggregateRoot
      * @param int $version
      */
