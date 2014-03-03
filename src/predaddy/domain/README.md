@@ -138,6 +138,8 @@ $commandBus->post(new ModifyEmail($userId, $email, $version));
 
 The following configuration provides you a direct command passing process, so commands are being sent directly to the aggregate roots. As you can see it uses Doctrine implementation of `ObservableTransactionManager` and `EventStore`.
 
+You can define your snapshotting strategy with a `SnapshotStrategy` implementation. The example below never creates snapshots.
+
 #### Configuration
 
 ```php

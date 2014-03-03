@@ -10,7 +10,7 @@ predaddy
 |[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy)|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.0)](https://travis-ci.org/szjani/predaddy)|
 |[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.0)|
 
-It is a library which gives you some usable classes to be able to use common DDD patterns. Predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
+It is a library which gives you some usable classes to be able to use common DDD patterns. Some predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
 You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
 
 Predaddy uses [lf4php](https://github.com/szjani/lf4php) for logging.

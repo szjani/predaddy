@@ -9,6 +9,11 @@ SimpleMessageBus is a basic implementation of the MessageBus interface. Currentl
 
 If you use CQRS, then I highly recommend to use the pre-configured `EventBus` and `CommandBus` classes.
 
+Do not forget the following use statement in your message handler classes:
+```php
+use predaddy\messagehandling\annotation\Subscribe;
+```
+
 ## Example
 
 ### Configuration
