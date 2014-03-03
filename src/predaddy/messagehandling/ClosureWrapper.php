@@ -43,4 +43,3 @@ class ClosureWrapper extends Object implements CallableWrapper
         return call_user_func($this->closure, $message);
     }
 }
- 
