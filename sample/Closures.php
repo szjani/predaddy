@@ -3,21 +3,22 @@ namespace sample;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use predaddy\messagehandling\Message;
-use predaddy\messagehandling\AbstractMessage;
+use precore\util\error\ErrorHandler;
 
-class SampleMessage extends AbstractMessage
+// if the message object cannot be cast to string which is required in lf4php, it can be handled by registering
+// an error handler which converts all errors to exception
+ErrorHandler::register();
+
+class SampleMessage
 {
 }
 
 $bus = require_once 'sampleBus.php';
 
 $bus->registerClosure(
-    function (Message $message) {
+    function (SampleMessage $message) {
         printf(
-            "Incoming message %s sent %s\n",
-            $message->getMessageIdentifier(),
-            $message->getTimestamp()->format('Y-m-d H:i:s')
+            "Incoming message\n"
         );
     }
 );

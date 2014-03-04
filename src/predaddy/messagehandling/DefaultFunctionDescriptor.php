@@ -23,6 +23,7 @@
 
 namespace predaddy\messagehandling;
 
+use precore\lang\ObjectClass;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -55,24 +56,24 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
     }
 
     /**
-     * @param Message $message
+     * @param object $message
      * @return boolean
      */
-    public function isHandlerFor(Message $message)
+    public function isHandlerFor($message)
     {
         if (!$this->valid) {
             return false;
         }
-        $messageClassName = $message->getClassName();
+        $messageClassName = get_class($message);
         if (!array_key_exists($messageClassName, $this->compatibleMessageClassNames)) {
             $this->compatibleMessageClassNames[$messageClassName] = $this->canHandleValidMessage($message);
         }
         return $this->compatibleMessageClassNames[$messageClassName];
     }
 
-    protected function canHandleValidMessage(Message $message)
+    protected function canHandleValidMessage($message)
     {
-        $messageClass = $message->getObjectClass();
+        $messageClass = ObjectClass::forName(get_class($message));
         $sameClass = $messageClass->getName() === $this->handledMessageClassName;
         $subClass = $messageClass->isSubclassOf($this->handledMessageClassName);
         return $sameClass || $subClass;
@@ -80,7 +81,7 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
 
     protected function getBaseMessageClassName()
     {
-        return __NAMESPACE__ . '\Message';
+        return null;
     }
 
     protected function check()
@@ -95,6 +96,7 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
         if ($paramType === null
             || ($paramType->getName() !== DeadMessage::className()
                 && !$paramType->isSubclassOf(DeadMessage::className())
+                && $messageClassName !== null
                 && $paramType->getName() !== $messageClassName)
                 && !$paramType->isSubclassOf($messageClassName)) {
             return false;

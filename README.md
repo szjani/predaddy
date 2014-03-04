@@ -29,6 +29,7 @@ History
 
 ### 2.0
 
+ - Messages can be any objects, it's not required to implement `Message` interface.
  - The constructors are changed in all message bus implementations since they use the same `FunctionDescriptorFactory` for closures as the `MessageHandlerDescriptorFactory` for methods.
  - `TransactionSynchronizedBuffererInterceptor` has been introduced thus `EventBus` does not extends `Mf4PhpMessageBus` anymore.
  - Both `EventBus` and `CommandBus` now register their default interceptors in the constructor and do not override the `setInterceptors` method. If you want to register other interceptors,

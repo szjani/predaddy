@@ -44,7 +44,7 @@ class MethodWrapper extends Object implements CallableWrapper
         $this->method = $method;
     }
 
-    public function invoke(Message $message)
+    public function invoke($message)
     {
         return $this->method->invoke($this->object, $message);
     }

@@ -30,6 +30,7 @@ use Iterator;
 use precore\lang\Object;
 use ReflectionFunction;
 use ReflectionMethod;
+use RuntimeException;
 use SplObjectStorage;
 
 /**
@@ -91,11 +92,15 @@ class SimpleMessageBus extends Object implements MessageBus
     }
 
     /**
-     * @param Message $message
+     * @param object $message
      * @param MessageCallback $callback
+     * @throws RuntimeException
      */
-    public function post(Message $message, MessageCallback $callback = null)
+    public function post($message, MessageCallback $callback = null)
     {
+        if (!is_object($message)) {
+            throw new RuntimeException('Message must be an object!');
+        }
         self::getLogger()->debug(
             "The following message has been posted to '{}' message bus: {}",
             array($this->identifier, $message)
@@ -145,12 +150,12 @@ class SimpleMessageBus extends Object implements MessageBus
         $this->closures->detach($closure);
     }
 
-    protected function innerPost(Message $message, MessageCallback $callback = null)
+    protected function innerPost($message, MessageCallback $callback = null)
     {
         $this->forwardMessage($message, $callback);
     }
 
-    protected function forwardMessage(Message $message, MessageCallback $callback = null)
+    protected function forwardMessage($message, MessageCallback $callback = null)
     {
         $forwarded = false;
         foreach ($this->handlers as $handler) {
@@ -178,14 +183,14 @@ class SimpleMessageBus extends Object implements MessageBus
         }
     }
 
-    protected function doDispatch(Message $message, CallableWrapper $callable)
+    protected function doDispatch($message, CallableWrapper $callable)
     {
         $this->interceptors->rewind();
         $chain = new DefaultInterceptorChain($message, $this->interceptors, $callable);
         return $chain->proceed();
     }
 
-    protected function dispatch(Message $message, CallableWrapper $callable, MessageCallback $callback = null)
+    protected function dispatch($message, CallableWrapper $callable, MessageCallback $callback = null)
     {
         try {
             $result = $this->doDispatch($message, $callable);

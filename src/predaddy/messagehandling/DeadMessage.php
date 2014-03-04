@@ -33,16 +33,16 @@ class DeadMessage extends AbstractMessage
     private $message;
 
     /**
-     * @param Message $message
+     * @param $message
      */
-    public function __construct(Message $message)
+    public function __construct($message)
     {
         parent::__construct();
         $this->message = $message;
     }
 
     /**
-     * @return Message
+     * @return object
      */
     public function getMessage()
     {

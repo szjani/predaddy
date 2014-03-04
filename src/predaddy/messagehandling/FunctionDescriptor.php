@@ -36,10 +36,10 @@ interface FunctionDescriptor
     public function isValid();
 
     /**
-     * @param Message $message
+     * @param object $message
      * @return boolean
      */
-    public function isHandlerFor(Message $message);
+    public function isHandlerFor($message);
 
     /**
      * @return ReflectionFunctionAbstract

@@ -28,8 +28,7 @@ use precore\lang\ObjectInterface;
 use Serializable;
 
 /**
- * Base interface for all messages in the application.
- * All classes that represent an message should implement this interface.
+ * Base interface for messages, but it's not required to implement it.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */

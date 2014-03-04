@@ -26,7 +26,6 @@ namespace predaddy\messagehandling\annotation;
 use Doctrine\Common\Annotations\Reader;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
-use predaddy\messagehandling\Message;
 use predaddy\messagehandling\MessageHandlerDescriptor;
 use ReflectionClass;
 use ReflectionMethod;
@@ -65,12 +64,12 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     }
 
     /**
-     * @param Message $message
+     * @param $message
      * @return array of ReflectionMethod
      */
-    public function getHandlerMethodsFor(Message $message)
+    public function getHandlerMethodsFor($message)
     {
-        $messageClassName = $message->getClassName();
+        $messageClassName = get_class($message);
         if (!array_key_exists($messageClassName, $this->compatibleHandlerMethodsCache)) {
             $this->compatibleHandlerMethodsCache[$messageClassName] = $this->findCompatibleMethodsFor($message);
         }
@@ -80,10 +79,10 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     /**
      * Find all handler methods for a specific type of Message
      *
-     * @param Message $message
+     * @param $message
      * @return array of ReflectionMethod
      */
-    protected function findCompatibleMethodsFor(Message $message)
+    protected function findCompatibleMethodsFor($message)
     {
         $result = array();
         foreach ($this->directHandlerMethodDescriptors as $handlerMessageClass => $funcDescriptors) {

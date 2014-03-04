@@ -38,7 +38,7 @@ class ClosureWrapper extends Object implements CallableWrapper
         $this->closure = $closure;
     }
 
-    public function invoke(Message $message)
+    public function invoke($message)
     {
         return call_user_func($this->closure, $message);
     }

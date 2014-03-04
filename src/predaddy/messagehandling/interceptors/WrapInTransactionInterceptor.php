@@ -27,7 +27,6 @@ use Exception;
 use precore\lang\Object;
 use predaddy\messagehandling\HandlerInterceptor;
 use predaddy\messagehandling\InterceptorChain;
-use predaddy\messagehandling\Message;
 use trf4php\TransactionManager;
 
 /**
@@ -52,7 +51,7 @@ class WrapInTransactionInterceptor extends Object implements HandlerInterceptor
         $this->transactionManager = $transactionManager;
     }
 
-    public function invoke(Message $message, InterceptorChain $chain)
+    public function invoke($message, InterceptorChain $chain)
     {
         $this->transactionManager->beginTransaction();
         try {

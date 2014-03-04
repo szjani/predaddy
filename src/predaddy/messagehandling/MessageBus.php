@@ -37,11 +37,12 @@ interface MessageBus
      *
      * MessageCallback is not necessarily supported by all implementations!
      *
-     * @param Message $message
+     * @param object $message
      * @param MessageCallback $callback
      * @return void
+     * @throws \RuntimeException If $message is not an object
      */
-    public function post(Message $message, MessageCallback $callback = null);
+    public function post($message, MessageCallback $callback = null);
 
     /**
      * @param Iterator $interceptors HandlerInterceptor instances

@@ -24,7 +24,7 @@
 namespace predaddy\messagehandling\mf4php;
 
 use mf4php\ObjectMessage;
-use predaddy\messagehandling\Message;
+use Serializable;
 
 /**
  * Default ObjectMessageFactory.
@@ -33,7 +33,7 @@ use predaddy\messagehandling\Message;
  */
 class DefaultObjectMessageFactory implements ObjectMessageFactory
 {
-    public function createMessage(Message $message)
+    public function createMessage(Serializable $message)
     {
         return new ObjectMessage($message);
     }

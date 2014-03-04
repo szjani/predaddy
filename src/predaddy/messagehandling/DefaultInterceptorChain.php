@@ -28,7 +28,7 @@ use Iterator;
 class DefaultInterceptorChain implements InterceptorChain
 {
     /**
-     * @var Message
+     * @var object
      */
     private $message;
 
@@ -43,11 +43,11 @@ class DefaultInterceptorChain implements InterceptorChain
     private $callable;
 
     /**
-     * @param Message $message
+     * @param $message
      * @param Iterator $handlerInterceptors
      * @param CallableWrapper $callable
      */
-    public function __construct(Message $message, Iterator $handlerInterceptors, CallableWrapper $callable)
+    public function __construct($message, Iterator $handlerInterceptors, CallableWrapper $callable)
     {
         $this->message = $message;
         $this->handlerInterceptors = $handlerInterceptors;

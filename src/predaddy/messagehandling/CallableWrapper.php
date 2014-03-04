@@ -27,5 +27,9 @@ use precore\lang\ObjectInterface;
 
 interface CallableWrapper extends ObjectInterface
 {
-    public function invoke(Message $message);
+    /**
+     * @param object $message
+     * @return mixed
+     */
+    public function invoke($message);
 }

@@ -31,8 +31,8 @@ namespace predaddy\messagehandling;
 interface MessageHandlerDescriptor
 {
     /**
-     * @param Message $message
+     * @param $message
      * @return array of ReflectionMethod
      */
-    public function getHandlerMethodsFor(Message $message);
+    public function getHandlerMethodsFor($message);
 }

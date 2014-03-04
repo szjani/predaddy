@@ -27,7 +27,6 @@ use InvalidArgumentException;
 use precore\lang\Object;
 use predaddy\messagehandling\HandlerInterceptor;
 use predaddy\messagehandling\InterceptorChain;
-use predaddy\messagehandling\Message;
 use SplObjectStorage;
 use trf4php\ObservableTransactionManager;
 use trf4php\TransactionManagerObserver;
@@ -59,10 +58,10 @@ class TransactionSynchronizedBuffererInterceptor extends Object implements
     }
 
     /**
-     * @param Message $message
+     * @param $message
      * @param InterceptorChain $chain
      */
-    public function invoke(Message $message, InterceptorChain $chain)
+    public function invoke($message, InterceptorChain $chain)
     {
         if (!$this->isBuffered()) {
             $chain->proceed();

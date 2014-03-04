@@ -24,7 +24,7 @@
 namespace predaddy\messagehandling\mf4php;
 
 use mf4php\ObjectMessage;
-use predaddy\messagehandling\Message;
+use Serializable;
 
 /**
  * Used to create ObjectMessage object for Message objects.
@@ -36,8 +36,8 @@ use predaddy\messagehandling\Message;
 interface ObjectMessageFactory
 {
     /**
-     * @param Message $message
+     * @param Serializable $message
      * @return ObjectMessage
      */
-    public function createMessage(Message $message);
+    public function createMessage(Serializable $message);
 }

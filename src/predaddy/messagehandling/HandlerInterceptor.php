@@ -25,5 +25,5 @@ namespace predaddy\messagehandling;
 
 interface HandlerInterceptor
 {
-    public function invoke(Message $message, InterceptorChain $chain);
+    public function invoke($message, InterceptorChain $chain);
 }

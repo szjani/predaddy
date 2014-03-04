@@ -25,6 +25,7 @@ namespace predaddy\messagehandling;
 
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
+use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 
 require_once 'SimpleMessage.php';
@@ -176,5 +177,29 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
 
         $this->bus->post(new SimpleMessage());
         $this->bus->post(new SimpleMessage());
+    }
+
+    /**
+     * @test
+     */
+    public function dispatchNonMessageObject()
+    {
+        $called = false;
+        $this->bus->registerClosure(
+            function (UUID $msg) use (&$called) {
+                $called = true;
+            }
+        );
+        $this->bus->post(UUID::randomUUID());
+        self::assertTrue($called);
+    }
+
+    /**
+     * @test
+     * @expectedException \RuntimeException
+     */
+    public function exceptionShouldThrownNonObjectMessage()
+    {
+        $this->bus->post(array());
     }
 }

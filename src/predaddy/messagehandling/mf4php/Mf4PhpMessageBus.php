@@ -29,11 +29,11 @@ use mf4php\Message as Mf4phpMessage;
 use mf4php\MessageDispatcher;
 use mf4php\MessageListener;
 use mf4php\ObjectMessage;
-use predaddy\messagehandling\FunctionDescriptorFactory;
-use predaddy\messagehandling\Message;
 use predaddy\messagehandling\MessageCallback;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
+use RuntimeException;
+use Serializable;
 
 /**
  * MessageBus implementation which uses mf4php to forward messages.
@@ -109,12 +109,12 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
     /**
      * Finds the appropriate message factory for the given message.
      *
-     * @param Message $message
+     * @param $message
      * @return ObjectMessageFactory
      */
-    protected function findObjectMessageFactory(Message $message)
+    protected function findObjectMessageFactory($message)
     {
-        $messageClass = $message->getClassName();
+        $messageClass = get_class($message);
         foreach ($this->objectMessageFactories as $class => $factory) {
             if ($class === $messageClass) {
                 return $factory;
@@ -126,11 +126,15 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
     /**
      * Send the message to the message queue.
      *
-     * @param Message $message
+     * @param $message
      * @param MessageCallback $callback
+     * @throws RuntimeException
      */
-    protected function innerPost(Message $message, MessageCallback $callback = null)
+    protected function innerPost($message, MessageCallback $callback = null)
     {
+        if (!($message instanceof Serializable)) {
+            throw new RuntimeException("Message must implement Serializable interface");
+        }
         $mf4phpMessage = $this->findObjectMessageFactory($message)->createMessage($message);
         $this->dispatcher->send($this->queue, $mf4phpMessage);
     }
