@@ -32,7 +32,7 @@ use ReflectionFunctionAbstract;
  * Validates a function or a method whether it is a valid message handler or not.
  * The following rules must be followed the given function/method:
  *  - exactly one parameter
- *  - the parameter's typehint is a subclass of Message (including Message)
+ *  - the parameter has typehint
  *
  * @package predaddy\messagehandling\functiondescriptor
  *
