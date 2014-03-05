@@ -23,12 +23,14 @@
         "doctrine/orm": "~2.4",
         "trf4php/trf4php-doctrine": "~1.2",
         "phpunit/phpunit": "3.7.*",
-        "lf4php/lf4php-log4php": "~2.0"
+        "lf4php/lf4php-log4php": "~2.0",
+        "jms/serializer": "~0.15"
     },
     "autoload": {
         "psr-0": {"predaddy": "src/"}
     },
     "suggest": {
+        "jms/serializer": "For serializing events and aggregates with JmsSerializer",
         "trf4php/trf4php-doctrine": "Requires if you want to use Doctrine EventStore implementation",
         "mf4php/mf4php-beanstalk": "If you want to use Mf4PhpMessageBus with Beanstalk (asynchronous event handling)",
         "lf4php/lf4php-monolog": "If you want to use Monolog for logging",
