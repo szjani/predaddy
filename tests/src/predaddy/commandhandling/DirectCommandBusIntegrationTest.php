@@ -123,14 +123,15 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $this->commandBus->post(new CreateEventSourcedUser());
         self::assertNotNull($aggregateId);
 
-        $incremented = false;
+        $incremented = 0;
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$incremented, $aggregateId) {
                 DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
-                $incremented = true;
+                $incremented++;
             }
         );
         $this->commandBus->post(new Increment($aggregateId->getValue(), 1));
-        self::assertTrue($incremented);
+        $this->commandBus->post(new Increment($aggregateId->getValue(), 2));
+        self::assertEquals(2, $incremented);
     }
 }

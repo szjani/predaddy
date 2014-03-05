@@ -91,6 +91,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
             if ($aggregate->getVersion() + 1 !== $event->getVersion()) {
                 throw new InvalidArgumentException("Event version is invalid");
             }
+            $aggregate->touch($event->getTimestamp());
             $metaEvent = new Event(
                 $event->getAggregateId(),
                 $aggregateRootClass,

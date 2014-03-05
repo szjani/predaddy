@@ -23,6 +23,7 @@
 
 namespace predaddy\domain\impl\doctrine;
 
+use DateTime;
 use precore\lang\Object;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\AggregateId;
@@ -54,6 +55,12 @@ class Aggregate extends Object
     private $type;
 
     /**
+     * @ORM\Column(type="datetime")
+     * @var DateTime
+     */
+    private $updated;
+
+    /**
      * @ORM\Column(type="integer")
      * @ORM\Version
      * @var int
@@ -78,6 +85,14 @@ class Aggregate extends Object
     {
         $this->aggregateId = $aggregateId->getValue();
         $this->type = $type;
+    }
+
+    /**
+     * Workaround to increase version number since Doctrine does not support FORCE_INCREMENT.
+     */
+    public function touch(DateTime $timestamp)
+    {
+        $this->updated = $timestamp;
     }
 
     /**
