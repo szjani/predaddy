@@ -27,6 +27,7 @@ use DateTime;
 use precore\lang\Object;
 use predaddy\domain\AggregateId;
 use Doctrine\ORM\Mapping as ORM;
+use predaddy\domain\DomainEvent;
 
 /**
  * Meta class which stores DomainEvent object.
@@ -39,7 +40,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *   name="event",
  *   indexes={
- *     @ORM\Index(name="event_aggregate_id_type", columns={"aggregate_id", "type"}),
+ *     @ORM\Index(name="event_aggregate_id_type", columns={"aggregate_id", "aggregate_type"}),
  *     @ORM\Index(name="event_created", columns={"created"}),
  *     @ORM\Index(name="event_version", columns={"version"})
  *   }
@@ -62,10 +63,16 @@ class Event extends Object
     private $aggregateId;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", name="aggregate_type")
      * @var string
      */
-    private $type;
+    private $aggregateType;
+
+    /**
+     * @ORM\Column(type="string", name="event_type")
+     * @var string
+     */
+    private $eventType;
 
     /**
      * @ORM\Column(type="integer", name="version")
@@ -87,18 +94,18 @@ class Event extends Object
 
     /**
      * @param AggregateId $aggregateId
-     * @param string $type
-     * @param int $aggregateVersion
-     * @param DateTime $created
+     * @param string $aggregateType
+     * @param \predaddy\domain\DomainEvent $event
      * @param string $serializedEvent
      */
-    public function __construct(AggregateId $aggregateId, $type, $aggregateVersion, DateTime $created, $serializedEvent)
+    public function __construct(AggregateId $aggregateId, $aggregateType, DomainEvent $event, $serializedEvent)
     {
-        $this->type = $type;
+        $this->aggregateType = $aggregateType;
         $this->data = $serializedEvent;
         $this->aggregateId = $aggregateId->getValue();
-        $this->version = $aggregateVersion;
-        $this->created = $created;
+        $this->version = $event->getVersion();
+        $this->created = clone $event->getTimestamp();
+        $this->eventType = $event->getClassName();
     }
 
     /**
@@ -136,9 +143,9 @@ class Event extends Object
     public function toString()
     {
         return sprintf(
-            'AggregateId [%s], type [%s], version [%s], created [%s], data [%s]',
+            'AggregateId [%s], aggregateType [%s], version [%s], created [%s], data [%s]',
             $this->aggregateId,
-            $this->type,
+            $this->aggregateType,
             $this->version,
             $this->created->format(DateTime::ISO8601),
             $this->data
@@ -156,8 +163,16 @@ class Event extends Object
     /**
      * @return string
      */
-    public function getType()
+    public function getAggregateType()
     {
-        return $this->type;
+        return $this->aggregateType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventType()
+    {
+        return $this->eventType;
     }
 }

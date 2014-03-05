@@ -37,9 +37,23 @@ class EventTest extends PHPUnit_Framework_TestCase
         $version = 2;
         $created = new DateTime();
         $serializedEvent = __METHOD__;
-        $event = new Event($aggregateId, $type, $version, $created, $serializedEvent);
+        $domainEvent = $this->getMock('\predaddy\domain\DomainEvent');
+        $domainEvent
+            ->expects(self::once())
+            ->method('getVersion')
+            ->will(self::returnValue($version));
+        $domainEvent
+            ->expects(self::once())
+            ->method('getClassName')
+            ->will(self::returnValue('\predaddy\domain\DomainEvent'));
+        $domainEvent
+            ->expects(self::once())
+            ->method('getTimestamp')
+            ->will(self::returnValue($created));
+
+        $event = new Event($aggregateId, $type, $domainEvent, $serializedEvent);
         self::assertEquals($version, $event->getVersion());
-        self::assertEquals($type, $event->getType());
+        self::assertEquals($type, $event->getAggregateType());
         self::assertEquals($aggregateId->getValue(), $event->getAggregateId());
         self::assertEquals($created, $event->getCreated());
         self::assertEquals($serializedEvent, $event->getData());

@@ -49,35 +49,6 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
     private static $messageBusFactory = null;
 
     /**
-     * @var Serializer
-     */
-    private static $serializer = null;
-
-    /**
-     * @var MessageBus
-     */
-    private $innerEventBus = null;
-
-    /**
-     * @param Serializer $serializer
-     */
-    public static function setSerializer(Serializer $serializer = null)
-    {
-        self::$serializer = $serializer;
-    }
-
-    /**
-     * @return Serializer
-     */
-    public static function getSerializer()
-    {
-        if (self::$serializer === null) {
-            self::$serializer = new ReflectionSerializer(array('innerEventBus', 'events'));
-        }
-        return self::$serializer;
-    }
-
-    /**
      * @param MessageBusFactory $messageBusFactory
      */
     public static function setInnerMessageBusFactory(MessageBusFactory $messageBusFactory = null)
@@ -108,20 +79,11 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      */
     public function loadFromHistory(Iterator $events)
     {
+        $bus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
+        $bus->register($this);
         foreach ($events as $event) {
-            $this->handleEventInAggregate($event);
+            $this->handleEventInAggregate($event, $bus);
         }
-    }
-
-    public function serialize()
-    {
-        return self::getSerializer()->serialize($this);
-    }
-
-    public function unserialize($serialized)
-    {
-        self::getSerializer()->deserialize($serialized, static::objectClass(), $this);
-        $this->events = array();
     }
 
     /**
@@ -144,17 +106,12 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
         parent::raise($event);
     }
 
-    private function getInnerEventBus()
+    private function handleEventInAggregate(DomainEvent $event, MessageBus $innerBus = null)
     {
-        if ($this->innerEventBus === null) {
-            $this->innerEventBus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
-            $this->innerEventBus->register($this);
+        if ($innerBus === null) {
+            $innerBus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
+            $innerBus->register($this);
         }
-        return $this->innerEventBus;
-    }
-
-    private function handleEventInAggregate(DomainEvent $event)
-    {
-        $this->getInnerEventBus()->post($event);
+        $innerBus->post($event);
     }
 }

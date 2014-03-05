@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,25 +21,29 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling;
+namespace predaddy\serializer;
 
-use PHPUnit_Framework_TestCase;
+use precore\lang\ObjectClass;
+use precore\lang\ObjectInterface;
 
-require_once 'SimpleMessage.php';
-
-class SimpleMessageTest extends PHPUnit_Framework_TestCase
+class PHPSerializer implements Serializer
 {
-    public function testToString()
+    /**
+     * @param ObjectInterface $object
+     * @return string
+     */
+    public function serialize(ObjectInterface $object)
     {
-        $message = new SimpleMessage();
-        self::assertTrue(false !== strpos($message->toString(), $message->getMessageIdentifier()));
+        return serialize($object);
     }
 
-    public function testSerialization()
+    /**
+     * @param string $serialized
+     * @param ObjectClass $outputClass
+     * @return ObjectInterface
+     */
+    public function deserialize($serialized, ObjectClass $outputClass)
     {
-        $message = new SimpleMessage();
-        $serialized = serialize($message);
-        $unserialized = unserialize($serialized);
-        self::assertEquals($message, $unserialized);
+        return unserialize($serialized);
     }
 }

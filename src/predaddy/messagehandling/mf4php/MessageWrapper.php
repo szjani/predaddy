@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,25 +21,55 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling;
+namespace predaddy\messagehandling\mf4php;
 
-use PHPUnit_Framework_TestCase;
+use Serializable;
 
-require_once 'SimpleMessage.php';
-
-class SimpleMessageTest extends PHPUnit_Framework_TestCase
+class MessageWrapper implements Serializable
 {
-    public function testToString()
+    /**
+     * @var mixed
+     */
+    private $message;
+
+    public function __construct($message)
     {
-        $message = new SimpleMessage();
-        self::assertTrue(false !== strpos($message->toString(), $message->getMessageIdentifier()));
+        $this->message = $message;
     }
 
-    public function testSerialization()
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * String representation of object
+     *
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     */
+    public function serialize()
     {
-        $message = new SimpleMessage();
-        $serialized = serialize($message);
-        $unserialized = unserialize($serialized);
-        self::assertEquals($message, $unserialized);
+        return serialize($this->message);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Constructs the object
+     *
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     */
+    public function unserialize($serialized)
+    {
+        $this->message = unserialize($serialized);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 }
+ 

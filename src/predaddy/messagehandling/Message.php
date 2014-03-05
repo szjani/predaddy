@@ -32,7 +32,7 @@ use Serializable;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface Message extends Serializable, ObjectInterface
+interface Message extends ObjectInterface
 {
     /**
      * Returns the identifier of this message.

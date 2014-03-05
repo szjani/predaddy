@@ -41,7 +41,7 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
             ->method('createMessage')
             ->will(
                 self::returnCallback(
-                    function (SimpleMessage $message) {
+                    function (MessageWrapper $message) {
                         return new ObjectMessage($message);
                     }
                 )

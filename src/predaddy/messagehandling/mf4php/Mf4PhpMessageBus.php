@@ -103,7 +103,11 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
         if (!($message instanceof ObjectMessage)) {
             throw new InvalidArgumentException("Message must be an instance of ObjectMessage");
         }
-        $this->forwardMessage($message->getObject());
+        $object = $message->getObject();
+        if ($object instanceof MessageWrapper) {
+            $object = $object->getMessage();
+        }
+        $this->forwardMessage($object);
     }
 
     /**
@@ -128,14 +132,14 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      *
      * @param $message
      * @param MessageCallback $callback
-     * @throws RuntimeException
      */
     protected function innerPost($message, MessageCallback $callback = null)
     {
+        $sendable = $message;
         if (!($message instanceof Serializable)) {
-            throw new RuntimeException("Message must implement Serializable interface");
+            $sendable = new MessageWrapper($message);
         }
-        $mf4phpMessage = $this->findObjectMessageFactory($message)->createMessage($message);
+        $mf4phpMessage = $this->findObjectMessageFactory($message)->createMessage($sendable);
         $this->dispatcher->send($this->queue, $mf4phpMessage);
     }
 }

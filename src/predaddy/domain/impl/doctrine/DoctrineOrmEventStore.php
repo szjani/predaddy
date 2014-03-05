@@ -35,6 +35,7 @@ use predaddy\domain\AbstractEventSourcedAggregateRoot;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\SnapshotEventStore;
+use predaddy\serializer\PHPSerializer;
 use predaddy\serializer\Serializer;
 
 class DoctrineOrmEventStore extends Object implements SnapshotEventStore
@@ -51,13 +52,13 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
 
     /**
      * @param EntityManagerInterface $entityManager
-     * @param Serializer $serializer Used to serialize ARs for snapshotting
+     * @param Serializer $serializer Used to serialize events and ARs for snapshotting
      */
     public function __construct(EntityManagerInterface $entityManager, Serializer $serializer = null)
     {
         $this->entityManager = $entityManager;
         if ($serializer === null) {
-            $serializer = AbstractEventSourcedAggregateRoot::getSerializer();
+            $serializer = new PHPSerializer();
         }
         $this->serializer = $serializer;
     }
@@ -93,9 +94,8 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
             $metaEvent = new Event(
                 $event->getAggregateId(),
                 $aggregateRootClass,
-                $event->getVersion(),
-                $event->getTimestamp(),
-                serialize($event)
+                $event,
+                $this->serializer->serialize($event)
             );
             $this->entityManager->persist($metaEvent);
             self::getLogger()->debug("Event [{}] has been persisted", array($metaEvent));
@@ -115,7 +115,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         $events = $this->entityManager->createQueryBuilder()
             ->select('e')
             ->from(Event::className(), 'e')
-            ->where('e.type = :type AND e.aggregateId = :aggregateId AND e.version > :version')
+            ->where('e.aggregateType = :type AND e.aggregateId = :aggregateId AND e.version > :version')
             ->orderBy('e.sequenceNumber')
             ->getQuery()
             ->execute(
@@ -128,7 +128,7 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         $result = array();
         /* @var $event Event */
         foreach ($events as $event) {
-            $result[] = unserialize($event->getData());
+            $result[] = $this->serializer->deserialize($event->getData(), ObjectClass::forName($event->getEventType()));
         }
         return new ArrayIterator($result);
     }

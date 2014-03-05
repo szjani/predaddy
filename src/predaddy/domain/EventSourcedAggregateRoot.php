@@ -39,7 +39,7 @@ use Serializable;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface EventSourcedAggregateRoot extends Serializable, AggregateRoot
+interface EventSourcedAggregateRoot extends AggregateRoot
 {
     /**
      * Initialize the aggregate from the given events.

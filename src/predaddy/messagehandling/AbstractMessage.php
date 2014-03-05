@@ -39,20 +39,6 @@ abstract class AbstractMessage extends Object implements Message
 {
     protected $id;
     protected $timestamp;
-    private static $serializer;
-
-    public static function setSerializer(Serializer $serializer = null)
-    {
-        self::$serializer = $serializer;
-    }
-
-    public static function getSerializer()
-    {
-        if (self::$serializer === null) {
-            self::$serializer = new ReflectionSerializer();
-        }
-        return self::$serializer;
-    }
 
     public function __construct()
     {
@@ -74,16 +60,6 @@ abstract class AbstractMessage extends Object implements Message
     public function getTimestamp()
     {
         return clone $this->timestamp;
-    }
-
-    public function serialize()
-    {
-        return self::getSerializer()->serialize($this);
-    }
-
-    public function unserialize($serialized)
-    {
-        self::getSerializer()->deserialize($serialized, self::objectClass(), $this);
     }
 
     public function equals(ObjectInterface $object = null)
