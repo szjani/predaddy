@@ -106,7 +106,7 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $this->commandBus = new DirectCommandBus(
             $handDesc,
             $transactionManager,
-            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER),
+            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$ALWAYS),
             new SimpleMessageBusFactory($handDesc)
         );
     }

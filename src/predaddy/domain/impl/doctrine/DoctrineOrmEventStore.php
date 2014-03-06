@@ -159,18 +159,19 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         /* @var $snapshot Snapshot */
         $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
         $serialized = $this->serializer->serialize($aggregateRoot);
-        if ($snapshot !== null) {
-            $this->entityManager->remove($snapshot);
-        }
         $events->seek($events->count() - 1);
         $version = $events->current()->getVersion();
-        $snapshot = new Snapshot(
-            $aggregateId,
-            $serialized,
-            $aggregateRootClass,
-            $version
-        );
-        $this->entityManager->persist($snapshot);
+        if ($snapshot === null) {
+            $snapshot = new Snapshot(
+                $aggregateId,
+                $serialized,
+                $aggregateRootClass,
+                $version
+            );
+            $this->entityManager->persist($snapshot);
+        } else {
+            $snapshot->update($serialized, $version);
+        }
         self::getLogger()->debug(
             "Snapshot has been persisted for aggregate [{}, {}], version [{}]",
             array($aggregateRootClass, $aggregateId, $version)

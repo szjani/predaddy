@@ -34,14 +34,14 @@ use predaddy\domain\AggregateId;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  *
- * @ORM\Entity(readOnly=true)
+ * @ORM\Entity
  * @ORM\Table(name="snapshot")
  */
 class Snapshot extends Object
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", name="aggregate_id")
      * @var string
      */
     private $aggregateId;
@@ -54,7 +54,7 @@ class Snapshot extends Object
     private $type;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text")
      * @var string
      */
     private $data;
@@ -119,5 +119,11 @@ class Snapshot extends Object
     public function getVersion()
     {
         return $this->version;
+    }
+
+    public function update($data, $version)
+    {
+        $this->data = $data;
+        $this->version = $version;
     }
 }
