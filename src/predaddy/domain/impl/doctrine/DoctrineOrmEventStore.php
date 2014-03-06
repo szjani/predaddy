@@ -85,8 +85,9 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
                         "Aggregate [{}, {}] has been persisted",
                         array($aggregateRootClass, $aggregateId)
                     );
+                } else {
+                    $this->entityManager->lock($aggregate, LockMode::OPTIMISTIC, $originatingVersion);
                 }
-                $this->entityManager->lock($aggregate, LockMode::OPTIMISTIC, $originatingVersion);
             }
             if ($aggregate->getVersion() + 1 !== $event->getVersion()) {
                 throw new InvalidArgumentException("Event version is invalid");
