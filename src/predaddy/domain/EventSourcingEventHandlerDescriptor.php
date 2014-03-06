@@ -33,8 +33,8 @@ use ReflectionMethod;
  */
 class EventSourcingEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
 {
-    protected function isVisible(ReflectionMethod $method)
+    protected function methodVisibility()
     {
-        return $method->isProtected() || $method->isPrivate();
+        return ReflectionMethod::IS_PRIVATE | ReflectionMethod::IS_PROTECTED;
     }
 }

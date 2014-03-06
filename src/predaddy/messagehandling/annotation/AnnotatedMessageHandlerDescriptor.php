@@ -100,11 +100,8 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     protected function findHandlerMethods()
     {
         /* @var $reflMethod ReflectionMethod */
-        foreach ($this->handlerClass->getMethods() as $reflMethod) {
+        foreach ($this->handlerClass->getMethods($this->methodVisibility()) as $reflMethod) {
             if ($this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe') === null) {
-                continue;
-            }
-            if (!$this->isVisible($reflMethod)) {
                 continue;
             }
             $funcDescriptor = $this->functionDescriptorFactory->create($reflMethod);
@@ -116,8 +113,8 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
         }
     }
 
-    protected function isVisible(ReflectionMethod $method)
+    protected function methodVisibility()
     {
-        return $method->isPublic();
+        return ReflectionMethod::IS_PUBLIC;
     }
 }
