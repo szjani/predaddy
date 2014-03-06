@@ -42,7 +42,7 @@ class Aggregate extends Object
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", name="aggregate_id")
      * @var string
      */
     private $aggregateId;
