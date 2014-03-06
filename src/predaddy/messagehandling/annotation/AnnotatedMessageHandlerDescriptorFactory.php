@@ -26,6 +26,7 @@ namespace predaddy\messagehandling\annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
+use LazyMap\CallbackLazyMap;
 use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
@@ -48,6 +49,8 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
      * @var FunctionDescriptorFactory
      */
     private $functionDescriptorFactory;
+
+    private $descriptorMap;
 
     public static function registerAnnotations()
     {
@@ -74,6 +77,15 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
         }
         $this->reader = $reader;
         $this->functionDescriptorFactory = $functionDescFactory;
+        $this->descriptorMap = new CallbackLazyMap(
+            function ($handlerClassName) use ($reader, $functionDescFactory) {
+                return new AnnotatedMessageHandlerDescriptor(
+                    ObjectClass::forName($handlerClassName),
+                    $reader,
+                    $functionDescFactory
+                );
+            }
+        );
     }
 
     /**
@@ -94,10 +106,7 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
 
     public function create($handler)
     {
-        return new AnnotatedMessageHandlerDescriptor(
-            ObjectClass::forName(get_class($handler)),
-            $this->reader,
-            $this->functionDescriptorFactory
-        );
+        $className = get_class($handler);
+        return $this->descriptorMap->$className;
     }
 }

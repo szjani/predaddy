@@ -23,8 +23,11 @@
 
 namespace predaddy\domain;
 
+use Doctrine\Common\Annotations\Reader;
+use LazyMap\CallbackLazyMap;
 use precore\lang\ObjectClass;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\FunctionDescriptorFactory;
 
 /**
  * Description of EventSourcingEventHandlerDescriptorFactory
@@ -33,12 +36,30 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
  */
 class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
 {
+    private $descriptorMap;
+
+    /**
+     * @param FunctionDescriptorFactory $functionDescFactory
+     * @param Reader $reader if null, an AnnotationReader instance will be used
+     */
+    public function __construct(FunctionDescriptorFactory $functionDescFactory, Reader $reader = null)
+    {
+        parent::__construct($functionDescFactory, $reader);
+        $reader = $this->getReader();
+        $this->descriptorMap = new CallbackLazyMap(
+            function ($handlerClassName) use ($reader, $functionDescFactory) {
+                return new EventSourcingEventHandlerDescriptor(
+                    ObjectClass::forName($handlerClassName),
+                    $reader,
+                    $functionDescFactory
+                );
+            }
+        );
+    }
+
     public function create($handler)
     {
-        return new EventSourcingEventHandlerDescriptor(
-            ObjectClass::forName(get_class($handler)),
-            $this->getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        $className = get_class($handler);
+        return $this->descriptorMap->$className;
     }
 }
