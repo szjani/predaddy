@@ -26,9 +26,9 @@ namespace predaddy\messagehandling\annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
+use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use ReflectionClass;
 
 /**
  * Uses Doctrine annotation reader and creates AnnotatedMessageHandlerDescriptor object for each handlers.
@@ -95,7 +95,7 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
     public function create($handler)
     {
         return new AnnotatedMessageHandlerDescriptor(
-            new ReflectionClass($handler),
+            ObjectClass::forName(get_class($handler)),
             $this->reader,
             $this->functionDescriptorFactory
         );

@@ -23,8 +23,8 @@
 
 namespace predaddy\domain;
 
+use precore\lang\ObjectClass;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use ReflectionClass;
 
 /**
  * Description of EventSourcingEventHandlerDescriptorFactory
@@ -36,7 +36,7 @@ class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandler
     public function create($handler)
     {
         return new EventSourcingEventHandlerDescriptor(
-            new ReflectionClass($handler),
+            ObjectClass::forName(get_class($handler)),
             $this->getReader(),
             $this->getFunctionDescriptorFactory()
         );
