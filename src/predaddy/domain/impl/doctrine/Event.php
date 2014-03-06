@@ -50,7 +50,7 @@ class Event extends Object
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="sequence_number")
      * @ORM\GeneratedValue
      * @var int
      */
