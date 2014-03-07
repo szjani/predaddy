@@ -229,3 +229,14 @@ $commandBus->post(new CreateEventSourcedUser());
 $commandBus->post(new Increment($aggregateId->getValue(), 1));
 $commandBus->post(new Increment($aggregateId->getValue(), 2));
 ```
+
+### EventStore
+
+There is one builtin `EventStore` implementation: `DoctrineOrmEventStore`. It uses 3 entities for storing aggregates, events and snapshots.
+You have to create database tables from these entities, `doctrine.php` CLI tool can be used for it.
+
+#### Serialization
+
+You can specify how your objects (snapshots and events) should be serialized with a `Serializer` object which can be passed as a constructor parameter.
+`DoctrineOrmEventStore` uses simple PHP serialization by default, but there are two other implementations: `ReflectionSerializer` and `JmsSerializer`.
+There are some XML config files for the latter one in the `/src/resources/jms` directory which can be used to configure it.
