@@ -28,6 +28,19 @@ use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use trf4php\TransactionManager;
 
+/**
+ * DirectCommandBus automatically registers a DirectCommandForwarder object as a handler
+ * which handles all unhandled commands. This bus should be used if business method parameters
+ * in the aggregates are Command objects.
+ *
+ * If you need to handle a particular command explicit, you can register your own command handler.
+ * In this case the command is not being dispatched to the registered DirectCommandForwarder object
+ * but you have to manage that aggregate instead.
+ *
+ * @package predaddy\commandhandling
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
 class DirectCommandBus extends CommandBus
 {
     /**

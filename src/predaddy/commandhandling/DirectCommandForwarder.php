@@ -34,6 +34,18 @@ use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use predaddy\messagehandling\SimpleMessageBusFactory;
 
+/**
+ * The responsibility of this class is to
+ *  - obtain the appropriate aggregate from its repository
+ *  - pass the incoming commands to the aggregate
+ *  - save it through the repository
+ *
+ * It catches only unhandled commands.
+ *
+ * @package predaddy\commandhandling
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
 class DirectCommandForwarder extends Object
 {
     /**
@@ -59,8 +71,6 @@ class DirectCommandForwarder extends Object
     }
 
     /**
-     * Workaround to be able to catch any commands since typehint has to match with the incoming command.
-     *
      * @Subscribe
      * @param DeadMessage $deadMessage
      */
