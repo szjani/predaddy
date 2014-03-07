@@ -35,14 +35,14 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
     {
         $function = function (Message $message) {};
         $descriptor = new DefaultFunctionDescriptor(new ReflectionFunction($function));
-        self::assertTrue($descriptor->isHandlerFor(new SimpleMessage()));
-        self::assertTrue($descriptor->isHandlerFor(new DeadMessage(new SimpleMessage())));
+        self::assertTrue($descriptor->isHandlerFor(SimpleMessage::objectClass()));
+        self::assertTrue($descriptor->isHandlerFor(DeadMessage::objectClass()));
     }
 
     public function testInvalidHandlerFunction()
     {
         $function = function ($message) {};
         $descriptor = new DefaultFunctionDescriptor(new ReflectionFunction($function));
-        self::assertFalse($descriptor->isHandlerFor(new SimpleMessage()));
+        self::assertFalse($descriptor->isHandlerFor(SimpleMessage::objectClass()));
     }
 } 

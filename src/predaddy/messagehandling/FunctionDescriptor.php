@@ -23,6 +23,7 @@
 
 namespace predaddy\messagehandling;
 
+use precore\lang\ObjectClass;
 use ReflectionFunctionAbstract;
 
 /**
@@ -36,10 +37,10 @@ interface FunctionDescriptor
     public function isValid();
 
     /**
-     * @param object $message
+     * @param ObjectClass $messageClass
      * @return boolean
      */
-    public function isHandlerFor($message);
+    public function isHandlerFor(ObjectClass $messageClass);
 
     /**
      * @return ReflectionFunctionAbstract

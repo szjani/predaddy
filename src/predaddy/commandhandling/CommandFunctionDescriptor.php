@@ -33,9 +33,8 @@ class CommandFunctionDescriptor extends DefaultFunctionDescriptor
         return __NAMESPACE__ . '\Command';
     }
 
-    protected function canHandleValidMessage($message)
+    protected function canHandleValidMessage(ObjectClass $messageClass)
     {
-        $messageClass = ObjectClass::forName(get_class($message));
         return $messageClass->getName() === $this->getHandledMessageClassName();
     }
 }

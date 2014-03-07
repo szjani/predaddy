@@ -28,6 +28,7 @@ use EmptyIterator;
 use Exception;
 use Iterator;
 use precore\lang\Object;
+use precore\lang\ObjectClass;
 use ReflectionFunction;
 use ReflectionMethod;
 use RuntimeException;
@@ -158,10 +159,11 @@ class SimpleMessageBus extends Object implements MessageBus
     protected function forwardMessage($message, MessageCallback $callback = null)
     {
         $forwarded = false;
+        $objectClass = ObjectClass::forName(get_class($message));
         foreach ($this->handlers as $handler) {
             /* @var $descriptor MessageHandlerDescriptor */
             $descriptor = $this->handlers[$handler];
-            $methods = $descriptor->getHandlerMethodsFor($message);
+            $methods = $descriptor->getHandlerMethodsFor($objectClass);
             /* @var $method ReflectionMethod */
             foreach ($methods as $method) {
                 $forwarded = $this->dispatch($message, new MethodWrapper($handler, $method), $callback) || $forwarded;
@@ -170,7 +172,7 @@ class SimpleMessageBus extends Object implements MessageBus
         /* @var $descriptor FunctionDescriptor */
         foreach ($this->closures as $closure) {
             $descriptor = $this->closures[$closure];
-            if ($descriptor->isHandlerFor($message)) {
+            if ($descriptor->isHandlerFor($objectClass)) {
                 $forwarded = $this->dispatch($message, new ClosureWrapper($closure), $callback) || $forwarded;
             }
         }

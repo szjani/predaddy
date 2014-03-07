@@ -56,24 +56,23 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
     }
 
     /**
-     * @param object $message
+     * @param ObjectClass $messageClass
      * @return boolean
      */
-    public function isHandlerFor($message)
+    public function isHandlerFor(ObjectClass $messageClass)
     {
         if (!$this->valid) {
             return false;
         }
-        $messageClassName = get_class($message);
+        $messageClassName = $messageClass->getName();
         if (!array_key_exists($messageClassName, $this->compatibleMessageClassNames)) {
-            $this->compatibleMessageClassNames[$messageClassName] = $this->canHandleValidMessage($message);
+            $this->compatibleMessageClassNames[$messageClassName] = $this->canHandleValidMessage($messageClass);
         }
         return $this->compatibleMessageClassNames[$messageClassName];
     }
 
-    protected function canHandleValidMessage($message)
+    protected function canHandleValidMessage(ObjectClass $messageClass)
     {
-        $messageClass = ObjectClass::forName(get_class($message));
         $sameClass = $messageClass->getName() === $this->handledMessageClassName;
         $subClass = $messageClass->isSubclassOf($this->handledMessageClassName);
         return $sameClass || $subClass;

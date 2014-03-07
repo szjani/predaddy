@@ -24,6 +24,8 @@
 namespace predaddy\messagehandling\annotation;
 
 use Doctrine\Common\Annotations\Reader;
+use LazyMap\CallbackLazyMap;
+use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptor;
@@ -64,14 +66,14 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     }
 
     /**
-     * @param $message
+     * @param ObjectClass $messageClass
      * @return array of ReflectionMethod
      */
-    public function getHandlerMethodsFor($message)
+    public function getHandlerMethodsFor(ObjectClass $messageClass)
     {
-        $messageClassName = get_class($message);
+        $messageClassName = $messageClass->getName();
         if (!array_key_exists($messageClassName, $this->compatibleHandlerMethodsCache)) {
-            $this->compatibleHandlerMethodsCache[$messageClassName] = $this->findCompatibleMethodsFor($message);
+            $this->compatibleHandlerMethodsCache[$messageClassName] = $this->findCompatibleMethodsFor($messageClass);
         }
         return $this->compatibleHandlerMethodsCache[$messageClassName];
     }
@@ -79,16 +81,16 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     /**
      * Find all handler methods for a specific type of Message
      *
-     * @param $message
+     * @param ObjectClass $messageClass
      * @return array of ReflectionMethod
      */
-    protected function findCompatibleMethodsFor($message)
+    protected function findCompatibleMethodsFor(ObjectClass $messageClass)
     {
         $result = array();
         foreach ($this->directHandlerMethodDescriptors as $handlerMessageClass => $funcDescriptors) {
             $firstDesc = $funcDescriptors[0];
             /* @var $firstDesc FunctionDescriptor */
-            if ($firstDesc->isHandlerFor($message)) {
+            if ($firstDesc->isHandlerFor($messageClass)) {
                 foreach ($funcDescriptors as $fDesc) {
                     $result[] = $fDesc->getReflectionFunction();
                 }

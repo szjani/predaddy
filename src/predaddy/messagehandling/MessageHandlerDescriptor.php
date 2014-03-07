@@ -23,6 +23,8 @@
 
 namespace predaddy\messagehandling;
 
+use precore\lang\ObjectClass;
+
 /**
  * Finds and provide handler methods in the given message.
  *
@@ -31,8 +33,8 @@ namespace predaddy\messagehandling;
 interface MessageHandlerDescriptor
 {
     /**
-     * @param $message
+     * @param ObjectClass $messageClass
      * @return array of ReflectionMethod
      */
-    public function getHandlerMethodsFor($message);
+    public function getHandlerMethodsFor(ObjectClass $messageClass);
 }
