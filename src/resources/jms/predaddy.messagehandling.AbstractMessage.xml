@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<serializer>
+    <class name="predaddy\messagehandling\AbstractMessage" exclusion-policy="ALL">
+        <property name="id" type="string" expose="true" />
+        <property name="timestamp" type="DateTime" expose="true" />
+    </class>
+</serializer>

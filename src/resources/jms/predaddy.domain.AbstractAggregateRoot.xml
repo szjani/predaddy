@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<serializer>
+    <class name="predaddy\domain\AbstractAggregateRoot" exclusion-policy="ALL" />
+</serializer>

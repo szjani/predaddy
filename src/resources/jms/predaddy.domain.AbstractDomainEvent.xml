@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<serializer>
+    <class name="predaddy\domain\AbstractDomainEvent" exclusion-policy="ALL">
+        <property name="aggregateId" type="predaddy\domain\DefaultAggregateId" expose="true" />
+        <property name="version" type="integer" expose="true" />
+    </class>
+</serializer>
