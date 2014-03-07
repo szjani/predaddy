@@ -149,7 +149,7 @@ $eventBus = new EventBus(
     new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
     $transactionManager
 );
-// you can use any EventStore implementation
+// you can use any EventStore implementation, DoctrineOrmEventStore is a builtin class
 $eventStore = new DoctrineOrmEventStore($entityManager);
 $commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
 $commandBus = new DirectCommandBus(

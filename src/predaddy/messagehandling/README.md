@@ -137,11 +137,15 @@ There is a default implementation of `MessageBus` interface called `SimpleMessag
 `WrapInTransactionInterceptor` is registered which indicates that all command handlers are wrapped in a unique transaction.
 `Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type.
 
+#### DirectCommandBus
+
+`DirectCommandBus` extends `CommandBus` and automatically registers a `DirectCommandForwarder` object as a handler which handles all unhandled commands. This bus should be used if business method parameters in the aggregates are `Command` objects.
+
 #### EventBus
 
-`TransactionSynchronizedBuffererInterceptor` is registered which means that event handlers are being called only after a the transaction has been successfully committed.
+`TransactionSynchronizedBuffererInterceptor` is registered which means that event handlers are being called only after a the transaction has been successfully committed (messages are buffered).
 This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
-must implement `Event` interface. Messages are buffered until the transaction is committed.
+must implement `Event` interface.
 
 #### Mf4phpMessageBus
 
