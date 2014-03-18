@@ -25,7 +25,6 @@ namespace predaddy\messagehandling;
 
 use DateTime;
 use precore\lang\ObjectInterface;
-use Serializable;
 
 /**
  * Base interface for messages, but it's not required to implement it.

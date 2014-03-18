@@ -31,7 +31,6 @@ use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\AggregateId;
-use predaddy\domain\AbstractEventSourcedAggregateRoot;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\SnapshotEventStore;

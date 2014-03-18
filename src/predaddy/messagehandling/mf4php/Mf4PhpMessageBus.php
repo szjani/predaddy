@@ -32,7 +32,6 @@ use mf4php\ObjectMessage;
 use predaddy\messagehandling\MessageCallback;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use RuntimeException;
 use Serializable;
 
 /**

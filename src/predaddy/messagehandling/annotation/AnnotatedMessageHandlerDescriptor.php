@@ -24,7 +24,6 @@
 namespace predaddy\messagehandling\annotation;
 
 use Doctrine\Common\Annotations\Reader;
-use LazyMap\CallbackLazyMap;
 use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;

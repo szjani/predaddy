@@ -24,15 +24,6 @@
 namespace predaddy\domain;
 
 use Iterator;
-use predaddy\eventhandling\EventFunctionDescriptorFactory;
-use predaddy\messagehandling\MessageBus;
-use predaddy\messagehandling\MessageBusFactory;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use predaddy\messagehandling\SimpleMessageBus;
-use predaddy\messagehandling\SimpleMessageBusFactory;
-use predaddy\serializer\ReflectionSerializer;
-use predaddy\serializer\Serializer;
-use Serializable;
 
 /**
  * Interface for aggregate roots in an event sourcing architecture.

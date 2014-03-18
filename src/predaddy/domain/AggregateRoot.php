@@ -23,9 +23,7 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
 use Iterator;
-use precore\lang\Object;
 
 /**
  * Aggregate root class.

@@ -28,11 +28,7 @@ use precore\lang\ObjectClass;
 use predaddy\domain\RepositoryRepository;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
-use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageBusFactory;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use predaddy\messagehandling\SimpleMessageBus;
-use predaddy\messagehandling\SimpleMessageBusFactory;
 
 /**
  * The responsibility of this class is to
