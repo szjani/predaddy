@@ -140,6 +140,8 @@ The following configuration provides you a direct command passing process, so co
 
 You can define your snapshotting strategy with a `SnapshotStrategy` implementation. The example below never creates snapshots.
 
+Even if you use `DirectCommandBus`, you can register explicit command handlers so you have the chance to do complex processes if needed.
+
 #### Configuration
 
 ```php

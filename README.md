@@ -11,9 +11,11 @@ predaddy
 |[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.0)|
 
 It is a library which gives you some usable classes to be able to use common DDD patterns. Some predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
-You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
 
-Predaddy uses [lf4php](https://github.com/szjani/lf4php) for logging.
+Some libraries are used which are just API libraries and you must care for their implementations:
+
+1. [lf4php](https://github.com/szjani/lf4php) for logging. Without an implementation predaddy is not logging.
+2. [trf4php](https://github.com/szjani/trf4php) for transaction management. In most cases you will need to use a trf4php implementation (eg. [trf4php-doctrine](https://github.com/szjani/trf4php-doctrine))
 
 Components
 ----------
@@ -23,6 +25,13 @@ For more details see the components:
  - [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling#messagebus)
  - [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain#cqrs--event-sourcing)
  - [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation#paginator-components)
+
+Examples
+--------
+
+You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
+
+A sample project is also available which shows how predaddy should be configured and used: https://github.com/szjani/predaddy-issuetracker-sample
 
 History
 -------

@@ -95,10 +95,11 @@ $bus->post(new SampleMessage1());
 
 ### Handler methods/functions
 
-Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods should have one parameter with typehint.
+Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods must have one parameter with typehint.
 The typehint defines which message objects can be handled, by default. If you want to handle for example all `Message` objects, which implement this interface,
 you just have to use `Message` typehint. This kind of solution provides an easy way to use and distinguish a huge amount of
 message classes. Interface and abstract class typehints also work as expected. A handler class could have as many handler methods as you want.
+The handler methods must be public, but this rule can be overridden in the passed `MessageHandlerDescriptor`.
 
 ### Annotations
 
@@ -122,6 +123,8 @@ There are two builtin interceptors:
  - `TransactionSynchronizedBuffererInterceptor`: Message dispatching is synchronized to transactions which means that if there is an already started transaction
  then messages are being buffered until the transaction is being committed. If the transaction is not successful then buffer is being cleared after rollback without sending out any messages.
  Without an already started transaction buffering is disabled.
+
+Both interceptors above use [trf4php](https://github.com/szjani/trf4php). If you want to use them, you will need a trf4php implementation (eg. [tf4php-doctrine](https://github.com/szjani/trf4php-doctrine)).
 
 ### Unhandled messages
 
