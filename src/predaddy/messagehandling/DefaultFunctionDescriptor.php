@@ -40,7 +40,10 @@ use ReflectionFunctionAbstract;
  */
 class DefaultFunctionDescriptor implements FunctionDescriptor
 {
-    private $handledMessageClassName = null;
+    /**
+     * @var ObjectClass
+     */
+    private $handledMessageClass = null;
     private $compatibleMessageClassNames = array();
     private $valid = false;
 
@@ -73,9 +76,7 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
 
     protected function canHandleValidMessage(ObjectClass $messageClass)
     {
-        $sameClass = $messageClass->getName() === $this->handledMessageClassName;
-        $subClass = $messageClass->isSubclassOf($this->handledMessageClassName);
-        return $sameClass || $subClass;
+        return $this->handledMessageClass->isAssignableFrom($messageClass);
     }
 
     protected function getBaseMessageClassName()
@@ -85,22 +86,22 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
 
     protected function check()
     {
-        $messageClassName = $this->getBaseMessageClassName();
+        $baseClassName = $this->getBaseMessageClassName();
         $params = $this->function->getParameters();
         if (count($params) !== 1) {
             return false;
         }
         /* @var $paramType ReflectionClass */
         $paramType = $params[0]->getClass();
-        if ($paramType === null
-            || ($paramType->getName() !== DeadMessage::className()
-                && !$paramType->isSubclassOf(DeadMessage::className())
-                && $messageClassName !== null
-                && $paramType->getName() !== $messageClassName)
-                && !$paramType->isSubclassOf($messageClassName)) {
+        if ($paramType === null) {
             return false;
         }
-        $this->handledMessageClassName = $paramType->getName();
+        $deadMessage = ObjectClass::forName(DeadMessage::className())->isAssignableFrom($paramType);
+        $acceptableType = $baseClassName === null || ObjectClass::forName($baseClassName)->isAssignableFrom($paramType);
+        if (!($deadMessage || $acceptableType)) {
+            return false;
+        }
+        $this->handledMessageClass = ObjectClass::forName($paramType->getName());
         return true;
     }
 
@@ -117,7 +118,7 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
      */
     public function getHandledMessageClassName()
     {
-        return $this->handledMessageClassName;
+        return $this->handledMessageClass->getName();
     }
 
     /**

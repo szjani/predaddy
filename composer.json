@@ -10,8 +10,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.2",
-        "precore/precore": "~1.4",
+        "php": ">=5.3.3",
+        "precore/precore": "~1.6",
         "doctrine/annotations": "~1.1",
         "trf4php/trf4php": "~1.2",
         "lf4php/lf4php": "~4.0",
@@ -31,10 +31,7 @@
     },
     "suggest": {
         "jms/serializer": "For serializing events and aggregates with JmsSerializer",
-        "trf4php/trf4php-doctrine": "Requires if you want to use Doctrine EventStore implementation",
-        "mf4php/mf4php-beanstalk": "If you want to use Mf4PhpMessageBus with Beanstalk (asynchronous event handling)",
-        "lf4php/lf4php-monolog": "If you want to use Monolog for logging",
-        "lf4php/lf4php-log4php": "If you want to use log4php for logging",
-        "lf4php/lf4php-psr3": "If you want to use any PSR-3 implementation through its standard interface for logging"
+        "trf4php/trf4php-doctrine": "Requires for Doctrine EventStore implementation and transaction synchronization",
+        "mf4php/mf4php": "Use it and one of its implementation if you want to use Mf4PhpMessageBus (asynchronous event handling)"
     }
 }
