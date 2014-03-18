@@ -2,13 +2,14 @@
 namespace sample;
 
 /**
- * This example cannot be executed directly, you have to provide its dependencies!
+ * Although this example works, you should use a real ObservableTransactionManager implementation
+ * instead of NOPTransactionManager.
  *
  * @see https://github.com/szjani/trf4php-doctrine
  * @see https://github.com/doctrine/doctrine2
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../bootstrap.php';
 
 use Exception;
 use predaddy\eventhandling\AbstractEvent;

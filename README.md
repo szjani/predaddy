@@ -29,7 +29,7 @@ For more details see the components:
 Examples
 --------
 
-You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/sample).
+You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/tests/src/sample).
 
 A sample project is also available which shows how predaddy should be configured and used: https://github.com/szjani/predaddy-issuetracker-sample
 
