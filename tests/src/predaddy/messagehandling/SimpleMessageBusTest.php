@@ -27,6 +27,7 @@ use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use RuntimeException;
 
 require_once 'SimpleMessage.php';
 require_once 'SimpleMessageHandler.php';
@@ -196,10 +197,30 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function exceptionShouldThrownNonObjectMessage()
     {
         $this->bus->post(array());
+    }
+
+    /**
+     * @test
+     */
+    public function noDeadMessageIfHandlerFails()
+    {
+        $deadMessagePosted = false;
+        $this->bus->registerClosure(
+            function (DeadMessage $msg) use (&$deadMessagePosted) {
+                $deadMessagePosted = true;
+            }
+        );
+        $this->bus->registerClosure(
+            function (UUID $msg) {
+                throw new RuntimeException('Expected exception');
+            }
+        );
+        $this->bus->post(UUID::randomUUID());
+        self::assertFalse($deadMessagePosted);
     }
 }

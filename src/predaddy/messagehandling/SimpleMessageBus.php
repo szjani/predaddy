@@ -166,14 +166,16 @@ class SimpleMessageBus extends Object implements MessageBus
             $methods = $descriptor->getHandlerMethodsFor($objectClass);
             /* @var $method ReflectionMethod */
             foreach ($methods as $method) {
-                $forwarded = $this->dispatch($message, new MethodWrapper($handler, $method), $callback) || $forwarded;
+                $this->dispatch($message, new MethodWrapper($handler, $method), $callback);
+                $forwarded = true;
             }
         }
         /* @var $descriptor FunctionDescriptor */
         foreach ($this->closures as $closure) {
             $descriptor = $this->closures[$closure];
             if ($descriptor->isHandlerFor($objectClass)) {
-                $forwarded = $this->dispatch($message, new ClosureWrapper($closure), $callback) || $forwarded;
+                $this->dispatch($message, new ClosureWrapper($closure), $callback) || $forwarded;
+                $forwarded = true;
             }
         }
         if (!$forwarded && !($message instanceof DeadMessage)) {
@@ -203,7 +205,6 @@ class SimpleMessageBus extends Object implements MessageBus
             if ($callback !== null) {
                 $callback->onSuccess($result);
             }
-            return true;
         } catch (Exception $e) {
             self::getLogger()->warn(
                 "An error occurred in the following message handler through message bus '{}': {}, message is {}!",
@@ -213,7 +214,6 @@ class SimpleMessageBus extends Object implements MessageBus
             if ($callback !== null) {
                 $callback->onFailure($e);
             }
-            return false;
         }
     }
 }

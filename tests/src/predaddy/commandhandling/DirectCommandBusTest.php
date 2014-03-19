@@ -24,36 +24,107 @@
 namespace predaddy\commandhandling;
 
 use PHPUnit_Framework_TestCase;
+use predaddy\domain\EventSourcedUser;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use RuntimeException;
 use trf4php\NOPTransactionManager;
 
 require_once 'SimpleCommand.php';
+require_once __DIR__ . '/../domain/EventSourcedUser.php';
 
 class DirectCommandBusTest extends PHPUnit_Framework_TestCase
 {
+    private $handlerDescFact;
+    private $transactionManager;
+    private $repoRepo;
+    private $messageBusFactory;
+
+    /**
+     * @var DirectCommandBus
+     */
+    private $bus;
+
+    protected function setUp()
+    {
+        $this->handlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
+        $this->transactionManager = new NOPTransactionManager();
+        $this->repoRepo = $this->getMock('\predaddy\domain\RepositoryRepository');
+        $this->messageBusFactory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
+        $this->bus = new DirectCommandBus(
+            $this->handlerDescFact,
+            $this->transactionManager,
+            $this->repoRepo,
+            $this->messageBusFactory
+        );
+    }
+
     /**
      * @test
      */
     public function shouldNotBeForwarder()
     {
-        $handlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
-        $transactionManager = new NOPTransactionManager();
-        $repoRepo = $this->getMock('\predaddy\domain\RepositoryRepository');
-        $messageBusFactory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
-        $bus = new DirectCommandBus($handlerDescFact, $transactionManager, $repoRepo, $messageBusFactory);
-
-        $repoRepo
+        $this->repoRepo
             ->expects(self::never())
             ->method('getRepository');
 
         $called = false;
-        $bus->registerClosure(
+        $this->bus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
                 $called = true;
             }
         );
 
-        $bus->post(new SimpleCommand());
+        $this->bus->post(new SimpleCommand());
         self::assertTrue($called);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldBeCalledIfNoExplicitHandler()
+    {
+        $innerBus = $this->getMock('\predaddy\messagehandling\MessageBus');
+        $this->messageBusFactory
+            ->expects(self::once())
+            ->method('createBus')
+            ->with(EventSourcedUser::className())
+            ->will(self::returnValue($innerBus));
+        $repo = $this->getMock('\predaddy\domain\Repository');
+        $this->repoRepo
+            ->expects(self::once())
+            ->method('getRepository')
+            ->will(self::returnValue($repo));
+        $this->bus->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotBeCalledIfExplicitHandler()
+    {
+        $this->messageBusFactory
+            ->expects(self::never())
+            ->method('createBus');
+        $this->bus->registerClosure(
+            function (SimpleCommand $cmd) {
+            }
+        );
+        $this->bus->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotBeCalledIfHandlerThrowsException()
+    {
+        $this->messageBusFactory
+            ->expects(self::never())
+            ->method('createBus');
+        $this->bus->registerClosure(
+            function (SimpleCommand $cmd) {
+                throw new RuntimeException('Expected exception');
+            }
+        );
+        $this->bus->post(new SimpleCommand());
     }
 }

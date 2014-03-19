@@ -23,7 +23,17 @@
 
 namespace predaddy\commandhandling;
 
-class SimpleCommand extends AbstractCommand
+use predaddy\domain\EventSourcedUser;
+
+class SimpleCommand extends AbstractDirectCommand
 {
     public $content;
+
+    /**
+     * @return string
+     */
+    public function getAggregateClass()
+    {
+        return EventSourcedUser::className();
+    }
 }
