@@ -11,6 +11,7 @@ predaddy
 |[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.0)|
 
 It is a library which gives you some usable classes to be able to use common DDD patterns. Some predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
+I have got several ideas from [Google's Guava EventBus](http://code.google.com/p/guava-libraries/wiki/EventBusExplained) and [Axon framework](http://www.axonframework.org/).
 
 Some libraries are used which are just API libraries and you must care for their implementations:
 
@@ -22,9 +23,17 @@ Components
 
 For more details see the components:
 
- - [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling#messagebus)
- - [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain#cqrs--event-sourcing)
- - [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation#paginator-components)
+1. #### [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling#messagebus)
+
+   It's an annotation based publish/subscribe implementation, can be used any projects even without DDD/CQRS/Event Sourcing.
+
+2. #### [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain#cqrs--event-sourcing)
+
+   Complex solution for handling aggregates, based on the message handling component.
+
+3. #### [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation#paginator-components)
+
+   Common classes and interfaces for handling the read side. It also can be used in any applications.
 
 Examples
 --------
