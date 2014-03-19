@@ -206,7 +206,7 @@ class SimpleMessageBus extends Object implements MessageBus
             return true;
         } catch (Exception $e) {
             self::getLogger()->warn(
-                "An error occured in the following message handler through message bus '{}': {}, message is {}!",
+                "An error occurred in the following message handler through message bus '{}': {}, message is {}!",
                 array($this->identifier, $callable, $message),
                 $e
             );
