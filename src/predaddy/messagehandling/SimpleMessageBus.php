@@ -174,7 +174,7 @@ class SimpleMessageBus extends Object implements MessageBus
         foreach ($this->closures as $closure) {
             $descriptor = $this->closures[$closure];
             if ($descriptor->isHandlerFor($objectClass)) {
-                $this->dispatch($message, new ClosureWrapper($closure), $callback) || $forwarded;
+                $this->dispatch($message, new ClosureWrapper($closure), $callback);
                 $forwarded = true;
             }
         }
