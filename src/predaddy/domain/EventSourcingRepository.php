@@ -26,7 +26,7 @@ namespace predaddy\domain;
 use InvalidArgumentException;
 use Iterator;
 use precore\lang\ObjectClass;
-use predaddy\eventhandling\EventBus;
+use predaddy\messagehandling\MessageBus;
 
 /**
  * Should be used for event sourcing.
@@ -35,17 +35,12 @@ use predaddy\eventhandling\EventBus;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventSourcingRepository extends AggregateRootRepository
+class EventSourcingRepository extends ClassBasedAggregateRootRepository
 {
     /**
      * @var EventStore
      */
     private $eventStore;
-
-    /**
-     * @var ObjectClass
-     */
-    private $aggregateRootClass;
 
     /**
      * @var SnapshotStrategy
@@ -54,31 +49,22 @@ class EventSourcingRepository extends AggregateRootRepository
 
     /**
      * @param ObjectClass $aggregateRootClass Must be an EventSourcedAggregateRoot type
-     * @param EventBus $eventBus
+     * @param MessageBus $eventBus
      * @param EventStore $eventStore
      * @param SnapshotStrategy $snapshotStrategy
      */
     public function __construct(
         ObjectClass $aggregateRootClass,
-        EventBus $eventBus,
+        MessageBus $eventBus,
         EventStore $eventStore,
         SnapshotStrategy $snapshotStrategy = null
     ) {
-        parent::__construct($eventBus);
+        parent::__construct($eventBus, $aggregateRootClass);
         $this->eventStore = $eventStore;
-        $this->aggregateRootClass = $aggregateRootClass;
         if ($snapshotStrategy === null) {
             $snapshotStrategy = TrivialSnapshotStrategy::$ALWAYS;
         }
         $this->snapshotStrategy = $snapshotStrategy;
-    }
-
-    /**
-     * @return ObjectClass
-     */
-    public function getAggregateRootClass()
-    {
-        return $this->aggregateRootClass;
     }
 
     /**
@@ -98,41 +84,31 @@ class EventSourcingRepository extends AggregateRootRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        $events = $this->eventStore->getEventsFor($this->aggregateRootClass->getName(), $aggregateId);
+        $aggregateRootClass = $this->getAggregateRootClass();
+        $events = $this->eventStore->getEventsFor($aggregateRootClass->getName(), $aggregateId);
         $aggregate = null;
         if ($this->eventStore instanceof SnapshotEventStore) {
-            $aggregate = $this->eventStore->loadSnapshot($this->aggregateRootClass->getName(), $aggregateId);
+            $aggregate = $this->eventStore->loadSnapshot($aggregateRootClass->getName(), $aggregateId);
         }
         if ($aggregate === null) {
             if (!$events->valid()) {
                 $this->throwInvalidAggregateIdException($aggregateId);
             }
-            $aggregate = $this->aggregateRootClass->newInstanceWithoutConstructor();
+            $aggregate = $aggregateRootClass->newInstanceWithoutConstructor();
         }
-        $this->aggregateRootClass->cast($aggregate);
+        $aggregateRootClass->cast($aggregate);
         $aggregate->loadFromHistory($events);
         return $aggregate;
     }
 
     protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
     {
-        $this->aggregateRootClass->cast($aggregateRoot);
-        $this->eventStore->saveChanges($this->aggregateRootClass->getName(), $events, $version);
+        $aggregateRootClass = $this->getAggregateRootClass();
+        $this->eventStore->saveChanges($aggregateRootClass->getName(), $events, $version);
         if ($this->eventStore instanceof SnapshotEventStore
             && $this->snapshotStrategy->snapshotRequired($aggregateRoot, $version)) {
 
-            $this->eventStore->createSnapshot($this->aggregateRootClass->getName(), $aggregateRoot->getId());
+            $this->eventStore->createSnapshot($aggregateRootClass->getName(), $aggregateRoot->getId());
         }
-    }
-
-    protected function throwInvalidAggregateIdException(AggregateId $aggregateId)
-    {
-        throw new InvalidArgumentException(
-            sprintf(
-                "Aggregate [%s] with ID [%s] does not exist",
-                $this->aggregateRootClass->getName(),
-                $aggregateId->getValue()
-            )
-        );
     }
 }

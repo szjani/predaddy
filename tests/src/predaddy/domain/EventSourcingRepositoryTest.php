@@ -26,6 +26,7 @@ namespace predaddy\domain;
 use ArrayIterator;
 use Iterator;
 use PHPUnit_Framework_TestCase;
+use precore\lang\ObjectClass;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\eventhandling\EventBus;
@@ -62,6 +63,14 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             $this->eventBus,
             $this->eventStore
         );
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidAggregateRootClass()
+    {
+        new EventSourcingRepository(ObjectClass::forName(__CLASS__), $this->eventBus, $this->eventStore);
     }
 
     public function testGetEventStorage()
