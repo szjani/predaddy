@@ -25,10 +25,10 @@ namespace predaddy\domain;
 
 use Iterator;
 use precore\lang\Object;
-use predaddy\eventhandling\EventBus;
+use predaddy\messagehandling\MessageBus;
 
 /**
- * Can be used in DDD/CQRS architecture.
+ * Can be used in DDD/CQRS architecture. Obtains events raised in aggregate root and forwards them to the event bus.
  *
  * @package predaddy\domain
  *
@@ -37,14 +37,16 @@ use predaddy\eventhandling\EventBus;
 abstract class AggregateRootRepository extends Object implements Repository
 {
     /**
-     * @var EventBus
+     * @var MessageBus
      */
     private $eventBus;
 
     /**
-     * @param EventBus $eventBus
+     * Using EventBus instance is recommended.
+     *
+     * @param MessageBus $eventBus DomainEvents, raised in the aggregate, are being posted to it
      */
-    public function __construct(EventBus $eventBus)
+    public function __construct(MessageBus $eventBus)
     {
         $this->eventBus = $eventBus;
     }
@@ -57,6 +59,10 @@ abstract class AggregateRootRepository extends Object implements Repository
      */
     abstract protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version);
 
+    /**
+     * @param AggregateRoot $aggregateRoot
+     * @param int $version
+     */
     public function save(AggregateRoot $aggregateRoot, $version)
     {
         $events = $aggregateRoot->getAndClearRaisedEvents();
@@ -67,7 +73,7 @@ abstract class AggregateRootRepository extends Object implements Repository
     }
 
     /**
-     * @return EventBus
+     * @return MessageBus
      */
     public function getEventBus()
     {
