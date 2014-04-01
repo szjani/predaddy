@@ -38,6 +38,8 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
 
     private $entityManager;
 
+    private $lockMode = LockMode::PESSIMISTIC_READ;
+
     /**
      * @var DoctrineAggregateRootRepository
      */
@@ -52,8 +54,14 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
         $this->repository = new DoctrineAggregateRootRepository(
             $this->eventBus,
             ObjectClass::forName(self::AR_CLASS),
-            $this->entityManager
+            $this->entityManager,
+            $this->lockMode
         );
+    }
+
+    public function testLockMode()
+    {
+        self::assertEquals($this->lockMode, $this->repository->getLockMode());
     }
 
     /**
@@ -91,7 +99,7 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
         $this->entityManager
             ->expects(self::once())
             ->method('lock')
-            ->with($aggregateRoot, LockMode::OPTIMISTIC, $version);
+            ->with($aggregateRoot, $this->lockMode, $version);
 
         $this->repository->save($aggregateRoot, $version);
     }

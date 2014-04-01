@@ -49,34 +49,41 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     private $entityManager;
 
     /**
+     * @var int
+     */
+    private $lockMode;
+
+    /**
      * @param MessageBus $eventBus
      * @param ObjectClass $aggregateRootClass
      * @param EntityManagerInterface $entityManager
+     * @param int $lockMode
      */
     public function __construct(
         MessageBus $eventBus,
         ObjectClass $aggregateRootClass,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        $lockMode = LockMode::OPTIMISTIC
     ) {
         parent::__construct($eventBus, $aggregateRootClass);
         $this->entityManager = $entityManager;
+        $this->lockMode = $lockMode;
     }
 
     /**
-     * @param AggregateRoot $aggregateRoot
-     * @param Iterator $events
-     * @param int $version
-     * @return void
-     * @SuppressWarnings(PHPMD)
+     * @return int
      */
-    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
+    public function getLockMode()
     {
-        $entityManager = $this->getEntityManager();
-        if ($version == 0) {
-            $entityManager->persist($aggregateRoot);
-        } else {
-            $entityManager->lock($aggregateRoot, LockMode::OPTIMISTIC, $version);
-        }
+        return $this->lockMode;
+    }
+
+    /**
+     * @return EntityManagerInterface
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager;
     }
 
     /**
@@ -96,10 +103,19 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     }
 
     /**
-     * @return EntityManagerInterface
+     * @param AggregateRoot $aggregateRoot
+     * @param Iterator $events
+     * @param int $version
+     * @return void
+     * @SuppressWarnings(PHPMD)
      */
-    public function getEntityManager()
+    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
     {
-        return $this->entityManager;
+        $entityManager = $this->getEntityManager();
+        if ($version == 0) {
+            $entityManager->persist($aggregateRoot);
+        } else {
+            $entityManager->lock($aggregateRoot, $this->lockMode, $version);
+        }
     }
 }
