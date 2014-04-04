@@ -5,10 +5,10 @@ predaddy
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/ad36fc7a-f48d-4919-b20d-90eae34aecd9/mini.png)](https://insight.sensiolabs.com/projects/ad36fc7a-f48d-4919-b20d-90eae34aecd9)
 [![Gitter chat](https://badges.gitter.im/szjani/predaddy.png)](https://gitter.im/szjani/predaddy)
 
-|master|1.2|2.0|
-|------|---|---|
-|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy)|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.0)](https://travis-ci.org/szjani/predaddy)|
-|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.0)|
+|master|1.2|2.0|2.1|
+|------|---|---|---|
+|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy)|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.0)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.1)](https://travis-ci.org/szjani/predaddy)|
+|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.0)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.1)](https://coveralls.io/r/szjani/predaddy?branch=2.1)|
 
 It is a library which gives you some usable classes to be able to use common DDD patterns. Some predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
 I have got several ideas from [Google's Guava EventBus](http://code.google.com/p/guava-libraries/wiki/EventBusExplained) and [Axon framework](http://www.axonframework.org/).
@@ -23,27 +23,32 @@ Components
 
 For more details see the components:
 
-1. #### [Message handling](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/messagehandling#messagebus)
+1. #### [Message handling](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/messagehandling#messagebus)
 
    It's an annotation based publish/subscribe implementation, can be used any projects even without DDD/CQRS/Event Sourcing.
 
-2. #### [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/domain#cqrs--event-sourcing)
+2. #### [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/domain#cqrs--event-sourcing)
 
    Complex solution for handling aggregates, based on the message handling component.
 
-3. #### [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.0/src/predaddy/presentation#paginator-components)
+3. #### [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/presentation#paginator-components)
 
    Common classes and interfaces for handling the read side. It also can be used in any applications.
 
 Examples
 --------
 
-You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/master/tests/src/sample).
+You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/2.1/tests/src/sample).
 
 A sample project is also available which shows how predaddy should be configured and used: https://github.com/szjani/predaddy-issuetracker-sample
 
 History
 -------
+
+### 2.1
+ - [Prioritized handlers](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/messagehandling#handler-prioritization) -
+   If you have a direct `MessageBus` implementation, or your class extends `SimpleMessageBus` and overrides `registerClosure` method, you have to add a second, optional parameter. Some related changes are also made around inside classes.
+ - `DoctrineAggregateRootRepository` can be a base class of your repositories in case of you are using Doctrine and DDD/CQRS.
 
 ### 2.0
 
