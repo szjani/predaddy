@@ -91,6 +91,50 @@ $bus->registerClosure($closure);
 $bus->post(new SampleMessage1());
 ```
 
+### Handler prioritization
+
+In predaddy 2.1 it is possible to define the sequence how handlers are being executed. The smaller the priority the handler is being called earlier.
+The default priority is 1.
+
+For closures you can pass the priority to the `registerClosure` method as the second argument.
+
+```php
+$bus->registerClosure($closure1, -3);
+$bus->registerClosure($closure2, 5);
+```
+
+In this case `$closure2` has higher priority so it will be called for the first time rather than `$closure1`.
+
+For handler objects - supposed you are using annotation based configuration - you can define the priority as well.
+
+```php
+class PrioritizedHandler
+{
+    /**
+     * @Subscribe
+     */
+    public function handler1(Message $msg)
+    {
+    }
+
+    /**
+     * @Subscribe(priority=-3)
+     */
+    public function handler2(Message $msg)
+    {
+    }
+
+    /**
+     * @Subscribe(priority=2)
+     */
+    public function handler3(Message $msg)
+    {
+    }
+}
+```
+
+In this example the methods are being called in the following sequence: `handler3`, `handler1`, `handler2`.
+
 ## More details
 
 ### Handler methods/functions
