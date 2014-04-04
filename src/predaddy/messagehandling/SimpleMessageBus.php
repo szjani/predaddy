@@ -33,6 +33,7 @@ use ReflectionFunction;
 use ReflectionMethod;
 use RuntimeException;
 use SplObjectStorage;
+use SplPriorityQueue;
 
 /**
  * MessageBus which find handler methods in the registered message handlers.
@@ -136,10 +137,11 @@ class SimpleMessageBus extends Object implements MessageBus
 
     /**
      * @param Closure $closure
+     * @param int $priority
      */
-    public function registerClosure(Closure $closure)
+    public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
-        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure));
+        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure), $priority);
         $this->closures->attach($closure, $descriptor);
     }
 
@@ -160,24 +162,31 @@ class SimpleMessageBus extends Object implements MessageBus
     {
         $forwarded = false;
         $objectClass = ObjectClass::forName(get_class($message));
+        $callbackQueue = new SplPriorityQueue();
         foreach ($this->handlers as $handler) {
             /* @var $descriptor MessageHandlerDescriptor */
             $descriptor = $this->handlers[$handler];
-            $methods = $descriptor->getHandlerMethodsFor($objectClass);
-            /* @var $method ReflectionMethod */
-            foreach ($methods as $method) {
-                $this->dispatch($message, new MethodWrapper($handler, $method), $callback);
-                $forwarded = true;
+            /* @var $functionDescriptor FunctionDescriptor */
+            foreach ($descriptor->getFunctionDescriptorsFor($objectClass) as $functionDescriptor) {
+                $callbackQueue->insert(
+                    new MethodWrapper($handler, $functionDescriptor->getReflectionFunction()),
+                    $functionDescriptor->getPriority()
+                );
             }
         }
         /* @var $descriptor FunctionDescriptor */
         foreach ($this->closures as $closure) {
             $descriptor = $this->closures[$closure];
             if ($descriptor->isHandlerFor($objectClass)) {
-                $this->dispatch($message, new ClosureWrapper($closure), $callback);
-                $forwarded = true;
+                $callbackQueue->insert(new ClosureWrapper($closure), $descriptor->getPriority());
             }
         }
+
+        foreach ($callbackQueue as $callableWrapper) {
+            $this->dispatch($message, $callableWrapper, $callback);
+            $forwarded = true;
+        }
+
         if (!$forwarded && !($message instanceof DeadMessage)) {
             self::getLogger()->debug(
                 "The following message as a DeadMessage has been posted to '{}' message bus: {}",

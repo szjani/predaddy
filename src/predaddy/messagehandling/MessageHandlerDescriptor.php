@@ -34,7 +34,7 @@ interface MessageHandlerDescriptor
 {
     /**
      * @param ObjectClass $messageClass
-     * @return array of ReflectionMethod
+     * @return array of FunctionDescriptor
      */
-    public function getHandlerMethodsFor(ObjectClass $messageClass);
+    public function getFunctionDescriptorsFor(ObjectClass $messageClass);
 }

@@ -52,9 +52,15 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
      */
     private $function;
 
-    public function __construct(ReflectionFunctionAbstract $function)
+    /**
+     * @var int
+     */
+    private $priority;
+
+    public function __construct(ReflectionFunctionAbstract $function, $priority)
     {
         $this->function = $function;
+        $this->priority = (int) $priority;
         $this->valid = $this->check();
     }
 
@@ -127,5 +133,13 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
     public function getReflectionFunction()
     {
         return $this->function;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPriority()
+    {
+        return $this->priority;
     }
 }

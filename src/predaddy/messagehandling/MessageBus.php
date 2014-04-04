@@ -31,6 +31,8 @@ use Iterator;
  */
 interface MessageBus
 {
+    const DEFAULT_PRIORITY = 1;
+
     /**
      * Post a message on this bus. It is dispatched to all subscribed handlers.
      * MessageCallback will be notified with each message handler calls.
@@ -69,9 +71,10 @@ interface MessageBus
 
     /**
      * @param Closure $closure
+     * @param int $priority Used to sort handlers when dispatching messages
      * @return void
      */
-    public function registerClosure(Closure $closure);
+    public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY);
 
     /**
      * @param Closure $closure

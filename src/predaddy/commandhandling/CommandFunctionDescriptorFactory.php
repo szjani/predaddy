@@ -30,10 +30,11 @@ class CommandFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
      * @param ReflectionFunctionAbstract $function
+     * @param int $priority
      * @return FunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function)
+    public function create(ReflectionFunctionAbstract $function, $priority)
     {
-        return new CommandFunctionDescriptor($function);
+        return new CommandFunctionDescriptor($function, $priority);
     }
 }

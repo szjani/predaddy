@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,37 +23,30 @@
 
 namespace predaddy\messagehandling;
 
-use precore\lang\ObjectClass;
-use ReflectionFunctionAbstract;
+use predaddy\messagehandling\annotation\Subscribe;
 
-/**
- * @package predaddy\messagehandling
- */
-interface FunctionDescriptor
+class PrioritizedHandler2
 {
-    /**
-     * @return boolean
-     */
-    public function isValid();
+    private $order;
+
+    public function __construct(array &$order)
+    {
+        $this->order = &$order;
+    }
 
     /**
-     * @param ObjectClass $messageClass
-     * @return boolean
+     * @Subscribe(priority=-1)
      */
-    public function isHandlerFor(ObjectClass $messageClass);
+    public function handler1(Message $message)
+    {
+        $this->order[] = -1;
+    }
 
     /**
-     * @return ReflectionFunctionAbstract
+     * @Subscribe(priority=6)
      */
-    public function getReflectionFunction();
-
-    /**
-     * @return string
-     */
-    public function getHandledMessageClassName();
-
-    /**
-     * @return int
-     */
-    public function getPriority();
+    public function handler2(Message $message)
+    {
+        $this->order[] = 6;
+    }
 }

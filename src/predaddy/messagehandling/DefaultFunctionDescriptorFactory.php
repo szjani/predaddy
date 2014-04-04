@@ -36,10 +36,11 @@ class DefaultFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
      * @param ReflectionFunctionAbstract $function
+     * @param int $priority
      * @return DefaultFunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function)
+    public function create(ReflectionFunctionAbstract $function, $priority)
     {
-        return new DefaultFunctionDescriptor($function);
+        return new DefaultFunctionDescriptor($function, $priority);
     }
 }

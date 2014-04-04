@@ -59,7 +59,7 @@ class AnnotatedMessageHandlerDescriptorTest extends PHPUnit_Framework_TestCase
     public function testGetHandleMethodFor()
     {
         $message = new SimpleMessage();
-        $methods = $this->config->getHandlerMethodsFor($message->getObjectClass());
+        $methods = $this->config->getFunctionDescriptorsFor($message->getObjectClass());
         self::assertNotNull($methods);
         self::assertEquals(1, count($methods));
     }

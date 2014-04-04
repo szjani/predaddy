@@ -66,9 +66,9 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
 
     /**
      * @param ObjectClass $messageClass
-     * @return array of ReflectionMethod
+     * @return array of FunctionDescriptor
      */
-    public function getHandlerMethodsFor(ObjectClass $messageClass)
+    public function getFunctionDescriptorsFor(ObjectClass $messageClass)
     {
         $messageClassName = $messageClass->getName();
         if (!array_key_exists($messageClassName, $this->compatibleHandlerMethodsCache)) {
@@ -81,7 +81,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
      * Find all handler methods for a specific type of Message
      *
      * @param ObjectClass $messageClass
-     * @return array of ReflectionMethod
+     * @return array of FunctionDescriptor
      */
     protected function findCompatibleMethodsFor(ObjectClass $messageClass)
     {
@@ -91,7 +91,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
             /* @var $firstDesc FunctionDescriptor */
             if ($firstDesc->isHandlerFor($messageClass)) {
                 foreach ($funcDescriptors as $fDesc) {
-                    $result[] = $fDesc->getReflectionFunction();
+                    $result[] = $fDesc;
                 }
             }
         }
@@ -102,10 +102,11 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     {
         /* @var $reflMethod ReflectionMethod */
         foreach ($this->handlerClass->getMethods($this->methodVisibility()) as $reflMethod) {
-            if ($this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe') === null) {
+            $methodAnnotation = $this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe');
+            if ($methodAnnotation === null) {
                 continue;
             }
-            $funcDescriptor = $this->functionDescriptorFactory->create($reflMethod);
+            $funcDescriptor = $this->functionDescriptorFactory->create($reflMethod, $methodAnnotation->priority);
             if (!$funcDescriptor->isValid()) {
                 continue;
             }

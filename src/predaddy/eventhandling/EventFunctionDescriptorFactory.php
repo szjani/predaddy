@@ -31,10 +31,11 @@ class EventFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
      * @param ReflectionFunctionAbstract $function
+     * @param int $priority
      * @return FunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function)
+    public function create(ReflectionFunctionAbstract $function, $priority)
     {
-        return new EventFunctionDescriptor($function);
+        return new EventFunctionDescriptor($function, $priority);
     }
 }

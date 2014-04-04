@@ -23,6 +23,8 @@
 
 namespace predaddy\messagehandling\annotation;
 
+use predaddy\messagehandling\MessageBus;
+
 /**
  * Mark handle methods in your EventHandler classes with this annotation.
  *
@@ -33,4 +35,5 @@ namespace predaddy\messagehandling\annotation;
  */
 final class Subscribe
 {
+    public $priority = MessageBus::DEFAULT_PRIORITY;
 }

@@ -34,6 +34,8 @@ require_once 'SimpleMessageHandler.php';
 require_once 'AllMessageHandler.php';
 require_once 'DeadMessageHandler.php';
 require_once 'MultipleSameMessageHandler.php';
+require_once 'PrioritizedHandler1.php';
+require_once 'PrioritizedHandler2.php';
 
 /**
  * Description of DirectEventBusTest
@@ -222,5 +224,56 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         );
         $this->bus->post(UUID::randomUUID());
         self::assertFalse($deadMessagePosted);
+    }
+
+    /**
+     * @test
+     */
+    public function prioritizedClosures()
+    {
+        $order = array();
+        $this->bus->registerClosure(
+            function (Message $msg) use (&$order) {
+                $order[] = 1;
+            },
+            1
+        );
+        $this->bus->registerClosure(
+            function (Message $msg) use (&$order) {
+                $order[] = 2;
+            },
+            2
+        );
+
+        $this->bus->post(new SimpleMessage());
+        self::assertSame(array(2, 1), $order);
+    }
+
+    /**
+     * @test
+     */
+    public function prioritizedHandler()
+    {
+        $order = array();
+        $handler = new PrioritizedHandler1($order);
+        $this->bus->register($handler);
+        $this->bus->post(new SimpleMessage());
+
+        self::assertSame(array(2, 1), $order);
+    }
+
+    /**
+     * @test
+     */
+    public function twoPrioritizedHandlers()
+    {
+        $order = array();
+        $handler1 = new PrioritizedHandler1($order);
+        $handler2 = new PrioritizedHandler2($order);
+        $this->bus->register($handler1);
+        $this->bus->register($handler2);
+        $this->bus->post(new SimpleMessage());
+
+        self::assertSame(array(6, 2, 1, -1), $order);
     }
 }
