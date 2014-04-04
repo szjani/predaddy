@@ -23,7 +23,6 @@
 
 namespace predaddy\commandhandling;
 
-use DateTime;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\messagehandling\AbstractMessage;
@@ -82,15 +81,10 @@ abstract class AbstractCommand extends AbstractMessage implements Command
         return $this->version;
     }
 
-    public function toString()
+    protected function toStringHelper()
     {
-        return $this->getClassName() . '@' . $this->hashCode()
-            . sprintf(
-                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
-                $this->getCommandIdentifier(),
-                $this->getTimestamp()->format(DateTime::ISO8601),
-                $this->aggregateId,
-                $this->version
-            );
+        return parent::toStringHelper()
+            ->add('aggregateId', $this->aggregateId)
+            ->add('version', $this->version);
     }
 }

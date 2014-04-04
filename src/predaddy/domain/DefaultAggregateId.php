@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use precore\lang\Object;
+use precore\util\Objects;
 
 class DefaultAggregateId extends Object implements AggregateId
 {
@@ -50,6 +51,8 @@ class DefaultAggregateId extends Object implements AggregateId
 
     public function toString()
     {
-        return parent::toString() . sprintf("[%s]", $this->getValue());
+        return Objects::toStringHelper($this)
+            ->add('value', $this->value)
+            ->toString();
     }
 }

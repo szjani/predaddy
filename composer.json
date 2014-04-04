@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "precore/precore": "~1.6",
+        "precore/precore": "~1.7@dev",
         "doctrine/annotations": "~1.1",
         "trf4php/trf4php": "~1.2",
         "lf4php/lf4php": "~4.0",

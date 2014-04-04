@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use DateTime;
+use precore\util\Objects;
 use predaddy\eventhandling\AbstractEvent;
 
 /**
@@ -61,15 +62,10 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
         return $this->version;
     }
 
-    public function toString()
+    protected function toStringHelper()
     {
-        return $this->getClassName() . '@' . $this->hashCode()
-            . sprintf(
-                '[id=%s, timestamp=%s, aggregateId=%s, version=%s]',
-                $this->getEventIdentifier(),
-                $this->getTimestamp()->format(DateTime::ISO8601),
-                $this->getAggregateId(),
-                $this->getVersion()
-            );
+        return parent::toStringHelper()
+            ->add('aggregateId', $this->getAggregateId())
+            ->add('version', $this->version);
     }
 }

@@ -26,6 +26,7 @@ namespace predaddy\messagehandling;
 use DateTime;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
+use precore\util\Objects;
 use precore\util\UUID;
 
 /**
@@ -65,13 +66,18 @@ abstract class AbstractMessage extends Object implements Message
         return $object instanceof self && $this->id === $object->id;
     }
 
+    /**
+     * @return \precore\util\ToStringHelper
+     */
+    protected function toStringHelper()
+    {
+        return Objects::toStringHelper($this)
+            ->add('id', $this->getMessageIdentifier())
+            ->add('timestamp', $this->getTimestamp()->format(DateTime::ISO8601));
+    }
+
     public function toString()
     {
-        return parent::toString()
-            . sprintf(
-                '[id=%s, timestamp=%s]',
-                $this->getMessageIdentifier(),
-                $this->getTimestamp()->format(DateTime::ISO8601)
-            );
+        return $this->toStringHelper()->toString();
     }
 }

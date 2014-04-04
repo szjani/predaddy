@@ -25,6 +25,7 @@ namespace predaddy\domain\impl\doctrine;
 
 use DateTime;
 use precore\lang\Object;
+use precore\util\Objects;
 use predaddy\domain\AggregateId;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\DomainEvent;
@@ -142,14 +143,13 @@ class Event extends Object
 
     public function toString()
     {
-        return sprintf(
-            'AggregateId [%s], aggregateType [%s], version [%s], created [%s], data [%s]',
-            $this->aggregateId,
-            $this->aggregateType,
-            $this->version,
-            $this->created->format(DateTime::ISO8601),
-            $this->data
-        );
+        return Objects::toStringHelper($this)
+            ->add('aggregateId', $this->aggregateId)
+            ->add('aggregateType', $this->aggregateType)
+            ->add('version', $this->version)
+            ->add('created', $this->created->format(DateTime::ISO8601))
+            ->add('data', $this->data)
+            ->toString();
     }
 
     /**
