@@ -40,8 +40,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
 {
     private $handlerClass;
     private $reader;
-    private $directHandlerMethodDescriptors = array();
-    private $compatibleHandlerMethodsCache = array();
+    private $descriptors = null;
 
     /**
      * @var FunctionDescriptorFactory
@@ -61,45 +60,22 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
         $this->handlerClass = $handlerClass;
         $this->reader = $reader;
         $this->functionDescriptorFactory = $functionDescFactory;
-        $this->findHandlerMethods();
     }
 
     /**
-     * @param ObjectClass $messageClass
      * @return array of FunctionDescriptor
      */
-    public function getFunctionDescriptorsFor(ObjectClass $messageClass)
+    public function getFunctionDescriptors()
     {
-        $messageClassName = $messageClass->getName();
-        if (!array_key_exists($messageClassName, $this->compatibleHandlerMethodsCache)) {
-            $this->compatibleHandlerMethodsCache[$messageClassName] = $this->findCompatibleMethodsFor($messageClass);
+        if ($this->descriptors === null) {
+            $this->findHandlerMethods();
         }
-        return $this->compatibleHandlerMethodsCache[$messageClassName];
-    }
-
-    /**
-     * Find all handler methods for a specific type of Message
-     *
-     * @param ObjectClass $messageClass
-     * @return array of FunctionDescriptor
-     */
-    protected function findCompatibleMethodsFor(ObjectClass $messageClass)
-    {
-        $result = array();
-        foreach ($this->directHandlerMethodDescriptors as $handlerMessageClass => $funcDescriptors) {
-            $firstDesc = $funcDescriptors[0];
-            /* @var $firstDesc FunctionDescriptor */
-            if ($firstDesc->isHandlerFor($messageClass)) {
-                foreach ($funcDescriptors as $fDesc) {
-                    $result[] = $fDesc;
-                }
-            }
-        }
-        return $result;
+        return $this->descriptors;
     }
 
     protected function findHandlerMethods()
     {
+        $this->descriptors = array();
         /* @var $reflMethod ReflectionMethod */
         foreach ($this->handlerClass->getMethods($this->methodVisibility()) as $reflMethod) {
             $methodAnnotation = $this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe');
@@ -111,7 +87,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
                 continue;
             }
             $reflMethod->setAccessible(true);
-            $this->directHandlerMethodDescriptors[$funcDescriptor->getHandledMessageClassName()][] = $funcDescriptor;
+            $this->descriptors[] = $funcDescriptor;
         }
     }
 

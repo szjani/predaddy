@@ -33,8 +33,7 @@ use precore\lang\ObjectClass;
 interface MessageHandlerDescriptor
 {
     /**
-     * @param ObjectClass $messageClass
      * @return array of FunctionDescriptor
      */
-    public function getFunctionDescriptorsFor(ObjectClass $messageClass);
+    public function getFunctionDescriptors();
 }

@@ -167,18 +167,20 @@ class SimpleMessageBus extends Object implements MessageBus
             /* @var $descriptor MessageHandlerDescriptor */
             $descriptor = $this->handlers[$handler];
             /* @var $functionDescriptor FunctionDescriptor */
-            foreach ($descriptor->getFunctionDescriptorsFor($objectClass) as $functionDescriptor) {
-                $callbackQueue->insert(
-                    new MethodWrapper($handler, $functionDescriptor->getReflectionFunction()),
-                    $functionDescriptor->getPriority()
-                );
+            foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
+                if ($functionDescriptor->isHandlerFor($objectClass)) {
+                    $callbackQueue->insert(
+                        new MethodWrapper($handler, $functionDescriptor->getReflectionFunction()),
+                        $functionDescriptor->getPriority()
+                    );
+                }
             }
         }
-        /* @var $descriptor FunctionDescriptor */
+        /* @var $functionDescriptor FunctionDescriptor */
         foreach ($this->closures as $closure) {
-            $descriptor = $this->closures[$closure];
-            if ($descriptor->isHandlerFor($objectClass)) {
-                $callbackQueue->insert(new ClosureWrapper($closure), $descriptor->getPriority());
+            $functionDescriptor = $this->closures[$closure];
+            if ($functionDescriptor->isHandlerFor($objectClass)) {
+                $callbackQueue->insert(new ClosureWrapper($closure), $functionDescriptor->getPriority());
             }
         }
 
