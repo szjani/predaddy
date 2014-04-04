@@ -35,5 +35,8 @@ use predaddy\messagehandling\MessageBus;
  */
 final class Subscribe
 {
+    /**
+     * @var integer
+     */
     public $priority = MessageBus::DEFAULT_PRIORITY;
 }
