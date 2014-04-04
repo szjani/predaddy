@@ -26,6 +26,7 @@ namespace predaddy\presentation;
 use InvalidArgumentException;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
+use precore\util\Objects;
 
 /**
  * Default implementation of Pageable.
@@ -126,11 +127,9 @@ class PageRequest extends Object implements Pageable
         if (!($object instanceof self)) {
             return false;
         }
-        if ($this->page !== $object->page || $this->size !== $object->size) {
-            return false;
-        }
-        return $this->sort === null
-            ? $object->sort === null
-            : $this->sort->equals($object->sort);
+
+        return Objects::equal($this->page, $object->page)
+            && Objects::equal($this->size, $object->size)
+            && Objects::equal($this->sort, $object->sort);
     }
 }

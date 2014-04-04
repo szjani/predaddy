@@ -27,6 +27,7 @@ use ArrayIterator;
 use IteratorAggregate;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
+use precore\util\Objects;
 
 /**
  * Default Page implementation.
@@ -171,12 +172,9 @@ class PageImpl extends Object implements IteratorAggregate, Page
         if (!($object instanceof self)) {
             return false;
         }
-        $totalEqual = $this->total === $object->total;
-        $contentEqual = $this->content === $object->content;
-        $pageableEqual = $this->pageable === null
-            ? $object->pageable === null
-            : $this->pageable->equals($object->pageable);
 
-        return $totalEqual && $contentEqual && $pageableEqual;
+        return Objects::equal($this->total, $object->total)
+            && Objects::equal($this->content, $object->content)
+            && Objects::equal($this->pageable, $object->pageable);
     }
 }
