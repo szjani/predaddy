@@ -93,7 +93,7 @@ $bus->post(new SampleMessage1());
 
 ### Handler prioritization
 
-In predaddy 2.1 it is possible to define the sequence how handlers are being executed. The smaller the priority the handler is being called earlier.
+In predaddy 2.1 it is possible to define the sequence how handlers are being executed. The higher the priority the handler is being called earlier.
 The default priority is 1.
 
 For closures you can pass the priority to the `registerClosure` method as the second argument.
