@@ -68,14 +68,17 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     public function getFunctionDescriptors()
     {
         if ($this->descriptors === null) {
-            $this->findHandlerMethods();
+            $this->descriptors = $this->findHandlerMethods();
         }
         return $this->descriptors;
     }
 
+    /**
+     * @return array of FunctionDescriptor
+     */
     protected function findHandlerMethods()
     {
-        $this->descriptors = array();
+        $result = array();
         /* @var $reflMethod ReflectionMethod */
         foreach ($this->handlerClass->getMethods($this->methodVisibility()) as $reflMethod) {
             $methodAnnotation = $this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe');
@@ -87,8 +90,9 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
                 continue;
             }
             $reflMethod->setAccessible(true);
-            $this->descriptors[] = $funcDescriptor;
+            $result[] = $funcDescriptor;
         }
+        return $result;
     }
 
     protected function methodVisibility()
