@@ -72,4 +72,3 @@ class MessageWrapper implements Serializable
         return $this->message;
     }
 }
- 
