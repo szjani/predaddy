@@ -26,17 +26,16 @@ namespace predaddy\messagehandling\annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
-use LazyMap\CallbackLazyMap;
 use precore\lang\ObjectClass;
+use predaddy\messagehandling\CachedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\FunctionDescriptorFactory;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 
 /**
  * Uses Doctrine annotation reader and creates AnnotatedMessageHandlerDescriptor object for each handlers.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescriptorFactory
+class AnnotatedMessageHandlerDescriptorFactory extends CachedMessageHandlerDescriptorFactory
 {
     private static $defaultReader;
 
@@ -44,13 +43,6 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
      * @var Reader
      */
     private $reader;
-
-    /**
-     * @var FunctionDescriptorFactory
-     */
-    private $functionDescriptorFactory;
-
-    private $descriptorMap;
 
     public static function registerAnnotations()
     {
@@ -76,15 +68,21 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
             $reader = self::getDefaultReader();
         }
         $this->reader = $reader;
-        $this->functionDescriptorFactory = $functionDescFactory;
-        $this->descriptorMap = new CallbackLazyMap(
-            function ($handlerClassName) use ($reader, $functionDescFactory) {
-                return new AnnotatedMessageHandlerDescriptor(
-                    ObjectClass::forName($handlerClassName),
-                    $reader,
-                    $functionDescFactory
-                );
-            }
+        parent::__construct($functionDescFactory);
+    }
+
+    /**
+     * Do not call it from outside. Public visibility is necessary for PHP 5.3
+     *
+     * @param string $handlerClassName
+     * @return AnnotatedMessageHandlerDescriptor
+     */
+    public function innerCreate($handlerClassName)
+    {
+        return new AnnotatedMessageHandlerDescriptor(
+            ObjectClass::forName($handlerClassName),
+            $this->reader,
+            $this->getFunctionDescriptorFactory()
         );
     }
 
@@ -94,19 +92,5 @@ class AnnotatedMessageHandlerDescriptorFactory implements MessageHandlerDescript
     public function getReader()
     {
         return $this->reader;
-    }
-
-    /**
-     * @return FunctionDescriptorFactory
-     */
-    public function getFunctionDescriptorFactory()
-    {
-        return $this->functionDescriptorFactory;
-    }
-
-    public function create($handler)
-    {
-        $className = get_class($handler);
-        return $this->descriptorMap->$className;
     }
 }
