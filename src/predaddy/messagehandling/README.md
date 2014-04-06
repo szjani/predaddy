@@ -198,3 +198,41 @@ must implement `Event` interface.
 
 `Mf4phpMessageBus` wraps a `MessageDispatcher`, so all features provided by [mf4php](https://github.com/szjani/mf4php) can be achieved with this class, such as
 synchronize messages to transactions and asynchronous event dispatching. For further information see the [mf4php](https://github.com/szjani/mf4php) documentation.
+
+## Best practises
+
+### Overriding __toString for logging
+
+Predaddy logs on different levels. In order to ease finding errors and debug application overriding `__toString()` method in messages is essential.
+`AbstractMessage` overrides `toString()` inherited from `Object` which is part of precore library and string generation based on `ToStringHelper`.
+If you extend `AbstractMessage` you can can easily add more fields into the generated string if you override `toStringHelper()` method.
+The following example can be found in `AbstractCommand`:
+
+```php
+protected function toStringHelper()
+{
+    return parent::toStringHelper()
+        ->add('aggregateId', $this->aggregateId)
+        ->add('version', $this->version);
+}
+```
+
+### Immutability
+
+Although any objects can be send to a message bus, using immutable objects are usually recommended. It can be achieved
+if all necessary dependencies are passed due the constructor and inner objects can be read only.
+
+### Performance
+
+If you use annotation based configuration which is the only way supported by predaddy, you should pay attention to annotation caching.
+Annotation scanning takes time which can be avoided by using an explicitly set `Reader` object. The following example shows
+how annotations can be cached in APC. You can read more about it in [Doctrine Annotation manual](http://docs.doctrine-project.org/projects/doctrine-common/en/latest/reference/annotations.html#setup-and-configuration).
+
+```php
+$bus = new SimpleMessageBus(
+    new AnnotatedMessageHandlerDescriptorFactory(
+        new DefaultFunctionDescriptorFactory(),
+        new CachedReader(new AnnotationReader(), new ApcCache())
+    ),
+);
+```
