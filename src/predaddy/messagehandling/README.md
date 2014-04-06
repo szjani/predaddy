@@ -201,6 +201,12 @@ synchronize messages to transactions and asynchronous event dispatching. For fur
 
 ## Best practises
 
+### Logging - lf4php
+
+Predaddy uses [lf4php](https://github.com/szjani/lf4php) for logging. If you do not load an lf4php implementation, predaddy
+will not log anything. Since lf4php is just an API, it is your responsibility to load and configure your preferred logging framework
+and the corresponding lf4php binder. For more information see [lf4php documentation](https://github.com/szjani/lf4php).
+
 ### Overriding __toString for logging
 
 Predaddy logs on different levels. In order to ease finding errors and debug application overriding `__toString()` method in messages is essential.
