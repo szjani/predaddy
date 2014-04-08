@@ -26,6 +26,8 @@ namespace predaddy\domain;
 use ArrayIterator;
 use Iterator;
 use precore\lang\Object;
+use precore\lang\ObjectInterface;
+use precore\util\Objects;
 
 /**
  * Aggregate root class.
@@ -45,6 +47,19 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
         $events = new ArrayIterator($this->events);
         $this->events = array();
         return $events;
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('id', $this->getId())
+            ->toString();
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self
+            && Objects::equal($this->getId(), $object->getId());
     }
 
     protected function raise(DomainEvent $event)

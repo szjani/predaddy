@@ -47,4 +47,21 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
         self::assertTrue($events->valid());
         self::assertEquals($events->current()->getAggregateId(), $user->getId());
     }
+
+    public function testEquals()
+    {
+        $user = new User();
+        $clone = $this->getMock(User::className(), array('getId'), array(), '', false);
+        $clone
+            ->expects(self::once())
+            ->method('getId')
+            ->will(self::returnValue($user->getId()));
+        self::assertTrue($user->equals($clone));
+    }
+
+    public function testToString()
+    {
+        $user = new User();
+        self::assertStringStartsWith(User::className(), $user->toString());
+    }
 }
