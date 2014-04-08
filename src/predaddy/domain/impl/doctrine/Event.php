@@ -147,7 +147,7 @@ class Event extends Object
             ->add('aggregateId', $this->aggregateId)
             ->add('aggregateType', $this->aggregateType)
             ->add('version', $this->version)
-            ->add('created', $this->created->format(DateTime::ISO8601))
+            ->add('created', $this->created)
             ->add('data', $this->data)
             ->toString();
     }

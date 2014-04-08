@@ -73,7 +73,7 @@ abstract class AbstractMessage extends Object implements Message
     {
         return Objects::toStringHelper($this)
             ->add('id', $this->getMessageIdentifier())
-            ->add('timestamp', $this->getTimestamp()->format(DateTime::ISO8601));
+            ->add('timestamp', $this->getTimestamp());
     }
 
     public function toString()
