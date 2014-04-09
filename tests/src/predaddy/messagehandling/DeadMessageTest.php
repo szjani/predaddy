@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,34 +23,20 @@
 
 namespace predaddy\messagehandling;
 
+use PHPUnit_Framework_TestCase;
+use precore\util\UUID;
+
 /**
- * Wraps a message which has not been handled by handlers.
+ * @package predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DeadMessage extends AbstractMessage
+class DeadMessageTest extends PHPUnit_Framework_TestCase
 {
-    private $message;
-
-    /**
-     * @param $message
-     */
-    public function __construct($message)
+    public function testToString()
     {
-        parent::__construct();
-        $this->message = $message;
-    }
-
-    /**
-     * @return object
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    protected function toStringHelper()
-    {
-        return parent::toStringHelper()->add('message', $this->message);
+        $message = UUID::randomUUID();
+        $deadMessage = new DeadMessage($message);
+        self::assertTrue(strpos($deadMessage->toString(), $message->toString()) !== false);
     }
 }
