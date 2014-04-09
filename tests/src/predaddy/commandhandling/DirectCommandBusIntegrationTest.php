@@ -29,6 +29,8 @@ use Doctrine\ORM\Tools\Setup;
 use PHPUnit_Framework_TestCase;
 use predaddy\domain\AggregateId;
 use predaddy\domain\CreateEventSourcedUser;
+use predaddy\domain\Decrement;
+use predaddy\domain\DecrementedEvent;
 use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
 use predaddy\domain\impl\LazyEventSourcedRepositoryRepository;
 use predaddy\domain\Increment;
@@ -43,9 +45,11 @@ use trf4php\doctrine\DoctrineTransactionManager;
 
 require_once __DIR__ . '/../domain/EventSourcedUser.php';
 require_once __DIR__ . '/../domain/IncrementedEvent.php';
+require_once __DIR__ . '/../domain/DecrementedEvent.php';
 require_once __DIR__ . '/../domain/UserCreated.php';
 require_once __DIR__ . '/../domain/CreateEventSourcedUser.php';
 require_once __DIR__ . '/../domain/Increment.php';
+require_once __DIR__ . '/../domain/Decrement.php';
 
 /**
  * Class DirectCommandBusIntegrationTest
@@ -133,5 +137,17 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $this->commandBus->post(new Increment($aggregateId->getValue(), 1));
         $this->commandBus->post(new Increment($aggregateId->getValue(), 2));
         self::assertEquals(2, $incremented);
+
+        $decremented = 0;
+        $this->eventBus->registerClosure(
+            function (DecrementedEvent $event) use (&$decremented, $aggregateId) {
+                DirectCommandBusIntegrationTest::assertNotEquals(0, $event->getVersion());
+                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
+                $decremented++;
+            }
+        );
+        $this->commandBus->post(new Decrement($aggregateId->getValue(), 3));
+        $this->commandBus->post(new Decrement($aggregateId->getValue(), 4));
+        self::assertEquals(2, $decremented);
     }
 }

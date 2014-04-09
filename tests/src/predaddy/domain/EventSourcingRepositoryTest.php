@@ -36,6 +36,7 @@ use trf4php\NOPTransactionManager;
 require_once 'EventSourcedUser.php';
 require_once __DIR__ . '/CreateEventSourcedUser.php';
 require_once __DIR__ . '/Increment.php';
+require_once __DIR__ . '/Decrement.php';
 
 class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 {
@@ -200,5 +201,33 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             ->method('createSnapshot')
             ->with(EventSourcedUser::className(), $aggregateId);
         $repository->save($aggregateRoot, 1);
+    }
+
+    public function testSetVersionAndAggregateIdFields()
+    {
+        $createCommand = new CreateEventSourcedUser();
+        $user = new EventSourcedUser($createCommand);
+        $userId = null;
+        $version = null;
+        $this->eventBus->registerClosure(
+            function (UserCreated $event) use (&$userId, &$version) {
+                $userId = $event->getAggregateId();
+                $version = $event->getVersion();
+            }
+        );
+        $this->repository->save($user, 0);
+        self::assertNotNull($userId);
+        self::assertEquals(1, $version);
+
+        $this->eventBus->registerClosure(
+            function (DecrementedEvent $event) use (&$userId, &$version) {
+                $userId = $event->getAggregateId();
+                $version = $event->getVersion();
+            }
+        );
+        $user->decrement(new Decrement());
+        $this->repository->save($user, 1);
+        self::assertNotNull($userId);
+        self::assertEquals(2, $version);
     }
 }

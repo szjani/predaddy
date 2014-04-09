@@ -28,6 +28,7 @@ use predaddy\messagehandling\annotation\Subscribe;
 
 require_once 'UserCreated.php';
 require_once 'IncrementedEvent.php';
+require_once 'DecrementedEvent.php';
 
 /**
  * Description of User
@@ -69,6 +70,15 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
 
     /**
      * @Subscribe
+     * @param Decrement $command
+     */
+    public function decrement(Decrement $command)
+    {
+        $this->apply(new DecrementedEvent());
+    }
+
+    /**
+     * @Subscribe
      */
     private function handleCreated(UserCreated $event)
     {
@@ -81,5 +91,14 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
     private function handleIncrementedEvent(IncrementedEvent $event)
     {
         $this->value++;
+    }
+
+    /**
+     * @Subscribe
+     * @param DecrementedEvent $event
+     */
+    private function handleDecrementedEvent(DecrementedEvent $event)
+    {
+        $this->value--;
     }
 }

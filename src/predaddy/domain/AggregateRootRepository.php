@@ -23,6 +23,7 @@
 
 namespace predaddy\domain;
 
+use ArrayIterator;
 use Iterator;
 use precore\lang\Object;
 use predaddy\messagehandling\MessageBus;
@@ -66,10 +67,13 @@ abstract class AggregateRootRepository extends Object implements Repository
     public function save(AggregateRoot $aggregateRoot, $version)
     {
         $events = $aggregateRoot->getAndClearRaisedEvents();
-        $this->innerSave($aggregateRoot, $events, $version);
+        $modifiedEvents = array();
         foreach ($events as $event) {
+            AbstractDomainEventInitializer::init($event, $aggregateRoot->getId(), $version);
             $this->getEventBus()->post($event);
+            $modifiedEvents[] = $event;
         }
+        $this->innerSave($aggregateRoot, new ArrayIterator($modifiedEvents), $version);
     }
 
     /**

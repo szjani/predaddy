@@ -24,6 +24,8 @@
 namespace predaddy\domain;
 
 use DateTime;
+use InvalidArgumentException;
+use LazyMapTestAsset\NullLazyMap;
 use precore\util\Objects;
 use predaddy\eventhandling\AbstractEvent;
 
@@ -39,11 +41,19 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
     protected $aggregateId;
     protected $version;
 
-    public function __construct(AggregateId $aggregateId, $originatedVersion)
+    public function __construct(AggregateId $aggregateId = null, $originatedVersion = null)
     {
         parent::__construct();
+        if ($aggregateId === null) {
+            $aggregateId = new NullAggregateId();
+        }
         $this->aggregateId = $aggregateId;
-        $this->version = $originatedVersion + 1;
+        $this->version = $this->calculateNewVersion($originatedVersion);
+    }
+
+    protected function calculateNewVersion($originatedVersion)
+    {
+        return $originatedVersion + 1;
     }
 
     /**
@@ -59,13 +69,13 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
      */
     public function getVersion()
     {
-        return $this->version;
+        return (int) $this->version;
     }
 
     protected function toStringHelper()
     {
         return parent::toStringHelper()
             ->add('aggregateId', $this->getAggregateId())
-            ->add('version', $this->version);
+            ->add('version', $this->getVersion());
     }
 }
