@@ -25,6 +25,7 @@ namespace predaddy\presentation;
 
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
+use precore\util\Objects;
 
 /**
  * Represents an ordering for the given property with the given direction.
@@ -71,5 +72,13 @@ class Order extends Object
             return false;
         }
         return $this->direction->equals($object->direction) && $this->property === $object->property;
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('property', $this->property)
+            ->add('direction', $this->direction)
+            ->toString();
     }
 }

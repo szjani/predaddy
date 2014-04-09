@@ -43,4 +43,14 @@ class OrderTest extends \PHPUnit_Framework_TestCase
 
         self::assertFalse($order->equals(null));
     }
-} 
+
+    public function testToString()
+    {
+        $property = 'name';
+        $order = new Order(Direction::$ASC, $property);
+        self::assertEquals(
+            'predaddy\presentation\Order{property=name, direction=predaddy\presentation\Direction::$ASC}',
+            $order->toString()
+        );
+    }
+}

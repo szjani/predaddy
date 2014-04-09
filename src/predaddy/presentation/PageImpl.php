@@ -177,4 +177,12 @@ class PageImpl extends Object implements IteratorAggregate, Page
             && Objects::equal($this->content, $object->content)
             && Objects::equal($this->pageable, $object->pageable);
     }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('total', $this->total)
+            ->add('pageable', $this->pageable)
+            ->toString();
+    }
 }

@@ -132,4 +132,13 @@ class PageRequest extends Object implements Pageable
             && Objects::equal($this->size, $object->size)
             && Objects::equal($this->sort, $object->sort);
     }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('page', $this->page)
+            ->add('size', $this->size)
+            ->add('sort', $this->sort)
+            ->toString();
+    }
 }

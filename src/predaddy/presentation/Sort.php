@@ -28,6 +28,7 @@ use Countable;
 use IteratorAggregate;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
+use precore\util\Objects;
 
 /**
  * Several Order instance can be stored in a Sort object.
@@ -121,5 +122,12 @@ class Sort extends Object implements IteratorAggregate, Countable
             return false;
         }
         return $this->orders === $object->orders;
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('orders', $this->orders)
+            ->toString();
     }
 }

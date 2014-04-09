@@ -118,4 +118,12 @@ class PageImplTest extends PHPUnit_Framework_TestCase
         $page = new PageImpl($this->content, $pageable, $this->total);
         self::assertTrue($this->page->equals($page));
     }
-} 
+
+    public function testToString()
+    {
+        self::assertEquals(
+            'predaddy\presentation\PageImpl{total=101, pageable=predaddy\presentation\PageRequest{page=2, size=4, sort=predaddy\presentation\Sort{orders={0=predaddy\presentation\Order{property=prop1, direction=predaddy\presentation\Direction::$DESC}}}}}',
+            $this->page->toString()
+        );
+    }
+}
