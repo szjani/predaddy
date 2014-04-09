@@ -23,8 +23,6 @@
 
 namespace predaddy\domain;
 
-use RuntimeException;
-
 /**
  * @package predaddy\domain
  *
@@ -32,15 +30,6 @@ use RuntimeException;
  */
 abstract class AbstractDomainEventInitializer extends AbstractDomainEvent
 {
-    public function __construct()
-    {
-        throw new RuntimeException(sprintf("%s class cannot be instantiated", __CLASS__));
-    }
-
-    private function __clone()
-    {
-    }
-
     public static function init(DomainEvent $event, AggregateId $aggregateId, $originatedVersion)
     {
         if ($event instanceof AbstractDomainEvent) {
