@@ -39,7 +39,7 @@ require_once 'IncrementedEvent.php';
  * @author Szurovecz János <szjani@szjani.hu>
  * @ORM\Entity
  */
-class User extends AbstractAggregateRoot
+class UnversionedUser extends AbstractAggregateRoot
 {
     const DEFAULT_VALUE = 1;
 
@@ -56,13 +56,6 @@ class User extends AbstractAggregateRoot
      */
     public $value = self::DEFAULT_VALUE;
 
-    /**
-     * @ORM\Version
-     * @ORM\Column(type="integer")
-     * @var int
-     */
-    private $version;
-
     public function __construct()
     {
         $id = new UUIDAggregateId(UUID::randomUUID());
@@ -73,11 +66,6 @@ class User extends AbstractAggregateRoot
     public function getId()
     {
         return new UUIDAggregateId(UUID::fromString($this->id));
-    }
-
-    public function getVersion()
-    {
-        return $this->version;
     }
 
     public function increment()

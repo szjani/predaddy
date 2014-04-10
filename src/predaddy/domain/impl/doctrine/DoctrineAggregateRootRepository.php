@@ -108,6 +108,10 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     }
 
     /**
+     * If $version is not null, explicit lock is being checked.
+     * It obtains the version field from the entity if that is versioned
+     * and initializes the events' version field.
+     *
      * @param AggregateRoot $aggregateRoot
      * @param Iterator $events
      * @param int|null $version
@@ -131,20 +135,16 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     protected function initVersionFields(Iterator $events, $version)
     {
         foreach ($events as $event) {
-            AbstractDomainEventInitializer::initVersion($event, (int) $version);
+            AbstractDomainEventInitializer::initVersion($event, $version);
         }
     }
 
     protected function currentVersion(AggregateRoot $aggregateRoot)
     {
         $version = null;
-        if ($aggregateRoot instanceof Versionable) {
-            $version = $aggregateRoot->getVersion();
-        } else {
-            $class = $this->getEntityManager()->getClassMetadata($aggregateRoot->getClassName());
-            if ($class instanceof ClassMetadata) {
-                $version = $class->reflFields[$class->versionField]->getValue($aggregateRoot);
-            }
+        $class = $this->getEntityManager()->getClassMetadata($aggregateRoot->getClassName());
+        if ($class instanceof ClassMetadata && $class->isVersioned) {
+            $version = (int) $class->reflFields[$class->versionField]->getValue($aggregateRoot);
         }
         return $version;
     }

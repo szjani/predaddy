@@ -77,6 +77,9 @@ abstract class AggregateRootRepository extends Object implements Repository
         $aggregateId = $aggregateRoot->getId();
         foreach ($events as $event) {
             AbstractDomainEventInitializer::initAggregateId($event, $aggregateId);
+            if ($aggregateRoot instanceof Versionable) {
+                AbstractDomainEventInitializer::initVersion($event, $aggregateRoot->getVersion());
+            }
         }
         $this->innerSave($aggregateRoot, $events, $version);
         foreach ($events as $event) {

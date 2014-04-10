@@ -28,6 +28,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use PHPUnit_Framework_TestCase;
 use predaddy\domain\impl\doctrine\entities\IncrementedEvent;
+use predaddy\domain\impl\doctrine\entities\UnversionedUser;
 use predaddy\domain\impl\doctrine\entities\User;
 use predaddy\domain\impl\doctrine\entities\UserCreated;
 use predaddy\eventhandling\EventBus;
@@ -62,7 +63,12 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
     /**
      * @var DoctrineAggregateRootRepository
      */
-    private $repo;
+    private $userRepo;
+
+    /**
+     * @var DoctrineAggregateRootRepository
+     */
+    private $unversionedUserRepo;
 
     public static function setUpBeforeClass()
     {
@@ -97,7 +103,16 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
             new AnnotatedMessageHandlerDescriptorFactory(new DefaultFunctionDescriptorFactory()),
             $this->transactionManager
         );
-        $this->repo = new DoctrineAggregateRootRepository($this->eventBus, User::objectClass(), self::$entityManager);
+        $this->userRepo = new DoctrineAggregateRootRepository(
+            $this->eventBus,
+            User::objectClass(),
+            self::$entityManager
+        );
+        $this->unversionedUserRepo = new DoctrineAggregateRootRepository(
+            $this->eventBus,
+            UnversionedUser::objectClass(),
+            self::$entityManager
+        );
     }
 
     /**
@@ -119,7 +134,7 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         );
         $this->transactionManager->beginTransaction();
         $user = new User();
-        $this->repo->save($user);
+        $this->userRepo->save($user);
         $this->transactionManager->commit();
         self::assertEquals(1, $called);
 
@@ -137,7 +152,44 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
 
         $this->transactionManager->beginTransaction();
         $user->increment();
-        $this->repo->save($user);
+        $this->userRepo->save($user);
+        $this->transactionManager->commit();
+        self::assertEquals(2, $called);
+    }
+
+    public function testUnversionedUser()
+    {
+        $called = 0;
+        $user = null;
+        $this->eventBus->registerClosure(
+            function (UserCreated $event) use (&$called, &$user) {
+                PHPUnit_Framework_TestCase::assertNull($event->getVersion());
+                PHPUnit_Framework_TestCase::assertTrue(
+                    $event->getAggregateId()->equals($user->getId())
+                );
+                $called++;
+            }
+        );
+        $this->transactionManager->beginTransaction();
+        $user = new UnversionedUser();
+        $this->unversionedUserRepo->save($user);
+        $this->transactionManager->commit();
+        self::assertEquals(1, $called);
+
+        // next transaction
+        $this->eventBus->registerClosure(
+            function (IncrementedEvent $event) use (&$called, &$user) {
+                PHPUnit_Framework_TestCase::assertNull($event->getVersion());
+                PHPUnit_Framework_TestCase::assertTrue(
+                    $event->getAggregateId()->equals($user->getId())
+                );
+                $called++;
+            }
+        );
+
+        $this->transactionManager->beginTransaction();
+        $user->increment();
+        $this->unversionedUserRepo->save($user);
         $this->transactionManager->commit();
         self::assertEquals(2, $called);
     }
