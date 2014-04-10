@@ -39,25 +39,37 @@ class User extends AbstractAggregateRoot
 {
     const DEFAULT_VALUE = 1;
 
+    /**
+     * @var UUIDAggregateId
+     */
     private $id;
+
+    /**
+     * @var int
+     */
     public $value = self::DEFAULT_VALUE;
+
+    /**
+     * @var int
+     */
     private $version = 0;
 
     public function __construct()
     {
-        $this->id = new UUIDAggregateId(UUID::randomUUID());
-        $this->raise(new UserCreated($this->id, $this->version));
+        $id = new UUIDAggregateId(UUID::randomUUID());
+        $this->id = $id->getValue();
+        $this->raise(new UserCreated($id, $this->version));
     }
 
     public function getId()
     {
-        return $this->id;
+        return new UUIDAggregateId(UUID::fromString($this->id));
     }
 
     public function increment()
     {
         $this->value++;
         $this->version++;
-        $this->raise(new IncrementedEvent($this->id, $this->version));
+        $this->raise(new IncrementedEvent());
     }
 }

@@ -30,6 +30,7 @@ use InvalidArgumentException;
 use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
+use predaddy\domain\AbstractDomainEventInitializer;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventSourcedAggregateRoot;
@@ -74,8 +75,8 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         $aggregate = null;
         /* @var $event DomainEvent */
         foreach ($events as $event) {
+            $aggregateId = $event->getAggregateId();
             if ($aggregate === null) {
-                $aggregateId = $event->getAggregateId();
                 $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
                 if ($aggregate === null) {
                     $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
@@ -84,16 +85,15 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
                         "Aggregate [{}, {}] has been persisted",
                         array($aggregateRootClass, $aggregateId)
                     );
-                } else {
+                }
+                if ($originatingVersion !== null) {
                     $this->entityManager->lock($aggregate, LockMode::OPTIMISTIC, $originatingVersion);
                 }
             }
-            if ($aggregate->getVersion() + 1 !== $event->getVersion()) {
-                throw new InvalidArgumentException("Event version is invalid");
-            }
+            AbstractDomainEventInitializer::initVersion($event, $aggregate->getVersion());
             $aggregate->touch($event->getTimestamp());
             $metaEvent = new Event(
-                $event->getAggregateId(),
+                $aggregateId,
                 $aggregateRootClass,
                 $event,
                 $this->serializer->serialize($event)

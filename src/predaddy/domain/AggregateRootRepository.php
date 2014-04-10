@@ -23,7 +23,6 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
 use Iterator;
 use precore\lang\Object;
 use predaddy\messagehandling\MessageBus;
@@ -53,27 +52,35 @@ abstract class AggregateRootRepository extends Object implements Repository
     }
 
     /**
+     * Implements the concrete save functionality.
+     *
+     * If AR is versioned, $version can be used for locking.
+     *
+     * In some cases version field in events can be set by the AR, but in other cases
+     * they should be set by the repository itself since the correct version
+     * might not accessible in the AR.
+     *
      * @param AggregateRoot $aggregateRoot
      * @param Iterator $events
-     * @param int $version
+     * @param int|null $version
      * @return void
      */
     abstract protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version);
 
     /**
      * @param AggregateRoot $aggregateRoot
-     * @param int $version
+     * @param int|null $version
      */
-    public function save(AggregateRoot $aggregateRoot, $version)
+    public function save(AggregateRoot $aggregateRoot, $version = null)
     {
         $events = $aggregateRoot->getAndClearRaisedEvents();
-        $modifiedEvents = array();
         foreach ($events as $event) {
-            AbstractDomainEventInitializer::init($event, $aggregateRoot->getId(), $version);
-            $this->getEventBus()->post($event);
-            $modifiedEvents[] = $event;
+            AbstractDomainEventInitializer::initAggregateId($event, $aggregateRoot->getId());
         }
-        $this->innerSave($aggregateRoot, new ArrayIterator($modifiedEvents), $version);
+        $this->innerSave($aggregateRoot, $events, $version);
+        foreach ($events as $event) {
+            $this->getEventBus()->post($event);
+        }
     }
 
     /**

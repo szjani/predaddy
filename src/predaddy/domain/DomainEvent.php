@@ -40,7 +40,7 @@ interface DomainEvent extends Event
     public function getAggregateId();
 
     /**
-     * @return int
+     * @return int|null
      */
     public function getVersion();
 }

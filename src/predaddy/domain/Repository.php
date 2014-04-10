@@ -44,7 +44,7 @@ interface Repository
      * Events raised in $aggregateRoot should be posted to the domain event bus.
      *
      * @param AggregateRoot $aggregateRoot
-     * @param int $version 0 means $aggregateRoot is new, otherwise it's already persisted and update needed
+     * @param int|null null means explicit version check is not necessary
      */
-    public function save(AggregateRoot $aggregateRoot, $version);
+    public function save(AggregateRoot $aggregateRoot, $version = null);
 }

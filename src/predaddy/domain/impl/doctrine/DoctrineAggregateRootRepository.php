@@ -28,6 +28,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Iterator;
 use precore\lang\ObjectClass;
+use predaddy\domain\AbstractDomainEventInitializer;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\ClassBasedAggregateRootRepository;
@@ -36,6 +37,8 @@ use predaddy\messagehandling\MessageBus;
 /**
  * Generic repository class based on Doctrine ORM.
  * Should be used as a base class for repositories.
+ *
+ * Using a version field in AR for optimistic locking is mandatory.
  *
  * @package predaddy\domain\impl\doctrine
  *
@@ -105,17 +108,32 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     /**
      * @param AggregateRoot $aggregateRoot
      * @param Iterator $events
-     * @param int $version
+     * @param int|null $version
      * @return void
-     * @SuppressWarnings(PHPMD)
      */
     protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
     {
         $entityManager = $this->getEntityManager();
         if ($version == 0) {
             $entityManager->persist($aggregateRoot);
-        } else {
+        }
+        if ($version !== null) {
             $entityManager->lock($aggregateRoot, $this->lockMode, $version);
         }
+        $this->initVersionFields($events, $this->currentVersion($aggregateRoot));
+    }
+
+    protected function initVersionFields(Iterator $events, $version)
+    {
+        foreach ($events as $event) {
+            AbstractDomainEventInitializer::initVersion($event, (int) $version);
+        }
+    }
+
+    protected function currentVersion(AggregateRoot $aggregateRoot)
+    {
+        /* @var $class \Doctrine\ORM\Mapping\ClassMetadata */
+        $class = $this->getEntityManager()->getClassMetadata($aggregateRoot->getClassName());
+        return $class->reflFields[$class->versionField]->getValue($aggregateRoot);
     }
 }

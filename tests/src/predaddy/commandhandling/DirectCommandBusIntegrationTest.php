@@ -141,13 +141,13 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $decremented = 0;
         $this->eventBus->registerClosure(
             function (DecrementedEvent $event) use (&$decremented, $aggregateId) {
-                DirectCommandBusIntegrationTest::assertNotEquals(0, $event->getVersion());
+                DirectCommandBusIntegrationTest::assertTrue($event->getVersion() !== null && 0 < $event->getVersion());
                 DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
                 $decremented++;
             }
         );
-        $this->commandBus->post(new Decrement($aggregateId->getValue(), 3));
-        $this->commandBus->post(new Decrement($aggregateId->getValue(), 4));
+        $this->commandBus->post(new Decrement($aggregateId->getValue()));
+        $this->commandBus->post(new Decrement($aggregateId->getValue()));
         self::assertEquals(2, $decremented);
     }
 }

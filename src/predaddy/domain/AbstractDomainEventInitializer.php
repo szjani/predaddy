@@ -30,10 +30,16 @@ namespace predaddy\domain;
  */
 abstract class AbstractDomainEventInitializer extends AbstractDomainEvent
 {
-    public static function init(DomainEvent $event, AggregateId $aggregateId, $originatedVersion)
+    public static function initAggregateId(DomainEvent $event, AggregateId $aggregateId)
     {
         if ($event instanceof AbstractDomainEvent) {
             $event->aggregateId = $aggregateId;
+        }
+    }
+
+    public static function initVersion(DomainEvent $event, $originatedVersion)
+    {
+        if ($event instanceof AbstractDomainEvent && $originatedVersion !== null) {
             $event->version = $event->calculateNewVersion($originatedVersion);
         }
     }

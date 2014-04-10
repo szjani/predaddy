@@ -34,7 +34,7 @@ interface SnapshotStrategy
 {
     /**
      * @param EventSourcedAggregateRoot $aggregateRoot
-     * @param int $originalVersion
+     * @param int|null $originalVersion
      * @return boolean
      */
     public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion);

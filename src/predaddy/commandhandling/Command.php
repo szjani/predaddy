@@ -47,7 +47,7 @@ interface Command extends Message
     public function getAggregateId();
 
     /**
-     * @return int 0 if it is a create command
+     * @return null|int null means no explicit version check is being triggered
      */
     public function getVersion();
 }

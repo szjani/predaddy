@@ -48,7 +48,9 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
             $aggregateId = new NullAggregateId();
         }
         $this->aggregateId = $aggregateId;
-        $this->version = $this->calculateNewVersion($originatedVersion);
+        $this->version = $originatedVersion === null
+            ? null
+            : $this->calculateNewVersion($originatedVersion);
     }
 
     protected function calculateNewVersion($originatedVersion)
@@ -65,11 +67,11 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
     }
 
     /**
-     * @return int
+     * @return int|null
      */
     public function getVersion()
     {
-        return (int) $this->version;
+        return $this->version;
     }
 
     protected function toStringHelper()

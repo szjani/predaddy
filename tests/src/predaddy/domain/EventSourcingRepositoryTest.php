@@ -109,6 +109,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             ->will(
                 self::returnCallback(
                     function ($className, Iterator $events, $getVersion) use ($version) {
+                        $events->rewind();
                         EventSourcingRepositoryTest::assertEquals($version, $getVersion);
                         EventSourcingRepositoryTest::assertEquals(EventSourcedUser::className(), $className);
                         EventSourcingRepositoryTest::assertInstanceOf(UserCreated::className(), $events->current());
@@ -205,7 +206,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testSetVersionAndAggregateIdFields()
     {
-        $createCommand = new CreateEventSourcedUser();
+        $createCommand = new CreateEventSourcedUser(null, 0);
         $user = new EventSourcedUser($createCommand);
         $userId = null;
         $version = null;
@@ -215,7 +216,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
                 $version = $event->getVersion();
             }
         );
-        $this->repository->save($user, 0);
+        $this->repository->save($user);
         self::assertNotNull($userId);
         self::assertEquals(1, $version);
 
@@ -228,6 +229,6 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
         $user->decrement(new Decrement());
         $this->repository->save($user, 1);
         self::assertNotNull($userId);
-        self::assertEquals(2, $version);
+        self::assertNull($version, 'Command does not contain the version and no transaction synchronization');
     }
 }

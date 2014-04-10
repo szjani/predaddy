@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012-2014 Szurovecz János
+ * Copyright (c) 2013 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,45 +21,10 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\impl\doctrine\entities;
 
-use precore\lang\Enum;
+use predaddy\domain\AbstractDomainEvent;
 
-class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
+class UserCreated extends AbstractDomainEvent
 {
-    /**
-     * @var TrivialSnapshotStrategy
-     */
-    public static $ALWAYS;
-
-    /**
-     * @var TrivialSnapshotStrategy
-     */
-    public static $NEVER;
-
-    private $snapshotRequired;
-
-    protected static function constructorArgs()
-    {
-        return array(
-            'ALWAYS' => array(true),
-            'NEVER' => array(false)
-        );
-    }
-
-    protected function __construct($snapshotRequired)
-    {
-        $this->snapshotRequired = $snapshotRequired;
-    }
-
-    /**
-     * @param EventSourcedAggregateRoot $aggregateRoot
-     * @param int|null $originalVersion
-     * @return boolean
-     */
-    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion)
-    {
-        return $this->snapshotRequired;
-    }
 }
-TrivialSnapshotStrategy::init();

@@ -30,7 +30,7 @@ interface EventStore
     /**
      * @param string $aggregateRootClass FQCN
      * @param Iterator $events
-     * @param $originatingVersion
+     * @param int|null $originatingVersion
      * @return void
      */
     public function saveChanges($aggregateRootClass, Iterator $events, $originatingVersion);

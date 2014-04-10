@@ -21,70 +21,68 @@
  * SOFTWARE.
  */
 
-namespace predaddy\commandhandling;
+namespace predaddy\domain\impl\doctrine\entities;
 
-use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultAggregateId;
-use predaddy\messagehandling\AbstractMessage;
+use precore\lang\ObjectInterface;
+use precore\util\UUID;
+use predaddy\domain\AbstractAggregateRoot;
+use predaddy\domain\UUIDAggregateId;
+use predaddy\messagehandling\annotation\Subscribe;
+use Doctrine\ORM\Mapping as ORM;
+
+require_once 'UserCreated.php';
+require_once 'IncrementedEvent.php';
 
 /**
- * Base class for all types of commands. Contains the command identifier and timestamp.
+ * Description of User
  *
  * @author Szurovecz János <szjani@szjani.hu>
+ * @ORM\Entity
  */
-abstract class AbstractCommand extends AbstractMessage implements Command
+class User extends AbstractAggregateRoot
 {
-    /**
-     * @var string|null
-     */
-    protected $aggregateId;
+    const DEFAULT_VALUE = 1;
 
     /**
-     * @var int|null
+     * @ORM\Id
+     * @ORM\Column(type="string")
+     * @var UUIDAggregateId
      */
-    protected $version;
+    private $id;
 
     /**
-     * @param string|null $aggregateId
-     * @param int|null $version
+     * @ORM\Column(type="integer")
+     * @var int
      */
-    public function __construct($aggregateId = null, $version = null)
+    public $value = self::DEFAULT_VALUE;
+
+    /**
+     * @ORM\Version
+     * @ORM\Column(type="integer")
+     * @var int
+     */
+    private $version = 0;
+
+    public function __construct()
     {
-        parent::__construct();
-        $this->aggregateId = $aggregateId;
-        $this->version = $version;
+        $id = new UUIDAggregateId(UUID::randomUUID());
+        $this->id = $id->getValue();
+        $this->raise(new UserCreated());
     }
 
-    /**
-     * Returns the identifier of this command.
-     *
-     * @return string
-     */
-    public function getCommandIdentifier()
+    public function getId()
     {
-        return $this->getMessageIdentifier();
+        return new UUIDAggregateId(UUID::fromString($this->id));
     }
 
-    /**
-     * @return null|AggregateId|DefaultAggregateId
-     */
-    public function getAggregateId()
-    {
-        return $this->aggregateId === null ? null : new DefaultAggregateId($this->aggregateId);
-    }
-
-    /**
-     * @return int|null
-     */
     public function getVersion()
     {
         return $this->version;
     }
 
-    protected function toStringHelper()
+    public function increment()
     {
-        return parent::toStringHelper()
-            ->add('aggregateId', $this->aggregateId)
-            ->add('version', $this->version);
+        $this->value++;
+        $this->raise(new IncrementedEvent());
     }
 }

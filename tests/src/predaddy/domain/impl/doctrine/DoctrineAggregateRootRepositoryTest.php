@@ -27,7 +27,10 @@ use Doctrine\DBAL\LockMode;
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
 use precore\util\UUID;
+use predaddy\domain\DomainEvent;
+use predaddy\domain\IncrementedEvent;
 use predaddy\domain\User;
+use predaddy\domain\UserCreated;
 use predaddy\domain\UUIDAggregateId;
 
 require_once __DIR__ . '/../../User.php';
@@ -51,12 +54,21 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $this->entityManager = $this->getMock('Doctrine\ORM\EntityManagerInterface');
         $this->eventBus = $this->getMock('\predaddy\messagehandling\MessageBus');
-        $this->repository = new DoctrineAggregateRootRepository(
-            $this->eventBus,
-            ObjectClass::forName(self::AR_CLASS),
-            $this->entityManager,
-            $this->lockMode
+        $this->repository = $this->getMock(
+            DoctrineAggregateRootRepository::className(),
+            array('currentVersion'),
+            array(
+                $this->eventBus,
+                ObjectClass::forName(self::AR_CLASS),
+                $this->entityManager,
+                $this->lockMode
+            )
         );
+
+        $this->repository
+            ->expects(self::any())
+            ->method('currentVersion')
+            ->will(self::returnValue(1));
     }
 
     public function testLockMode()
@@ -69,7 +81,7 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function persistNewAggregate()
     {
-        $version = 0;
+        $version = null;
         $aggregateRoot = new User();
 
         $this->entityManager
@@ -135,5 +147,35 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
             ->will(self::returnValue(null));
 
         $this->repository->load(new UUIDAggregateId(UUID::randomUUID()));
+    }
+
+    /**
+     * @test
+     */
+    public function versionMustBeSet()
+    {
+        $user = new User();
+        $user->increment();
+        $events = array();
+        $this->eventBus
+            ->expects(self::exactly(2))
+            ->method('post')
+            ->will(
+                self::returnCallback(
+                    function (DomainEvent $event) use (&$events) {
+                        $events[] = $event;
+                    }
+                )
+            );
+        $this->repository->save($user);
+        /* @var $createdEvent UserCreated */
+        $createdEvent = $events[0];
+        /* @var $incrementedEvent IncrementedEvent */
+        $incrementedEvent = $events[1];
+        self::assertInstanceOf(UserCreated::className(), $createdEvent);
+        self::assertInstanceOf(IncrementedEvent::className(), $incrementedEvent);
+
+        self::assertNotNull($createdEvent->getVersion());
+        self::assertNotNull($incrementedEvent->getVersion());
     }
 }
