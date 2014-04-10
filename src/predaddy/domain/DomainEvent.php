@@ -32,15 +32,10 @@ use predaddy\eventhandling\Event;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface DomainEvent extends Event
+interface DomainEvent extends Event, Versionable
 {
     /**
      * @return AggregateId
      */
     public function getAggregateId();
-
-    /**
-     * @return int|null
-     */
-    public function getVersion();
 }

@@ -31,7 +31,7 @@ namespace predaddy\domain;
 interface Versionable
 {
     /**
-     * @return int
+     * @return int|null
      */
     public function getVersion();
 }
