@@ -80,7 +80,7 @@ abstract class AggregateRootRepository extends Object implements Repository
         }
         $this->innerSave($aggregateRoot, $events, $version);
         foreach ($events as $event) {
-            $this->getEventBus()->post($event);
+            $this->eventBus->post($event);
         }
     }
 
