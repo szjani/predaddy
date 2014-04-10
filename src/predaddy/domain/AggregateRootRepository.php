@@ -74,8 +74,9 @@ abstract class AggregateRootRepository extends Object implements Repository
     public function save(AggregateRoot $aggregateRoot, $version = null)
     {
         $events = $aggregateRoot->getAndClearRaisedEvents();
+        $aggregateId = $aggregateRoot->getId();
         foreach ($events as $event) {
-            AbstractDomainEventInitializer::initAggregateId($event, $aggregateRoot->getId());
+            AbstractDomainEventInitializer::initAggregateId($event, $aggregateId);
         }
         $this->innerSave($aggregateRoot, $events, $version);
         foreach ($events as $event) {

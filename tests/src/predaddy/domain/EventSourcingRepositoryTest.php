@@ -186,7 +186,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
         $aggregateId = new UUIDAggregateId(UUID::randomUUID());
         $aggregateRoot = $this->getMock(EventSourcedUser::className(), array('getId'), array(), '', false);
         $aggregateRoot
-            ->expects(self::once())
+            ->expects(self::any())
             ->method('getId')
             ->will(self::returnValue($aggregateId));
 
