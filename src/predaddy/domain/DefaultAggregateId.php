@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use precore\lang\Object;
+use precore\lang\ObjectInterface;
 use precore\util\Objects;
 
 class DefaultAggregateId extends Object implements AggregateId
@@ -54,5 +55,11 @@ class DefaultAggregateId extends Object implements AggregateId
         return Objects::toStringHelper($this)
             ->add('value', $this->value)
             ->toString();
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self
+            && $this->getValue() == $object->getValue();
     }
 }
