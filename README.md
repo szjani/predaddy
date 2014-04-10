@@ -5,10 +5,10 @@ predaddy
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/ad36fc7a-f48d-4919-b20d-90eae34aecd9/mini.png)](https://insight.sensiolabs.com/projects/ad36fc7a-f48d-4919-b20d-90eae34aecd9)
 [![Gitter chat](https://badges.gitter.im/szjani/predaddy.png)](https://gitter.im/szjani/predaddy)
 
-|master|1.2|2.0|2.1|
+|master|1.2|2.1|2.2|
 |------|---|---|---|
-|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy)|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.0)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.1)](https://travis-ci.org/szjani/predaddy)|
-|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.0)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.1)](https://coveralls.io/r/szjani/predaddy?branch=2.1)|
+|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=master)](https://travis-ci.org/szjani/predaddy)|[![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=1.2)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.1)](https://travis-ci.org/szjani/predaddy)| [![Build Status](https://travis-ci.org/szjani/predaddy.png?branch=2.2)](https://travis-ci.org/szjani/predaddy)|
+|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master)](https://coveralls.io/r/szjani/predaddy?branch=master)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2)](https://coveralls.io/r/szjani/predaddy?branch=1.2)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.0)](https://coveralls.io/r/szjani/predaddy?branch=2.1)|[![Coverage Status](https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.1)](https://coveralls.io/r/szjani/predaddy?branch=2.2)|
 
 It is a library which gives you some usable classes to be able to use common DDD patterns. Some predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
 I have got several ideas from [Google's Guava EventBus](http://code.google.com/p/guava-libraries/wiki/EventBusExplained) and [Axon framework](http://www.axonframework.org/).
@@ -23,27 +23,35 @@ Components
 
 For more details see the components:
 
-1. #### [Message handling](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/messagehandling#messagebus)
+1. #### [Message handling](https://github.com/szjani/predaddy/tree/2.2/src/predaddy/messagehandling#messagebus)
 
    It's an annotation based publish/subscribe implementation, can be used any projects even without DDD/CQRS/Event Sourcing.
 
-2. #### [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/domain#cqrs--event-sourcing)
+2. #### [CQRS and Event Sourcing](https://github.com/szjani/predaddy/tree/2.2/src/predaddy/domain#cqrs--event-sourcing)
 
    Complex solution for handling aggregates, based on the message handling component.
 
-3. #### [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/presentation#paginator-components)
+3. #### [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/2.2/src/predaddy/presentation#paginator-components)
 
    Common classes and interfaces for handling the read side. It also can be used in any applications.
 
 Examples
 --------
 
-You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/2.1/tests/src/sample).
+You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/2.2/tests/src/sample).
 
 A sample project is also available which shows how predaddy should be configured and used: https://github.com/szjani/predaddy-issuetracker-sample
 
 History
 -------
+
+### 2.2
+ - Explicit locking is optional. If the version in a `Command` instance is null, no explicit locking is going to be triggered. Useful for background, serialized jobs.
+ - `DoctrineAggregateRootRepository` supports unversioned entities.
+ - If a domain event extends `AbstractDomainEvent` and `DoctrineAggregateRootRepository` or `EventSourcingRepository` is being used,
+   $aggregateId and $version parameters can be omitted during object construction in ARs. Both repository implementations automatically
+   set these values.
+ - `Versionable` interface can be implemented in domain objects. It can be useful in repositories.
 
 ### 2.1
  - [Prioritized handlers](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/messagehandling#handler-prioritization) -
