@@ -25,6 +25,7 @@ namespace predaddy\domain\impl\doctrine;
 
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use InvalidArgumentException;
 use Iterator;
 use precore\lang\ObjectClass;
@@ -32,6 +33,7 @@ use predaddy\domain\AbstractDomainEventInitializer;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\ClassBasedAggregateRootRepository;
+use predaddy\domain\Versionable;
 use predaddy\messagehandling\MessageBus;
 
 /**
@@ -120,7 +122,10 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
         if ($version !== null) {
             $entityManager->lock($aggregateRoot, $this->lockMode, $version);
         }
-        $this->initVersionFields($events, $this->currentVersion($aggregateRoot));
+        $currentVersion = $this->currentVersion($aggregateRoot);
+        if ($currentVersion !== null) {
+            $this->initVersionFields($events, $currentVersion);
+        }
     }
 
     protected function initVersionFields(Iterator $events, $version)
@@ -132,8 +137,15 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
 
     protected function currentVersion(AggregateRoot $aggregateRoot)
     {
-        /* @var $class \Doctrine\ORM\Mapping\ClassMetadata */
-        $class = $this->getEntityManager()->getClassMetadata($aggregateRoot->getClassName());
-        return $class->reflFields[$class->versionField]->getValue($aggregateRoot);
+        $version = null;
+        if ($aggregateRoot instanceof Versionable) {
+            $version = $aggregateRoot->getVersion();
+        } else {
+            $class = $this->getEntityManager()->getClassMetadata($aggregateRoot->getClassName());
+            if ($class instanceof ClassMetadata) {
+                $version = $class->reflFields[$class->versionField]->getValue($aggregateRoot);
+            }
+        }
+        return $version;
     }
 }
