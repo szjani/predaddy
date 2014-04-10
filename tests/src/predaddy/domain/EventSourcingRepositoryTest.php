@@ -184,13 +184,25 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
     public function snapshotShouldBeCreated()
     {
         $aggregateId = new UUIDAggregateId(UUID::randomUUID());
-        $aggregateRoot = $this->getMock(EventSourcedUser::className(), array('getId'), array(), '', false);
+        $aggregateRoot = $this->getMock(
+            EventSourcedUser::className(),
+            array('getId', 'getAndClearRaisedEvents'),
+            array(),
+            '',
+            false
+        );
         $aggregateRoot
             ->expects(self::any())
             ->method('getId')
             ->will(self::returnValue($aggregateId));
 
         $events = new ArrayIterator(array(new IncrementedEvent($aggregateId, 1)));
+
+        $aggregateRoot
+            ->expects(self::once())
+            ->method('getAndClearRaisedEvents')
+            ->will(self::returnValue($events));
+
         $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
         $eventStore
             ->expects(self::once())

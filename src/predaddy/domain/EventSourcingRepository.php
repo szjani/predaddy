@@ -101,14 +101,22 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
         return $aggregate;
     }
 
+    /**
+     * @param AggregateRoot $aggregateRoot
+     * @param Iterator $events
+     * @param int|null $version
+     */
     protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
     {
         $aggregateRootClass = $this->getAggregateRootClass();
         $this->eventStore->saveChanges($aggregateRootClass->getName(), $events, $version);
-        if ($this->eventStore instanceof SnapshotEventStore
-            && $this->snapshotStrategy->snapshotRequired($aggregateRoot, $version)) {
-
-            $this->eventStore->createSnapshot($aggregateRootClass->getName(), $aggregateRoot->getId());
+        if ($this->eventStore instanceof SnapshotEventStore) {
+            $events->rewind();
+            $firstEvent = $events->current();
+            if ($firstEvent !== null
+                && $this->snapshotStrategy->snapshotRequired($aggregateRoot, $firstEvent->getVersion())) {
+                $this->eventStore->createSnapshot($aggregateRootClass->getName(), $aggregateRoot->getId());
+            }
         }
     }
 }
