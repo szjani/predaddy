@@ -52,6 +52,7 @@ History
    $aggregateId and $version parameters can be omitted during object construction in ARs. Both repository implementations automatically
    set these values.
  - `Versionable` interface can be implemented in domain objects. It can be useful in repositories.
+ - `MessageCallbackClosures` class added to easily create a `MessageCallback` object.
 
 ### 2.1
  - [Prioritized handlers](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/messagehandling#handler-prioritization) -
