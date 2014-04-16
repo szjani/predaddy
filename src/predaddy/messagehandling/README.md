@@ -179,12 +179,15 @@ use predaddy\messagehandling\annotation\Subscribe;
 It's possible to extend bus behaviour when messages are being dispatched to message handlers. `HandlerInterceptor` objects wrap
 the concrete dispatch process and are able to modify that. It is usable for logging, transactions, etc.
 
-There are two builtin interceptors:
+There are three builtin interceptors:
 
  - `WrapInTransactionInterceptor`: All message dispatch processes will be wrapped in a new transaction.
  - `TransactionSynchronizedBuffererInterceptor`: Message dispatching is synchronized to transactions which means that if there is an already started transaction
  then messages are being buffered until the transaction is being committed. If the transaction is not successful then buffer is being cleared after rollback without sending out any messages.
  Without an already started transaction buffering is disabled.
+ - `MonitoringInterceptor`: Catches all exceptions thrown by the message handlers and sends an `ErrorMessage` to the given `MessageBus` which contains both the exception and the original message.
+ You can create a monitoring tool if you persist these errors and you have the chance to easily re-post the messages after you have fixed a bug in your application.
+
 
 Both interceptors above use [trf4php](https://github.com/szjani/trf4php). If you want to use them, you will need a trf4php implementation (eg. [tf4php-doctrine](https://github.com/szjani/trf4php-doctrine)).
 

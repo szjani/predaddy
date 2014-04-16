@@ -53,6 +53,7 @@ History
    set these values.
  - `Versionable` interface can be implemented in domain objects. It can be useful in repositories.
  - `MessageCallbackClosures` class added to easily create a `MessageCallback` object.
+ - `MonitoringInterceptor` is a new way to get exceptions thrown by message handlers.
 
 ### 2.1
  - [Prioritized handlers](https://github.com/szjani/predaddy/tree/2.1/src/predaddy/messagehandling#handler-prioritization) -
