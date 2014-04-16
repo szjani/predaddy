@@ -19,7 +19,7 @@ You can use annotations to define message handler methods with the following con
 $bus = new SimpleMessageBus(
     new AnnotatedMessageHandlerDescriptorFactory(
         new DefaultFunctionDescriptorFactory()
-    ),
+    )
 );
 ```
 
@@ -89,6 +89,24 @@ $bus->registerClosure($closure);
 
 ```php
 $bus->post(new SampleMessage1());
+```
+
+In some cases handlers have return value or it is more common that they throw exceptions. In order to be notified about
+these things it is possible to pass a second argument, a `MessageCallback` object to the `MessageBus::post()` method. The appropriate
+method on this object will be called if any of the above happens.
+
+```php
+$bus->post(new SampleMessage1(), $messageCallback);
+```
+
+To ease of create such a `MessageCallback` object, `MessageCallbackClosures` provides a simple and powerful way to build a callback
+object based on Closures.
+
+```php
+$messageCallback = MessageCallbackClosures::builder()
+    ->successClosure($callback1)
+    ->failureClosure($callback2)
+    ->build();
 ```
 
 ### Handler prioritization
