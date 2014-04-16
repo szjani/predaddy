@@ -43,9 +43,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $functionDescriptorFactory = new DefaultFunctionDescriptorFactory();
-        $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
-        $this->bus = new SimpleMessageBus($handlerDescriptorFactory);
+        $this->bus = MessageBusObjectMother::createAnnotatedBus();
     }
 
     public function testTwoHandlerPost()

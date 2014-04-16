@@ -29,17 +29,9 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 
 class ClosureTest extends PHPUnit_Framework_TestCase
 {
-    private function createSimpleMessageBus()
-    {
-        $functionDescriptorFactory = new DefaultFunctionDescriptorFactory();
-        $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
-        $bus = new SimpleMessageBus($handlerDescriptorFactory);
-        return $bus;
-    }
-
     public function testClosure()
     {
-        $bus = $this->createSimpleMessageBus();
+        $bus = MessageBusObjectMother::createAnnotatedBus();
         $calledF1 = 0;
         $calledF2 = 0;
         $closure1 = function (SimpleMessage $message) use (&$calledF1) {
@@ -68,7 +60,7 @@ class ClosureTest extends PHPUnit_Framework_TestCase
 
     public function testNotThrownException()
     {
-        $bus = $this->createSimpleMessageBus();
+        $bus = MessageBusObjectMother::createAnnotatedBus();
         $called = false;
         $closure = function (SimpleMessage $message) use (&$called) {
             $called = true;
