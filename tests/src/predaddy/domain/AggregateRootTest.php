@@ -25,10 +25,6 @@ namespace predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
 
-require_once __DIR__ . '/User.php';
-require_once __DIR__ . '/IncrementedEvent.php';
-require_once __DIR__ . '/UserCreated.php';
-
 /**
  * Description of AggregateRootTest
  *

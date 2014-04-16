@@ -14,8 +14,6 @@ use predaddy\messagehandling\SimpleMessage;
 use predaddy\messagehandling\SimpleMessageBusTest;
 use predaddy\messagehandling\SimpleMessageHandler;
 
-require_once __DIR__ . '/../SimpleMessageBusTest.php';
-
 /**
  * Description of Mf4PhpMessageBusTest
  *

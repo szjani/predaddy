@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-require_once 'SimpleMessage.php';
-
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;

@@ -26,10 +26,6 @@ namespace predaddy\domain;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\Subscribe;
 
-require_once 'UserCreated.php';
-require_once 'IncrementedEvent.php';
-require_once 'DecrementedEvent.php';
-
 /**
  * Description of User
  *

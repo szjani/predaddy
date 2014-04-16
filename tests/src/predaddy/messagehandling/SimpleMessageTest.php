@@ -25,8 +25,6 @@ namespace predaddy\messagehandling;
 
 use PHPUnit_Framework_TestCase;
 
-require_once 'SimpleMessage.php';
-
 class SimpleMessageTest extends PHPUnit_Framework_TestCase
 {
     public function testToString()

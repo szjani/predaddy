@@ -43,14 +43,6 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 use predaddy\messagehandling\SimpleMessageBusFactory;
 use trf4php\doctrine\DoctrineTransactionManager;
 
-require_once __DIR__ . '/../domain/EventSourcedUser.php';
-require_once __DIR__ . '/../domain/IncrementedEvent.php';
-require_once __DIR__ . '/../domain/DecrementedEvent.php';
-require_once __DIR__ . '/../domain/UserCreated.php';
-require_once __DIR__ . '/../domain/CreateEventSourcedUser.php';
-require_once __DIR__ . '/../domain/Increment.php';
-require_once __DIR__ . '/../domain/Decrement.php';
-
 /**
  * Class DirectCommandBusIntegrationTest
  *

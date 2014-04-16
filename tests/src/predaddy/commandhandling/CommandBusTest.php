@@ -29,9 +29,6 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use RuntimeException;
 
-require_once 'SimpleCommand.php';
-require_once __DIR__ . '/../domain/EventSourcedUser.php';
-
 class CommandBusTest extends PHPUnit_Framework_TestCase
 {
     private $tm;

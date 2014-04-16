@@ -29,9 +29,6 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 use RuntimeException;
 use trf4php\NOPTransactionManager;
 
-require_once 'SimpleCommand.php';
-require_once __DIR__ . '/../domain/EventSourcedUser.php';
-
 class DirectCommandBusTest extends PHPUnit_Framework_TestCase
 {
     private $handlerDescFact;

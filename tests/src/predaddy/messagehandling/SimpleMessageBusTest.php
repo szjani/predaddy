@@ -29,14 +29,6 @@ use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use RuntimeException;
 
-require_once 'SimpleMessage.php';
-require_once 'SimpleMessageHandler.php';
-require_once 'AllMessageHandler.php';
-require_once 'DeadMessageHandler.php';
-require_once 'MultipleSameMessageHandler.php';
-require_once 'PrioritizedHandler1.php';
-require_once 'PrioritizedHandler2.php';
-
 /**
  * Description of DirectEventBusTest
  *

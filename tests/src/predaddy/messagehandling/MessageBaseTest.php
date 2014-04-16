@@ -26,8 +26,6 @@ namespace predaddy\messagehandling;
 use DateTime;
 use PHPUnit_Framework_TestCase;
 
-require_once 'SimpleMessage.php';
-
 /**
  * Description of EventBaseTest
  *

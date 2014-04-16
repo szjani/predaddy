@@ -26,8 +26,6 @@ namespace predaddy\eventhandling;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 
-require_once 'SimpleEvent.php';
-
 class EventBusTest extends PHPUnit_Framework_TestCase
 {
     public function testNoHandler()

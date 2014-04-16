@@ -26,8 +26,6 @@ namespace predaddy\messagehandling\mf4php;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\SimpleMessage;
 
-require_once __DIR__ . '/../SimpleMessage.php';
-
 class MessageWrapperTest extends PHPUnit_Framework_TestCase
 {
     public function testSerialization()

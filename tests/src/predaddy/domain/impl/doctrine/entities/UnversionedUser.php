@@ -30,9 +30,6 @@ use predaddy\domain\UUIDAggregateId;
 use predaddy\messagehandling\annotation\Subscribe;
 use Doctrine\ORM\Mapping as ORM;
 
-require_once 'UserCreated.php';
-require_once 'IncrementedEvent.php';
-
 /**
  * Description of User
  *

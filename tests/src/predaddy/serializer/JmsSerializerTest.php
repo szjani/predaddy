@@ -25,8 +25,6 @@ namespace predaddy\serializer;
 
 use PHPUnit_Framework_TestCase;
 
-require_once 'TestClass.php';
-
 class JmsSerializerTest extends PHPUnit_Framework_TestCase
 {
     public function testSerialize()

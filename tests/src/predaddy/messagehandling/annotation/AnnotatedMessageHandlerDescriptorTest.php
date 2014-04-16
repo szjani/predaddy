@@ -29,10 +29,6 @@ use predaddy\messagehandling\AllMessageHandler;
 use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
 use predaddy\messagehandling\SimpleMessage;
 
-require_once __DIR__ . '/../SimpleMessage.php';
-require_once __DIR__ . '/../SimpleMessageHandler.php';
-require_once __DIR__ . '/../AllMessageHandler.php';
-
 /**
  * Description of EventHandlerConfigurationTest
  *

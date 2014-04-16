@@ -25,14 +25,6 @@ namespace predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
 
-require_once __DIR__ . '/EventSourcedUser.php';
-require_once __DIR__ . '/IncrementedEvent.php';
-require_once __DIR__ . '/DecrementedEvent.php';
-require_once __DIR__ . '/UserCreated.php';
-require_once __DIR__ . '/CreateEventSourcedUser.php';
-require_once __DIR__ . '/Increment.php';
-require_once __DIR__ . '/Decrement.php';
-
 class DefaultEventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 {
     public function testLoadFromHistory()

@@ -33,11 +33,6 @@ use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use trf4php\NOPTransactionManager;
 
-require_once 'EventSourcedUser.php';
-require_once __DIR__ . '/CreateEventSourcedUser.php';
-require_once __DIR__ . '/Increment.php';
-require_once __DIR__ . '/Decrement.php';
-
 class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
 {
     private $eventStore;

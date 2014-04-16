@@ -32,12 +32,6 @@ use predaddy\domain\CreateEventSourcedUser;
 use predaddy\domain\EventSourcedUser;
 use predaddy\domain\Increment;
 
-require_once __DIR__ . '/../../EventSourcedUser.php';
-require_once __DIR__ . '/../../IncrementedEvent.php';
-require_once __DIR__ . '/../../UserCreated.php';
-require_once __DIR__ . '/../../CreateEventSourcedUser.php';
-require_once __DIR__ . '/../../Increment.php';
-
 /**
  * Class DoctrineOrmEventStoreTest
  *

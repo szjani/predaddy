@@ -25,9 +25,6 @@ namespace predaddy\serializer;
 
 use PHPUnit_Framework_TestCase;
 
-require_once 'Foo.php';
-require_once 'Bar.php';
-
 class ReflectionSerializerTest extends PHPUnit_Framework_TestCase
 {
     public function testSerialize()

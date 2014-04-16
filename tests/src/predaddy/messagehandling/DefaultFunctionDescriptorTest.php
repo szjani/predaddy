@@ -27,8 +27,6 @@ use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 use ReflectionFunction;
 
-require_once 'SimpleMessage.php';
-
 class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
 {
     public function testIsHandlerFor()

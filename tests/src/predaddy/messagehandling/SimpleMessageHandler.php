@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-require_once 'AbstractMessageHandler.php';
-
 use predaddy\messagehandling\annotation\Subscribe;
 
 /**

@@ -33,8 +33,6 @@ use predaddy\domain\User;
 use predaddy\domain\UserCreated;
 use predaddy\domain\UUIDAggregateId;
 
-require_once __DIR__ . '/../../User.php';
-
 class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
 {
     const AR_CLASS = 'predaddy\domain\User';
