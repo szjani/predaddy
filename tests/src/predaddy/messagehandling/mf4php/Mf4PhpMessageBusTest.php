@@ -55,12 +55,12 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
         self::assertSame($event, $simpleEventHandler->lastMessage);
     }
 
-    public function testSuccessCallback()
+    public function successCallback()
     {
         self::markTestSkipped("Mf4phpMessageBus does not support MessageCallback!");
     }
 
-    public function testFailedCallback()
+    public function failedCallback()
     {
         self::markTestSkipped("Mf4phpMessageBus does not support MessageCallback!");
     }

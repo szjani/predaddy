@@ -23,9 +23,14 @@
 
 namespace predaddy\commandhandling;
 
+use Exception;
 use PHPUnit_Framework_TestCase;
+use precore\lang\Object;
+use precore\lang\ObjectClass;
 use predaddy\domain\EventSourcedUser;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\SimpleMessageBusFactory;
+use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
 use trf4php\NOPTransactionManager;
 
@@ -46,7 +51,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->handlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
         $this->transactionManager = new NOPTransactionManager();
         $this->repoRepo = $this->getMock('\predaddy\domain\RepositoryRepository');
-        $this->messageBusFactory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
+        $this->messageBusFactory = new SimpleMessageBusFactory($this->handlerDescFact);
         $this->bus = new DirectCommandBus(
             $this->handlerDescFact,
             $this->transactionManager,
@@ -80,12 +85,6 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldBeCalledIfNoExplicitHandler()
     {
-        $innerBus = $this->getMock('\predaddy\messagehandling\MessageBus');
-        $this->messageBusFactory
-            ->expects(self::once())
-            ->method('createBus')
-            ->with(EventSourcedUser::className())
-            ->will(self::returnValue($innerBus));
         $repo = $this->getMock('\predaddy\domain\Repository');
         $this->repoRepo
             ->expects(self::once())
@@ -99,9 +98,9 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldNotBeCalledIfExplicitHandler()
     {
-        $this->messageBusFactory
+        $this->repoRepo
             ->expects(self::never())
-            ->method('createBus');
+            ->method('getRepository');
         $this->bus->registerClosure(
             function (SimpleCommand $cmd) {
             }
@@ -114,14 +113,74 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldNotBeCalledIfHandlerThrowsException()
     {
-        $this->messageBusFactory
+        $this->repoRepo
             ->expects(self::never())
-            ->method('createBus');
+            ->method('getRepository');
         $this->bus->registerClosure(
             function (SimpleCommand $cmd) {
                 throw new RuntimeException('Expected exception');
             }
         );
         $this->bus->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function exceptionMustBePassedToCallback()
+    {
+        $aggRoot = new TestAggregate01();
+        $command = new ThrowException($aggRoot->getId()->getValue());
+        $repo = $this->getMock('\predaddy\domain\Repository');
+        $repo
+            ->expects(self::once())
+            ->method('load')
+            ->will(self::returnValue($aggRoot));
+        $this->repoRepo
+            ->expects(self::once())
+            ->method('getRepository')
+            ->with(ObjectClass::forName($command->getAggregateClass()))
+            ->will(self::returnValue($repo));
+
+        $exceptionThrown = false;
+        $callback = MessageCallbackClosures::builder()
+            ->failureClosure(
+                function (Exception $exp) use (&$exceptionThrown) {
+                    $exceptionThrown = true;
+                }
+            )
+            ->build();
+        $this->bus->post($command, $callback);
+        self::assertTrue($exceptionThrown);
+    }
+
+    /**
+     * @test
+     */
+    public function resultMustBePassedToCallback()
+    {
+        $aggRoot = new TestAggregate01();
+        $command = new ReturnResult($aggRoot->getId()->getValue());
+        $repo = $this->getMock('\predaddy\domain\Repository');
+        $repo
+            ->expects(self::once())
+            ->method('load')
+            ->will(self::returnValue($aggRoot));
+        $this->repoRepo
+            ->expects(self::once())
+            ->method('getRepository')
+            ->with(ObjectClass::forName($command->getAggregateClass()))
+            ->will(self::returnValue($repo));
+
+        $resultPassed = false;
+        $callback = MessageCallbackClosures::builder()
+            ->successClosure(
+                function ($result) use (&$resultPassed) {
+                    $resultPassed = $result === TestAggregate01::RESULT;
+                }
+            )
+            ->build();
+        $this->bus->post($command, $callback);
+//        self::assertTrue($resultPassed);
     }
 }

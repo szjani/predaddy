@@ -118,7 +118,10 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         self::assertSame($message, $simpleMessageHandler2->lastMessage);
     }
 
-    public function testSuccessCallback()
+    /**
+     * @test
+     */
+    public function successCallback()
     {
         $message = new SimpleMessage();
         $called = false;
@@ -137,7 +140,10 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         self::assertTrue($called);
     }
 
-    public function testFailedCallback()
+    /**
+     * @test
+     */
+    public function failedCallback()
     {
         $message = new SimpleMessage();
         $called = false;

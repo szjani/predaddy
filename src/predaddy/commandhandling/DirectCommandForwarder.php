@@ -23,12 +23,14 @@
 
 namespace predaddy\commandhandling;
 
+use Exception;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\RepositoryRepository;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageBusFactory;
+use predaddy\messagehandling\util\MessageCallbackClosures;
 
 /**
  * The responsibility of this class is to
@@ -79,6 +81,7 @@ class DirectCommandForwarder extends Object
 
     /**
      * @param DirectCommand $command
+     * @return mixed The return value of the last handler (should be one handler per aggregate)
      */
     protected function forwardCommand(DirectCommand $command)
     {
@@ -92,8 +95,22 @@ class DirectCommandForwarder extends Object
         }
         $forwarderBus = $this->messageBusFactory->createBus($class->getName());
         $forwarderBus->register($aggregate);
-        $forwarderBus->post($command);
+        $result = null;
+        $callback = MessageCallbackClosures::builder()
+            ->successClosure(
+                function ($res) use (&$result) {
+                    $result = $res;
+                }
+            )
+            ->failureClosure(
+                function (Exception $exp) {
+                    throw $exp;
+                }
+            )
+            ->build();
+        $forwarderBus->post($command, $callback);
         $repository->save($aggregate, $command->getVersion());
         self::getLogger()->info("Command [{}] has been applied", array($command));
+        return $result;
     }
 }
