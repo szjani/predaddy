@@ -292,4 +292,25 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         $this->bus->post(UUID::randomUUID(), $callback);
         self::assertTrue($exceptionPassed);
     }
+
+    /**
+     * @test
+     */
+    public function nonReturnValueMustNotBePassedToCallback()
+    {
+        $this->bus->registerClosure(
+            function (UUID $msg) {
+            }
+        );
+        $onSuccessCalled = 0;
+        $callback = MessageCallbackClosures::builder()
+            ->successClosure(
+                function ($result) use (&$onSuccessCalled) {
+                    $onSuccessCalled++;
+                }
+            )
+            ->build();
+        $this->bus->post(UUID::randomUUID(), $callback);
+        self::assertEquals(0, $onSuccessCalled);
+    }
 }

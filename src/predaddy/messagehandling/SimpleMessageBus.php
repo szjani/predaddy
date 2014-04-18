@@ -213,7 +213,7 @@ class SimpleMessageBus extends Object implements MessageBus
                 "The following message has been dispatched to handler '{}' through message bus '{}': {}",
                 array($callable, $this->identifier, $message)
             );
-            if ($callback !== null) {
+            if ($callback !== null && $result !== null) {
                 $callback->onSuccess($result);
             }
         } catch (Exception $e) {
