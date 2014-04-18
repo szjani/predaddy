@@ -23,10 +23,12 @@
 
 namespace predaddy\messagehandling;
 
+use Exception;
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
 
 /**
@@ -265,5 +267,29 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         $this->bus->post(new SimpleMessage());
 
         self::assertSame(array(6, 2, 1, -1), $order);
+    }
+
+    /**
+     * @test
+     */
+    public function exceptionInDeadMessageHandlerIsBeingPassedToCallback()
+    {
+        $deadMessageCalled = false;
+        $this->bus->registerClosure(
+            function (DeadMessage $deadMessage) use (&$deadMessageCalled) {
+                $deadMessageCalled = true;
+                throw new RuntimeException('Excepted exception');
+            }
+        );
+        $exceptionPassed = false;
+        $callback = MessageCallbackClosures::builder()
+            ->failureClosure(
+                function (Exception $exp) use (&$exceptionPassed) {
+                    $exceptionPassed = true;
+                }
+            )
+            ->build();
+        $this->bus->post(UUID::randomUUID(), $callback);
+        self::assertTrue($exceptionPassed);
     }
 }

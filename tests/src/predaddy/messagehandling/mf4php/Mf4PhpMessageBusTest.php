@@ -64,4 +64,9 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
     {
         self::markTestSkipped("Mf4phpMessageBus does not support MessageCallback!");
     }
+
+    public function exceptionInDeadMessageHandlerIsBeingPassedToCallback()
+    {
+        self::markTestSkipped("Mf4phpMessageBus does not support MessageCallback!");
+    }
 }

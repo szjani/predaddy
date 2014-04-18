@@ -194,7 +194,7 @@ class SimpleMessageBus extends Object implements MessageBus
                 "The following message as a DeadMessage has been posted to '{}' message bus: {}",
                 array($this->identifier, $message)
             );
-            $this->forwardMessage(new DeadMessage($message));
+            $this->forwardMessage(new DeadMessage($message), $callback);
         }
     }
 
