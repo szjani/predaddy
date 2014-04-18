@@ -181,6 +181,6 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
             )
             ->build();
         $this->bus->post($command, $callback);
-//        self::assertTrue($resultPassed);
+        self::assertTrue($resultPassed);
     }
 }

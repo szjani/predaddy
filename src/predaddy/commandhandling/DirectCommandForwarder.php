@@ -71,12 +71,13 @@ class DirectCommandForwarder extends Object
     /**
      * @Subscribe
      * @param DeadMessage $deadMessage
+     * @return mixed The return value of the last actual handler
      */
     public function catchDeadCommand(DeadMessage $deadMessage)
     {
         $innerMessage = $deadMessage->getMessage();
         ObjectClass::forName(__NAMESPACE__ . '\DirectCommand')->cast($innerMessage);
-        $this->forwardCommand($innerMessage);
+        return $this->forwardCommand($innerMessage);
     }
 
     /**
