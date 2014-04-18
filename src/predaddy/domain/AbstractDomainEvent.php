@@ -23,10 +23,6 @@
 
 namespace predaddy\domain;
 
-use DateTime;
-use InvalidArgumentException;
-use LazyMapTestAsset\NullLazyMap;
-use precore\util\Objects;
 use predaddy\eventhandling\AbstractEvent;
 
 /**

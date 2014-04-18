@@ -33,7 +33,6 @@ use predaddy\domain\AbstractDomainEventInitializer;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\ClassBasedAggregateRootRepository;
-use predaddy\domain\Versionable;
 use predaddy\messagehandling\MessageBus;
 
 /**

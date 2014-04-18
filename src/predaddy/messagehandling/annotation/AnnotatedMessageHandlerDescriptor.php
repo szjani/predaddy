@@ -24,8 +24,6 @@
 namespace predaddy\messagehandling\annotation;
 
 use Doctrine\Common\Annotations\Reader;
-use precore\lang\ObjectClass;
-use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptor;
 use ReflectionClass;

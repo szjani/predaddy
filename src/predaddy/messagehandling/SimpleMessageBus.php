@@ -30,7 +30,6 @@ use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use ReflectionFunction;
-use ReflectionMethod;
 use RuntimeException;
 use SplObjectStorage;
 use SplPriorityQueue;

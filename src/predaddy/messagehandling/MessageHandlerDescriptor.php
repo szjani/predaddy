@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use precore\lang\ObjectClass;
-
 /**
  * Finds and provide handler methods in the given message.
  *
