@@ -6,6 +6,7 @@
  */
 namespace predaddy\messagehandling\mf4php;
 
+use mf4php\DefaultQueue;
 use mf4php\memory\MemoryMessageDispatcher;
 use mf4php\ObjectMessage;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
@@ -21,13 +22,18 @@ use predaddy\messagehandling\SimpleMessageHandler;
  */
 class Mf4PhpMessageBusTest extends SimpleMessageBusTest
 {
+    /**
+     * @var MemoryMessageDispatcher
+     */
+    private $dispatcher;
+
     public function setUp()
     {
-        $dispatcher = new MemoryMessageDispatcher();
+        $this->dispatcher = new MemoryMessageDispatcher();
         $functionDescFactory = new DefaultFunctionDescriptorFactory();
         $this->bus = new Mf4PhpMessageBus(
             new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory),
-            $dispatcher
+            $this->dispatcher
         );
     }
 
@@ -68,5 +74,15 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
     public function exceptionInDeadMessageHandlerIsBeingPassedToCallback()
     {
         self::markTestSkipped("Mf4phpMessageBus does not support MessageCallback!");
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     */
+    public function postInvalidMessageToDispatcher()
+    {
+        $message = $this->getMock('\mf4php\Message');
+        $this->dispatcher->send(new DefaultQueue(Mf4PhpMessageBus::DEFAULT_NAME), $message);
     }
 }

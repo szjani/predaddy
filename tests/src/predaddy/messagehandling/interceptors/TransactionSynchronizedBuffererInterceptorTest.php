@@ -100,4 +100,14 @@ class TransactionSynchronizedBuffererInterceptorTest extends PHPUnit_Framework_T
         $this->interceptor->invoke($message2, $chain2);
         $this->interceptor->update($this->transactionManager, ObservableTransactionManager::POST_COMMIT);
     }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     */
+    public function transactionManagersMustBeTheSame()
+    {
+        $otherManager = $this->getMock('\trf4php\ObservableTransactionManager');
+        $this->interceptor->update($otherManager, ObservableTransactionManager::POST_BEGIN_TRANSACTION);
+    }
 }
