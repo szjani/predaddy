@@ -43,6 +43,13 @@ class MessageCallbackClosuresBuilder
     protected $onFailureClosure;
 
     /**
+     * Use builder() method instead.
+     */
+    protected function __construct()
+    {
+    }
+
+    /**
      * @param callable $closure
      * @return MessageCallbackClosuresBuilder $this
      */

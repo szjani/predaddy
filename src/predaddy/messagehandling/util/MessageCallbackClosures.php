@@ -45,13 +45,6 @@ use predaddy\messagehandling\MessageCallback;
 class MessageCallbackClosures extends MessageCallbackClosuresBuilder implements MessageCallback
 {
     /**
-     * Use builder() method instead.
-     */
-    protected function __construct()
-    {
-    }
-
-    /**
      * @return MessageCallbackClosuresBuilder
      */
     public static function builder()
