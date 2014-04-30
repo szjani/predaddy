@@ -1,11 +1,21 @@
 CQRS / Event Sourcing
 ---------------------
 
-There are two ways to handle commands:
- 1. Creating command handlers which must be implemented
- 2. Forwarding the commands directly to the aggregates
+### Commands and Events
 
-All commands store the ID of the aggregate which should be passed to, and the current version of the aggregate. The version is used for optimistic locking avoiding concurrency issues. If the command is a create command, ID and version field must be null and 0 correspondingly.
+It is required to implement `Command` interface in command and `DomainEvent` interface in domain event classes. Since these interfaces extend `ObjectInterface`, it is recommended to extend `Object` in your classes which can be also found in precore library.
+
+All commands store the ID of the aggregate which should be passed to, and the current version of the aggregate. Both parameters are optional. ID should be NULL if the purpose of the command is creating a new aggregate. The version field can be used to define which version of the aggregate the user has operated on. This check must be enforced by the repository. If you don't need it, just leave it when you instantiate the command class.
+
+These values also occur in domain event objects. If a domain event extends `AbstractDomainEvent` and `DoctrineAggregateRootRepository` or `EventSourcingRepository` is being used, ID and version parameters can be omitted during object construction in ARs unless you need to read them in that particular transaction. Both repository implementations automatically set these values during the persisting process.
+
+### Command handling
+
+There are two ways to handle commands:
+ 1. You create your own command handlers
+ 2. predaddy forwards all commands directly to the appropriate aggregate
+
+You can mix these ways. Even if your application is configured to use the second approach, you can register your own command handlers in order to override the builtin process.
 
 The CQRS example follows the first, the ES follows the second approach. The read storage synchronization is not part of the examples below.
 
