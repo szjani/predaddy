@@ -190,7 +190,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
 
     /**
      * @param $message
-     * @return \Iterator
+     * @return \Iterator|\Countable
      */
     protected function callableWrappersFor($message)
     {

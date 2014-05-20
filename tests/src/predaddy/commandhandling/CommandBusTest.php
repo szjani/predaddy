@@ -24,6 +24,7 @@
 namespace predaddy\commandhandling;
 
 use ArrayIterator;
+use Exception;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
@@ -138,5 +139,24 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
 
         $this->commandBus->post(new SimpleCommand(1, 1));
         self::assertFalse($called);
+    }
+
+    /**
+     * @test
+     * @expectedException \LogicException
+     */
+    public function multipleCommandHandlerMustCauseError()
+    {
+        $this->commandBus->registerClosure(
+            function (SimpleCommand $command) {
+                throw new Exception("Should not be thrown");
+            }
+        );
+        $this->commandBus->registerClosure(
+            function (SimpleCommand $command) {
+                throw new Exception("Should not be thrown");
+            }
+        );
+        $this->commandBus->post(new SimpleCommand());
     }
 }
