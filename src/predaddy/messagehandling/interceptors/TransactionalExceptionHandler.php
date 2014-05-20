@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2014 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,26 +21,39 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\interceptors;
 
-use Iterator;
+use Exception;
+use predaddy\messagehandling\SubscriberExceptionContext;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 
-interface EventStore
+/**
+ * @package predaddy\support
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class TransactionalExceptionHandler implements SubscriberExceptionHandler
 {
     /**
-     * @param string $aggregateRootClass FQCN
-     * @param Iterator $events
-     * @return void
+     * @var WrapInTransactionInterceptor
      */
-    public function saveChanges($aggregateRootClass, Iterator $events);
-
+    private $transactionInterceptor;
     /**
-     * Must be return all events stored to aggregate identified by $aggregateId and $type.
-     * Events must be ordered by the version field.
-     *
-     * @param string $aggregateRootClass FQCN
-     * @param AggregateId $aggregateId
-     * @return Iterator
+     * @var BlockerInterceptorManager
      */
-    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId);
+    private $blockerInterceptorManager;
+
+    public function __construct(
+        WrapInTransactionInterceptor $transactionInt,
+        BlockerInterceptorManager $blockerIntManager
+    ) {
+        $this->transactionInterceptor = $transactionInt;
+        $this->blockerInterceptorManager = $blockerIntManager;
+    }
+
+    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    {
+        $this->transactionInterceptor->handleException($exception, $context);
+        $this->blockerInterceptorManager->handleException($exception, $context);
+    }
 }

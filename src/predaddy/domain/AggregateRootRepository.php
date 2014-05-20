@@ -62,26 +62,17 @@ abstract class AggregateRootRepository extends Object implements Repository
      *
      * @param AggregateRoot $aggregateRoot
      * @param Iterator $events
-     * @param int|null $version
      * @return void
      */
-    abstract protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version);
+    abstract protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events);
 
     /**
      * @param AggregateRoot $aggregateRoot
-     * @param int|null $version
      */
-    public function save(AggregateRoot $aggregateRoot, $version = null)
+    public function save(AggregateRoot $aggregateRoot)
     {
         $events = $aggregateRoot->getAndClearRaisedEvents();
-        $aggregateId = $aggregateRoot->getId();
-        foreach ($events as $event) {
-            AbstractDomainEventInitializer::initAggregateId($event, $aggregateId);
-            if ($aggregateRoot instanceof Versionable) {
-                AbstractDomainEventInitializer::initVersion($event, $aggregateRoot->getVersion());
-            }
-        }
-        $this->innerSave($aggregateRoot, $events, $version);
+        $this->innerSave($aggregateRoot, $events);
         foreach ($events as $event) {
             $this->eventBus->post($event);
         }

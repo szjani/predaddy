@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,21 +21,41 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\interceptors;
 
-use predaddy\eventhandling\Event;
+use Exception;
+use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\InterceptorChain;
+use predaddy\messagehandling\SubscriberExceptionContext;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
- * Base class for all Domain Events.
- * This class contains the basic behavior expected from any event
- * to be processed by event sourcing engines and aggregates.
+ * @package predaddy\messagehandling\interceptors
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface DomainEvent extends Event, StateHashAware
+class BlockerInterceptorManager implements HandlerInterceptor, SubscriberExceptionHandler
 {
     /**
-     * @return AggregateId
+     * @var BlockerInterceptor
      */
-    public function getAggregateId();
+    private $blockerInterceptor;
+
+    public function __construct(BlockerInterceptor $blockerInterceptor)
+    {
+        $this->blockerInterceptor = $blockerInterceptor;
+    }
+
+    public function invoke($message, InterceptorChain $chain)
+    {
+        $this->blockerInterceptor->startBlocking();
+        $chain->proceed();
+        $this->blockerInterceptor->flush();
+        $this->blockerInterceptor->stopBlocking();
+    }
+
+    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    {
+        $this->blockerInterceptor->clear();
+    }
 }

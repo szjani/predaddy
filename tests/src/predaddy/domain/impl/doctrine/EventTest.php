@@ -39,8 +39,8 @@ class EventTest extends PHPUnit_Framework_TestCase
         $serializedEvent = __METHOD__;
         $domainEvent = $this->getMock('\predaddy\domain\DomainEvent');
         $domainEvent
-            ->expects(self::once())
-            ->method('getVersion')
+            ->expects(self::never())
+            ->method('getStateHash')
             ->will(self::returnValue($version));
         $domainEvent
             ->expects(self::once())
@@ -51,7 +51,7 @@ class EventTest extends PHPUnit_Framework_TestCase
             ->method('getTimestamp')
             ->will(self::returnValue($created));
 
-        $event = new Event($aggregateId, $type, $domainEvent, $serializedEvent);
+        $event = new Event($aggregateId->getValue(), $type, $domainEvent, $version, $serializedEvent);
         self::assertEquals($version, $event->getVersion());
         self::assertEquals($type, $event->getAggregateType());
         self::assertEquals($aggregateId->getValue(), $event->getAggregateId());

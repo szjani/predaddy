@@ -76,14 +76,14 @@ class Snapshot extends Object
     }
 
     /**
-     * @param AggregateId $aggregateId
+     * @param string $aggregateId
      * @param string $aggregateRoot Serialized aggregate root
      * @param string $type
      * @param $version
      */
-    public function __construct(AggregateId $aggregateId, $aggregateRoot, $type, $version)
+    public function __construct($aggregateId, $aggregateRoot, $type, $version)
     {
-        $this->aggregateId = $aggregateId->getValue();
+        $this->aggregateId = $aggregateId;
         $this->type = $type;
         $this->data = $aggregateRoot;
         $this->version = $version;

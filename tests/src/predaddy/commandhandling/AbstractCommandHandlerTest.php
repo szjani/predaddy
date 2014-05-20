@@ -30,7 +30,7 @@ class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
     public function testGetRepository()
     {
         $repository = $this->getMock('\predaddy\domain\Repository');
-        $handler = $this->getMockForAbstractClass(__NAMESPACE__ . '\AbstractCommandHandler', array($repository));
+        $handler = $this->getMockForAbstractClass(__NAMESPACE__ . '\AbstractCommandHandler', [$repository]);
         self::assertSame($repository, $handler->getRepository());
     }
 }

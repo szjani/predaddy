@@ -44,7 +44,7 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
      * @var ObjectClass
      */
     private $handledMessageClass = null;
-    private $compatibleMessageClassNames = array();
+    private $compatibleMessageClassNames = [];
     private $valid = false;
 
     /**

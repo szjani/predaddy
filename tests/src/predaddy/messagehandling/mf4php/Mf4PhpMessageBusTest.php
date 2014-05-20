@@ -32,14 +32,14 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
         $this->dispatcher = new MemoryMessageDispatcher();
         $functionDescFactory = new DefaultFunctionDescriptorFactory();
         $this->bus = new Mf4PhpMessageBus(
-            new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory),
-            $this->dispatcher
+            $this->dispatcher,
+            new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
         );
     }
 
     public function testMessageFactory()
     {
-        $factory = $this->getMock(__NAMESPACE__ . '\ObjectMessageFactory', array('createMessage'));
+        $factory = $this->getMock(__NAMESPACE__ . '\ObjectMessageFactory', ['createMessage']);
         $factory
             ->expects(self::once())
             ->method('createMessage')

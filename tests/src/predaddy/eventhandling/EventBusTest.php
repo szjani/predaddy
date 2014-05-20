@@ -32,10 +32,8 @@ class EventBusTest extends PHPUnit_Framework_TestCase
     {
         $functionDescriptorFactory = new EventFunctionDescriptorFactory();
         $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
-        $transactionManager = $this->getMock('\trf4php\ObservableTransactionManager');
         $commandBus = new EventBus(
-            $handlerDescriptorFactory,
-            $transactionManager
+            $handlerDescriptorFactory
         );
 
         $event = new SimpleEvent();

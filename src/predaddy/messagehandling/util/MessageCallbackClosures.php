@@ -23,7 +23,9 @@
 
 namespace predaddy\messagehandling\util;
 
+use Closure;
 use Exception;
+use precore\lang\Object;
 use predaddy\messagehandling\MessageCallback;
 
 /**
@@ -42,14 +44,43 @@ use predaddy\messagehandling\MessageCallback;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class MessageCallbackClosures extends MessageCallbackClosuresBuilder implements MessageCallback
+class MessageCallbackClosures extends Object implements MessageCallback
 {
+    /**
+     * @var Closure|null
+     */
+    private $onSuccessClosure;
+
+    /**
+     * @var Closure|null
+     */
+    private $onFailureClosure;
+
+    /**
+     * Use builder() method instead.
+     */
+    private function __construct()
+    {
+    }
+
     /**
      * @return MessageCallbackClosuresBuilder
      */
     public static function builder()
     {
         return new MessageCallbackClosuresBuilder();
+    }
+
+    /**
+     * @param MessageCallbackClosuresBuilder $builder
+     * @return MessageCallbackClosures
+     */
+    public static function build(MessageCallbackClosuresBuilder $builder)
+    {
+        $callback = new MessageCallbackClosures();
+        $callback->onSuccessClosure = $builder->getSuccessClosure();
+        $callback->onFailureClosure = $builder->getFailureClosure();
+        return $callback;
     }
 
     public function onSuccess($result)

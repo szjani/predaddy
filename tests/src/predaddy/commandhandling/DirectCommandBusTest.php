@@ -29,6 +29,7 @@ use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\EventSourcedUser;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\SimpleMessageBusFactory;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
@@ -52,11 +53,13 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->transactionManager = new NOPTransactionManager();
         $this->repoRepo = $this->getMock('\predaddy\domain\RepositoryRepository');
         $this->messageBusFactory = new SimpleMessageBusFactory($this->handlerDescFact);
+        $trInterceptor = new WrapInTransactionInterceptor($this->transactionManager);
         $this->bus = new DirectCommandBus(
-            $this->handlerDescFact,
-            $this->transactionManager,
             $this->repoRepo,
-            $this->messageBusFactory
+            $this->messageBusFactory,
+            $this->handlerDescFact,
+            [$trInterceptor],
+            $trInterceptor
         );
     }
 

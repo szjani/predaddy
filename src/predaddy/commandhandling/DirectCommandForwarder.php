@@ -27,6 +27,7 @@ use Exception;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\RepositoryRepository;
+use predaddy\domain\StateHashAwareAggregateRoot;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageBusFactory;
@@ -82,6 +83,7 @@ class DirectCommandForwarder extends Object
 
     /**
      * @param DirectCommand $command
+     * @throws \Exception If the handler throws any
      * @return mixed The return value of the last handler (should be one handler per aggregate)
      */
     protected function forwardCommand(DirectCommand $command)
@@ -93,10 +95,14 @@ class DirectCommandForwarder extends Object
             $aggregate = $class->newInstanceWithoutConstructor();
         } else {
             $aggregate = $repository->load($aggregateId);
+            if ($aggregate instanceof StateHashAwareAggregateRoot && $command->getStateHash() !== null) {
+                $aggregate->failWhenStateHashViolation($command->getStateHash());
+            }
         }
         $forwarderBus = $this->messageBusFactory->createBus($class->getName());
         $forwarderBus->register($aggregate);
         $result = null;
+        $thrownException = null;
         $callback = MessageCallbackClosures::builder()
             ->successClosure(
                 function ($res) use (&$result) {
@@ -104,14 +110,17 @@ class DirectCommandForwarder extends Object
                 }
             )
             ->failureClosure(
-                function (Exception $exp) {
-                    throw $exp;
+                function (Exception $exp) use (&$thrownException) {
+                    $thrownException = $exp;
                 }
             )
             ->build();
         $forwarderBus->post($command, $callback);
-        $repository->save($aggregate, $command->getVersion());
-        self::getLogger()->info("Command [{}] has been applied", array($command));
+        if ($thrownException instanceof Exception) {
+            throw $thrownException;
+        }
+        $repository->save($aggregate);
+        self::getLogger()->info("Command [{}] has been applied", [$command]);
         return $result;
     }
 }

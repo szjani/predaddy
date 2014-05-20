@@ -32,6 +32,7 @@ use mf4php\ObjectMessage;
 use predaddy\messagehandling\MessageCallback;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 use Serializable;
 
 /**
@@ -56,20 +57,24 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
 
     private $dispatcher;
     private $queue;
-    private $objectMessageFactories = array();
+    private $objectMessageFactories = [];
     private $defaultObjectMessageFactory;
 
     /**
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
      * @param MessageDispatcher $dispatcher
-     * @param $busId
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param array $interceptors
+     * @param SubscriberExceptionHandler $exceptionHandler
+     * @param string $busId
      */
     public function __construct(
-        MessageHandlerDescriptorFactory $handlerDescFactory,
         MessageDispatcher $dispatcher,
+        MessageHandlerDescriptorFactory $handlerDescFactory,
+        array $interceptors = [],
+        SubscriberExceptionHandler $exceptionHandler = null,
         $busId = self::DEFAULT_NAME
     ) {
-        parent::__construct($handlerDescFactory, $busId);
+        parent::__construct($handlerDescFactory, $interceptors, $exceptionHandler, $busId);
         $this->dispatcher = $dispatcher;
         $this->queue = new DefaultQueue($busId);
         $this->defaultObjectMessageFactory = new DefaultObjectMessageFactory();
@@ -106,7 +111,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
         if ($object instanceof MessageWrapper) {
             $object = $object->getMessage();
         }
-        $this->forwardMessage($object);
+        parent::dispatch($object, $this->emptyCallback());
     }
 
     /**
@@ -132,7 +137,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      * @param $message
      * @param MessageCallback $callback
      */
-    protected function innerPost($message, MessageCallback $callback = null)
+    protected function dispatch($message, MessageCallback $callback)
     {
         $sendable = $message;
         if (!($message instanceof Serializable)) {

@@ -76,10 +76,6 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('getAggregateId')
             ->will(self::returnValue(null));
-        $command
-            ->expects(self::once())
-            ->method('getVersion')
-            ->will(self::returnValue(0));
 
         $repository = $this->getMock('\predaddy\domain\Repository');
         $repository
@@ -87,8 +83,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
             ->method('save')
             ->will(
                 self::returnCallback(
-                    function (AggregateRoot $aggregate, $storedVersion) use ($aggregateClass) {
-                        DirectCommandForwarderTest::assertEquals(0, $storedVersion);
+                    function (AggregateRoot $aggregate) use ($aggregateClass) {
                         DirectCommandForwarderTest::assertInstanceOf($aggregateClass, $aggregate);
                     }
                 )

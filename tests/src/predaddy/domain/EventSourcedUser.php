@@ -44,7 +44,7 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     public function __construct(CreateEventSourcedUser $command)
     {
-        $this->apply(new UserCreated(new UUIDAggregateId(UUID::randomUUID()), $command->getVersion()));
+        $this->apply(new UserCreated(new UUIDAggregateId(UUID::randomUUID())));
     }
 
     /**
@@ -61,7 +61,7 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     public function increment(Increment $command)
     {
-        $this->apply(new IncrementedEvent($this->id, $command->getVersion()));
+        $this->apply(new IncrementedEvent($this->id));
     }
 
     /**

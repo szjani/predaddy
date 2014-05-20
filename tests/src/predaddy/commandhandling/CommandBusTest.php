@@ -49,19 +49,21 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
         $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
             $this->functionDescriptorFactory
         );
+        $trInterceptor = new WrapInTransactionInterceptor($this->tm);
         $this->commandBus = new CommandBus(
             $this->handlerDescriptorFactory,
-            $this->tm
+            [$trInterceptor],
+            $trInterceptor
         );
     }
 
     public function testNoHandler()
     {
         $this->tm
-            ->expects(self::never())
+            ->expects(self::once())
             ->method('beginTransaction');
         $this->tm
-            ->expects(self::never())
+            ->expects(self::once())
             ->method('commit');
         $this->tm
             ->expects(self::never())
@@ -116,42 +118,6 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
         self::assertTrue($called);
     }
 
-    public function testSetInterceptor()
-    {
-        $called = false;
-        $this->commandBus->registerClosure(
-            function (SimpleCommand $command) use (&$called) {
-                $called = true;
-            }
-        );
-        $interceptor = $this->getMock('\predaddy\messagehandling\HandlerInterceptor');
-        $interceptor
-            ->expects(self::once())
-            ->method('invoke')
-            ->will(self::throwException(new RuntimeException("Ooops")));
-        $this->commandBus->setInterceptors(
-            new ArrayIterator(
-                array(
-                    new WrapInTransactionInterceptor($this->tm),
-                    $interceptor
-                )
-            )
-        );
-
-        $this->tm
-            ->expects(self::once())
-            ->method('beginTransaction');
-        $this->tm
-            ->expects(self::never())
-            ->method('commit');
-        $this->tm
-            ->expects(self::once())
-            ->method('rollback');
-
-        $this->commandBus->post(new SimpleCommand(1, 1));
-        self::assertFalse($called);
-    }
-
     public function testExactCommandType()
     {
         $called = false;
@@ -161,10 +127,10 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
             }
         );
         $this->tm
-            ->expects(self::never())
+            ->expects(self::once())
             ->method('beginTransaction');
         $this->tm
-            ->expects(self::never())
+            ->expects(self::once())
             ->method('commit');
         $this->tm
             ->expects(self::never())

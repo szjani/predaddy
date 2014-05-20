@@ -21,59 +21,73 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\monitoring;
+namespace predaddy\messagehandling\interceptors;
 
-use Exception;
-use predaddy\messagehandling\AbstractMessage;
+use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\InterceptorChain;
 
 /**
- * @package predaddy\messagehandling\monitoring
+ * @package predaddy\messagehandling\interceptors
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class ErrorMessage extends AbstractMessage
+class BlockerInterceptor implements HandlerInterceptor
 {
-    /**
-     * @var mixed
-     */
-    private $message;
+    private $blocking = false;
 
     /**
-     * @var Exception
+     * @var InterceptorChain[]
      */
-    private $exception;
+    private $chains = [];
 
     /**
-     * @param mixed $message
-     * @param Exception $exception
+     * @var BlockerInterceptorManager
      */
-    public function __construct($message, Exception $exception)
+    private $manager;
+
+    public function __construct()
     {
-        parent::__construct();
-        $this->message = $message;
-        $this->exception = $exception;
+        $this->manager = new BlockerInterceptorManager($this);
+    }
+
+    public function invoke($message, InterceptorChain $chain)
+    {
+        if ($this->blocking) {
+            $this->chains[] = $chain;
+        } else {
+            $chain->proceed();
+        }
+    }
+
+    public function startBlocking()
+    {
+        $this->blocking = true;
+    }
+
+    public function stopBlocking()
+    {
+        $this->blocking = false;
+    }
+
+    public function flush()
+    {
+        $chains = $this->chains;
+        $this->clear();
+        foreach ($chains as $chain) {
+            $chain->proceed();
+        }
+    }
+
+    public function clear()
+    {
+        $this->chains = [];
     }
 
     /**
-     * @return mixed
+     * @return BlockerInterceptorManager
      */
-    public function getMessage()
+    public function manager()
     {
-        return $this->message;
-    }
-
-    /**
-     * @return Exception
-     */
-    public function getException()
-    {
-        return $this->exception;
-    }
-
-    protected function toStringHelper()
-    {
-        return parent::toStringHelper()
-            ->add('message', $this->message)
-            ->add('exception', $this->exception);
+        return $this->manager;
     }
 }

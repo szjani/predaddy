@@ -23,38 +23,15 @@
 
 namespace predaddy\domain;
 
-use PHPUnit_Framework_TestCase;
-use predaddy\messagehandling\MessageBusObjectMother;
-
 /**
  * @package predaddy\domain
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
+interface StateHashAware
 {
     /**
-     * @test
+     * @return null|string
      */
-    public function useVersionIfEntityIsVersionable()
-    {
-        $messageBus = MessageBusObjectMother::createAnnotatedBus();
-        $repo = $this->getMockForAbstractClass('\predaddy\domain\AggregateRootRepository', array($messageBus));
-        $entity = new TestVersionableAggregate();
-
-        $called = false;
-        $messageBus->registerClosure(
-            function (DomainEvent $event) use (&$called) {
-                AggregateRootRepositoryTest::assertEquals(
-                    TestVersionableAggregate::DEFAULT_VERSION + 1,
-                    $event->getVersion()
-                );
-                $called = true;
-            }
-        );
-
-        $repo->save($entity, 10);
-        self::assertTrue($called);
-        self::assertSame($repo->getEventBus(), $messageBus);
-    }
+    public function getStateHash();
 }

@@ -34,8 +34,7 @@ use predaddy\domain\impl\doctrine\entities\UserCreated;
 use predaddy\eventhandling\EventBus;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
-use trf4php\doctrine\DoctrineTransactionManager;
-use trf4php\ObservableTransactionManager;
+use predaddy\messagehandling\interceptors\BlockerInterceptor;
 
 /**
  * @package predaddy\domain\impl\doctrine
@@ -45,11 +44,6 @@ use trf4php\ObservableTransactionManager;
  */
 class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var ObservableTransactionManager
-     */
-    private $transactionManager;
-
     /**
      * @var EventBus
      */
@@ -74,14 +68,14 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
     {
         $isDevMode = true;
         $config = Setup::createAnnotationMetadataConfiguration(
-            array(__DIR__ . '/entities'),
+            [__DIR__ . '/entities'],
             $isDevMode,
             null,
             null,
             false
         );
 
-        $connectionOptions = array('driver' => 'pdo_sqlite', 'memory' => true);
+        $connectionOptions = ['driver' => 'pdo_sqlite', 'memory' => true];
 
         // obtaining the entity manager
         self::$entityManager =  EntityManager::create($connectionOptions, $config);
@@ -97,11 +91,10 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
 
     protected function setUp()
     {
-        $transactionManager = new DoctrineTransactionManager(self::$entityManager);
-        $this->transactionManager = $transactionManager;
+        $blockerInterceptor = new BlockerInterceptor();
         $this->eventBus = new EventBus(
             new AnnotatedMessageHandlerDescriptorFactory(new DefaultFunctionDescriptorFactory()),
-            $this->transactionManager
+            [$blockerInterceptor]
         );
         $this->userRepo = new DoctrineAggregateRootRepository(
             $this->eventBus,
@@ -121,28 +114,25 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
     public function checkVersionAndAggregateIdSet()
     {
         $called = 0;
+        /* @var $user User */
         $user = null;
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertEquals(1, $event->getVersion());
-                PHPUnit_Framework_TestCase::assertEquals(1, $user->getVersion());
+                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
                     $event->getAggregateId()->equals($user->getId())
                 );
                 $called++;
             }
         );
-        $this->transactionManager->beginTransaction();
         $user = new User();
         $this->userRepo->save($user);
-        $this->transactionManager->commit();
         self::assertEquals(1, $called);
 
         // next transaction
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertEquals(2, $event->getVersion());
-                PHPUnit_Framework_TestCase::assertEquals(2, $user->getVersion());
+                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
                     $event->getAggregateId()->equals($user->getId())
                 );
@@ -150,10 +140,8 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
             }
         );
 
-        $this->transactionManager->beginTransaction();
         $user->increment();
         $this->userRepo->save($user);
-        $this->transactionManager->commit();
         self::assertEquals(2, $called);
     }
 
@@ -163,23 +151,21 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         $user = null;
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertNull($event->getVersion());
+                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
                     $event->getAggregateId()->equals($user->getId())
                 );
                 $called++;
             }
         );
-        $this->transactionManager->beginTransaction();
         $user = new UnversionedUser();
         $this->unversionedUserRepo->save($user);
-        $this->transactionManager->commit();
         self::assertEquals(1, $called);
 
         // next transaction
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertNull($event->getVersion());
+                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
                     $event->getAggregateId()->equals($user->getId())
                 );
@@ -187,10 +173,8 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
             }
         );
 
-        $this->transactionManager->beginTransaction();
         $user->increment();
         $this->unversionedUserRepo->save($user);
-        $this->transactionManager->commit();
         self::assertEquals(2, $called);
     }
 }

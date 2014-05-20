@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2014 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,24 +23,16 @@
 
 namespace predaddy\domain;
 
-use Iterator;
-
-interface EventStore
+/**
+ * @package predaddy\domain
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+interface StateHashAwareAggregateRoot extends AggregateRoot, StateHashAware
 {
     /**
-     * @param string $aggregateRootClass FQCN
-     * @param Iterator $events
-     * @return void
+     * @param string $expectedHash
+     * @throws \UnexpectedValueException
      */
-    public function saveChanges($aggregateRootClass, Iterator $events);
-
-    /**
-     * Must be return all events stored to aggregate identified by $aggregateId and $type.
-     * Events must be ordered by the version field.
-     *
-     * @param string $aggregateRootClass FQCN
-     * @param AggregateId $aggregateId
-     * @return Iterator
-     */
-    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId);
+    public function failWhenStateHashViolation($expectedHash);
 }

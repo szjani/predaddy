@@ -46,7 +46,7 @@ class SortTest extends PHPUnit_Framework_TestCase
     {
         $this->order1 = new Order(Direction::$ASC, 'prop1');
         $this->order2 = new Order(Direction::$DESC, 'prop2');
-        $orders = array($this->order1, $this->order2);
+        $orders = [$this->order1, $this->order2];
         $this->sort = new Sort($orders);
     }
 
@@ -67,7 +67,7 @@ class SortTest extends PHPUnit_Framework_TestCase
         self::assertSame($this->sort, $res);
 
         $newOrder = new Order(Direction::$DESC, 'prop3');
-        $orders = array($newOrder);
+        $orders = [$newOrder];
         $sort = new Sort($orders);
         $res = $this->sort->andSort($sort);
         self::assertEquals(2, $this->sort->count());
@@ -80,13 +80,13 @@ class SortTest extends PHPUnit_Framework_TestCase
         self::assertFalse($this->sort->equals(null));
         self::assertTrue($this->sort->equals($this->sort));
 
-        $sort2 = new Sort(array($this->order1, $this->order2));
+        $sort2 = new Sort([$this->order1, $this->order2]);
         self::assertTrue($this->sort->equals($sort2));
     }
 
     public function testCreate()
     {
-        $properties = array('prop1', 'prop2');
+        $properties = ['prop1', 'prop2'];
         $sort = Sort::create($properties, Direction::$DESC);
 
         self::assertEquals(2, $sort->count());
@@ -99,7 +99,7 @@ class SortTest extends PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $properties = array('prop1', 'prop2');
+        $properties = ['prop1', 'prop2'];
         $sort = Sort::create($properties, Direction::$DESC);
         self::assertEquals(
             'predaddy\presentation\Sort{orders={0=predaddy\presentation\Order{property=prop1, direction=predaddy\presentation\Direction::$DESC}, 1=predaddy\presentation\Order{property=prop2, direction=predaddy\presentation\Direction::$DESC}}}',

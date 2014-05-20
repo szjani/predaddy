@@ -23,11 +23,9 @@
 
 namespace predaddy\commandhandling;
 
-use ArrayIterator;
-use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use trf4php\TransactionManager;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
  * A typical command bus has the following behaviours:
@@ -49,21 +47,21 @@ class CommandBus extends SimpleMessageBus
 
     /**
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param TransactionManager $transactionManager
-     * @param $identifier
+     * @param array $interceptors
+     * @param SubscriberExceptionHandler $exceptionHandler
+     * @param string $identifier
      */
     public function __construct(
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        TransactionManager $transactionManager,
+        array $interceptors = [],
+        SubscriberExceptionHandler $exceptionHandler = null,
         $identifier = self::DEFAULT_NAME
     ) {
-        parent::__construct($handlerDescFactory, $identifier);
-        $this->setInterceptors(
-            new ArrayIterator(
-                array(
-                    new WrapInTransactionInterceptor($transactionManager)
-                )
-            )
+        parent::__construct(
+            $handlerDescFactory,
+            $interceptors,
+            $exceptionHandler,
+            $identifier
         );
     }
 }

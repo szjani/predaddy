@@ -23,11 +23,9 @@
 
 namespace predaddy\eventhandling;
 
-use ArrayIterator;
-use predaddy\messagehandling\interceptors\TransactionSynchronizedBuffererInterceptor;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use trf4php\ObservableTransactionManager;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
  * This kind of MessageBus synchronizes message dispatching with the given ObservableTransactionManager.
@@ -46,21 +44,21 @@ class EventBus extends SimpleMessageBus
 
     /**
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param ObservableTransactionManager $transactionManager
-     * @param $identifier
+     * @param array $interceptors
+     * @param SubscriberExceptionHandler $exceptionHandler
+     * @param string $identifier
      */
     public function __construct(
         MessageHandlerDescriptorFactory $handlerDescFactory,
-        ObservableTransactionManager $transactionManager,
+        array $interceptors = [],
+        SubscriberExceptionHandler $exceptionHandler = null,
         $identifier = self::DEFAULT_NAME
     ) {
-        parent::__construct($handlerDescFactory, $identifier);
-        $this->setInterceptors(
-            new ArrayIterator(
-                array(
-                    new TransactionSynchronizedBuffererInterceptor($transactionManager)
-                )
-            )
+        parent::__construct(
+            $handlerDescFactory,
+            $interceptors,
+            $exceptionHandler,
+            $identifier
         );
     }
 }

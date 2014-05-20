@@ -42,17 +42,17 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     /**
      * @var int|null
      */
-    protected $version;
+    protected $stateHash;
 
     /**
      * @param string|null $aggregateId
-     * @param int|null $version
+     * @param string|null $stateHash
      */
-    public function __construct($aggregateId = null, $version = null)
+    public function __construct($aggregateId = null, $stateHash = null)
     {
         parent::__construct();
         $this->aggregateId = $aggregateId;
-        $this->version = $version;
+        $this->stateHash = $stateHash;
     }
 
     /**
@@ -74,17 +74,17 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    public function getVersion()
+    public function getStateHash()
     {
-        return $this->version;
+        return $this->stateHash;
     }
 
     protected function toStringHelper()
     {
         return parent::toStringHelper()
             ->add('aggregateId', $this->aggregateId)
-            ->add('version', $this->version);
+            ->add('stateHash', $this->stateHash);
     }
 }

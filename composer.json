@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.4",
         "precore/precore": "~1.7",
         "doctrine/annotations": "~1.1",
         "trf4php/trf4php": "~1.2",

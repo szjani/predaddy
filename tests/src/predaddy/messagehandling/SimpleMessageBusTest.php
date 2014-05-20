@@ -163,23 +163,6 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         self::assertTrue($called);
     }
 
-    public function testInterceptorReset()
-    {
-        $interceptors = $this->getMock('Iterator');
-        $interceptors
-            ->expects(self::exactly(2))
-            ->method('rewind');
-        $this->bus->setInterceptors($interceptors);
-
-        $this->bus->registerClosure(
-            function (SimpleMessage $message) {
-            }
-        );
-
-        $this->bus->post(new SimpleMessage());
-        $this->bus->post(new SimpleMessage());
-    }
-
     /**
      * @test
      */
@@ -197,11 +180,11 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException RuntimeException
+     * @expectedException \InvalidArgumentException
      */
     public function exceptionShouldThrownNonObjectMessage()
     {
-        $this->bus->post(array());
+        $this->bus->post([]);
     }
 
     /**
@@ -229,7 +212,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
      */
     public function prioritizedClosures()
     {
-        $order = array();
+        $order = [];
         $this->bus->registerClosure(
             function (Message $msg) use (&$order) {
                 $order[] = 1;
@@ -244,7 +227,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         );
 
         $this->bus->post(new SimpleMessage());
-        self::assertSame(array(2, 1), $order);
+        self::assertSame([2, 1], $order);
     }
 
     /**
@@ -252,12 +235,12 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
      */
     public function prioritizedHandler()
     {
-        $order = array();
+        $order = [];
         $handler = new PrioritizedHandler1($order);
         $this->bus->register($handler);
         $this->bus->post(new SimpleMessage());
 
-        self::assertSame(array(2, 1), $order);
+        self::assertSame([2, 1], $order);
     }
 
     /**
@@ -265,14 +248,14 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
      */
     public function twoPrioritizedHandlers()
     {
-        $order = array();
+        $order = [];
         $handler1 = new PrioritizedHandler1($order);
         $handler2 = new PrioritizedHandler2($order);
         $this->bus->register($handler1);
         $this->bus->register($handler2);
         $this->bus->post(new SimpleMessage());
 
-        self::assertSame(array(6, 2, 1, -1), $order);
+        self::assertSame([6, 2, 1, -1], $order);
     }
 
     /**
@@ -318,5 +301,105 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
             ->build();
         $this->bus->post(UUID::randomUUID(), $callback);
         self::assertEquals(0, $onSuccessCalled);
+    }
+
+    /**
+     * @test
+     */
+    public function exceptionHandlerMustBeCalled()
+    {
+        $exception = new RuntimeException('Expected exception');
+
+        $exceptionHandler = $this->getMock('predaddy\messagehandling\SubscriberExceptionHandler');
+        $exceptionHandler
+            ->expects(self::once())
+            ->method('handleException')
+            ->with($exception);
+
+        $bus = new SimpleMessageBus(
+            new AnnotatedMessageHandlerDescriptorFactory(
+                new DefaultFunctionDescriptorFactory()
+            ),
+            [],
+            $exceptionHandler
+        );
+        $bus->registerClosure(
+            function (UUID $msg) use ($exception) {
+                throw $exception;
+            }
+        );
+        $bus->post(UUID::randomUUID());
+    }
+
+    /**
+     * @test
+     */
+    public function exceptionThrownByExceptionHandlerMustBeCaught()
+    {
+        $exception = new RuntimeException('Expected exception');
+        $exceptionHandler = $this->getMock('predaddy\messagehandling\SubscriberExceptionHandler');
+        $exceptionHandler
+            ->expects(self::once())
+            ->method('handleException')
+            ->will(
+                self::returnCallback(
+                    function () {
+                        throw new RuntimeException('Expected exception');
+                    }
+                )
+            );
+        $bus = new SimpleMessageBus(
+            new AnnotatedMessageHandlerDescriptorFactory(
+                new DefaultFunctionDescriptorFactory()
+            ),
+            [],
+            $exceptionHandler
+        );
+        $bus->registerClosure(
+            function (UUID $msg) use ($exception) {
+                throw $exception;
+            }
+        );
+
+        $callback = $this->getMock('\predaddy\messagehandling\MessageCallback');
+        $callback
+            ->expects(self::once())
+            ->method('onFailure')
+            ->with($exception);
+
+        $bus->post(UUID::randomUUID(), $callback);
+    }
+
+    /**
+     * @test
+     */
+    public function exceptionThrownByCallbackMustBeCaught()
+    {
+        $exception = new RuntimeException('Expected exception');
+        $bus = new SimpleMessageBus(
+            new AnnotatedMessageHandlerDescriptorFactory(
+                new DefaultFunctionDescriptorFactory()
+            )
+        );
+        $bus->registerClosure(
+            function (UUID $msg) use ($exception) {
+                throw $exception;
+            }
+        );
+
+        $callback = $this->getMock('\predaddy\messagehandling\MessageCallback');
+        $callback
+            ->expects(self::once())
+            ->method('onFailure')
+            ->will(
+                self::returnCallback(
+                    function (Exception $e) use ($exception) {
+                        self::assertSame($exception, $e);
+                        throw new RuntimeException('Expected exception');
+                    }
+                )
+            );
+
+        $bus->post(UUID::randomUUID(), $callback);
     }
 }

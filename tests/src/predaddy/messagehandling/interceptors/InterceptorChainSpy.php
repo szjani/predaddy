@@ -21,42 +21,31 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling\interceptors;
 
-use precore\util\UUID;
+use predaddy\messagehandling\InterceptorChain;
 
 /**
- * @package predaddy\domain
+ * @package src\predaddy\messagehandling\interceptors
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TestVersionableAggregate extends AbstractAggregateRoot implements Versionable
+class InterceptorChainSpy implements InterceptorChain
 {
-    const DEFAULT_VERSION = 123;
+    private $called = 0;
 
-    private $id;
-    private $version = self::DEFAULT_VERSION;
-
-    public function __construct()
+    public function neverCalled()
     {
-        $this->id = new UUIDAggregateId(UUID::randomUUID());
-        $this->raise(new IncrementedEvent());
+        return $this->called === 0;
     }
 
-    /**
-     * @return AggregateId
-     */
-    public function getId()
+    public function calledTimes($times)
     {
-        return $this->id;
+        return $this->called === $times;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getVersion()
+    public function proceed()
     {
-        return $this->version;
+        $this->called++;
     }
 }
- 

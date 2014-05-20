@@ -28,15 +28,26 @@ use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
+use UnexpectedValueException;
 
 /**
  * Aggregate root class.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AbstractAggregateRoot extends Object implements AggregateRoot
+abstract class AbstractAggregateRoot extends Object implements StateHashAwareAggregateRoot
 {
-    protected $events = array();
+    /**
+     * Do not persist it.
+     * @var array
+     */
+    protected $events = [];
+
+    /**
+     * Must be persisted.
+     * @var string
+     */
+    protected $stateHash;
 
     /**
      * @see AggregateRootRepository::save()
@@ -45,7 +56,7 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
     public function getAndClearRaisedEvents()
     {
         $events = new ArrayIterator($this->events);
-        $this->events = array();
+        $this->events = [];
         return $events;
     }
 
@@ -64,6 +75,31 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
 
     protected function raise(DomainEvent $event)
     {
+        if ($event instanceof AbstractDomainEvent) {
+            AbstractDomainEvent::initAggregateId($event, $this->getId());
+        }
+        $this->stateHash = $event->getStateHash();
         $this->events[] = $event;
+    }
+
+    /**
+     * @param string $expectedHash
+     * @throws UnexpectedValueException
+     */
+    public function failWhenStateHashViolation($expectedHash)
+    {
+        if ($expectedHash !== $this->stateHash) {
+            throw new UnexpectedValueException(
+                'Concurrency Violation: Stale data detected. Entity was already modified.'
+            );
+        }
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getStateHash()
+    {
+        return $this->stateHash;
     }
 }

@@ -94,17 +94,25 @@ class Event extends Object
     private $created;
 
     /**
-     * @param AggregateId $aggregateId
+     * Should only be called from Aggregate::createMetaEvent()
+     *
+     * @param string $aggregateId
      * @param string $aggregateType
      * @param \predaddy\domain\DomainEvent $event
+     * @param int $version
      * @param string $serializedEvent
      */
-    public function __construct(AggregateId $aggregateId, $aggregateType, DomainEvent $event, $serializedEvent)
-    {
+    public function __construct(
+        $aggregateId,
+        $aggregateType,
+        DomainEvent $event,
+        $version,
+        $serializedEvent
+    ) {
         $this->aggregateType = $aggregateType;
         $this->data = $serializedEvent;
-        $this->aggregateId = $aggregateId->getValue();
-        $this->version = $event->getVersion();
+        $this->aggregateId = $aggregateId;
+        $this->version = $version;
         $this->created = clone $event->getTimestamp();
         $this->eventType = $event->getClassName();
     }

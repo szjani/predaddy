@@ -24,6 +24,7 @@
 namespace predaddy\messagehandling\annotation;
 
 use Doctrine\Common\Annotations\Reader;
+use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptor;
 use ReflectionClass;
@@ -61,7 +62,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     }
 
     /**
-     * @return array of FunctionDescriptor
+     * @return FunctionDescriptor[]
      */
     public function getFunctionDescriptors()
     {
@@ -72,11 +73,11 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     }
 
     /**
-     * @return array of FunctionDescriptor
+     * @return FunctionDescriptor[]
      */
     protected function findHandlerMethods()
     {
-        $result = array();
+        $result = [];
         /* @var $reflMethod ReflectionMethod */
         foreach ($this->handlerClass->getMethods($this->methodVisibility()) as $reflMethod) {
             $methodAnnotation = $this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe');

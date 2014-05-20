@@ -72,12 +72,10 @@ class AnnotatedMessageHandlerDescriptorFactory extends CachedMessageHandlerDescr
     }
 
     /**
-     * Do not call it from outside. Public visibility is necessary for PHP 5.3
-     *
      * @param string $handlerClassName
      * @return AnnotatedMessageHandlerDescriptor
      */
-    public function innerCreate($handlerClassName)
+    protected function innerCreate($handlerClassName)
     {
         return new AnnotatedMessageHandlerDescriptor(
             ObjectClass::forName($handlerClassName),

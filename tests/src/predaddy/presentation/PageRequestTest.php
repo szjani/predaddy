@@ -43,7 +43,7 @@ class PageRequestTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->order = new Order(Direction::$DESC, 'prop1');
-        $this->sort = new Sort(array($this->order));
+        $this->sort = new Sort([$this->order]);
         $this->pageRequest = new PageRequest($this->page, $this->size, $this->sort);
     }
 

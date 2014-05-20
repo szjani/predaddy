@@ -44,11 +44,11 @@ class PageImplTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->sort = new Sort(array(new Order(Direction::$DESC, 'prop1')));
+        $this->sort = new Sort([new Order(Direction::$DESC, 'prop1')]);
         $pageable = new PageRequest($this->pageNumber, $this->size, $this->sort);
         $record1 = 'record1';
         $record2 = 'record2';
-        $this->content = array($record1, $record2);
+        $this->content = [$record1, $record2];
         $this->page = new PageImpl($this->content, $pageable, $this->total);
     }
 
@@ -65,7 +65,7 @@ class PageImplTest extends PHPUnit_Framework_TestCase
     public function testHasContent()
     {
         self::assertTrue($this->page->hasContent());
-        $emptyPage = new PageImpl(array());
+        $emptyPage = new PageImpl([]);
         self::assertFalse($emptyPage->hasContent());
     }
 
@@ -98,7 +98,7 @@ class PageImplTest extends PHPUnit_Framework_TestCase
         $next = $this->page->nextPageable();
         self::assertEquals($this->pageNumber + 1, $next->getPageNumber());
 
-        $firstAndLastPage = new PageImpl(array(), new PageRequest(0, 3));
+        $firstAndLastPage = new PageImpl([], new PageRequest(0, 3));
         self::assertNull($firstAndLastPage->previousPageable());
         self::assertNull($firstAndLastPage->nextPageable());
     }

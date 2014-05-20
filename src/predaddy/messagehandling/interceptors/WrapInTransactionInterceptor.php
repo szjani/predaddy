@@ -27,6 +27,8 @@ use Exception;
 use precore\lang\Object;
 use predaddy\messagehandling\HandlerInterceptor;
 use predaddy\messagehandling\InterceptorChain;
+use predaddy\messagehandling\SubscriberExceptionContext;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 use trf4php\TransactionManager;
 
 /**
@@ -36,12 +38,14 @@ use trf4php\TransactionManager;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class WrapInTransactionInterceptor extends Object implements HandlerInterceptor
+class WrapInTransactionInterceptor extends Object implements HandlerInterceptor, SubscriberExceptionHandler
 {
     /**
      * @var TransactionManager
      */
     private $transactionManager;
+
+    private $inTransaction;
 
     /**
      * @param TransactionManager $transactionManager
@@ -54,14 +58,18 @@ class WrapInTransactionInterceptor extends Object implements HandlerInterceptor
     public function invoke($message, InterceptorChain $chain)
     {
         $this->transactionManager->beginTransaction();
-        try {
-            $res = $chain->proceed();
+        $this->inTransaction = true;
+        $chain->proceed();
+        if ($this->inTransaction) {
             $this->transactionManager->commit();
-            return $res;
-        } catch (Exception $e) {
-            $this->transactionManager->rollback();
-            self::getLogger()->warn("Transaction rollback invoked!", array(), $e);
-            throw $e;
+            $this->inTransaction = false;
         }
+    }
+
+    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    {
+        $this->transactionManager->rollback();
+        $this->inTransaction = false;
+        self::getLogger()->warn("Transaction rollback invoked with context '{}'!", [$context], $exception);
     }
 }

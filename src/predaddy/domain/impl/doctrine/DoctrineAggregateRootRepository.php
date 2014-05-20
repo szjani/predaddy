@@ -53,33 +53,17 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     private $entityManager;
 
     /**
-     * @var int
-     */
-    private $lockMode;
-
-    /**
      * @param MessageBus $eventBus
      * @param ObjectClass $aggregateRootClass
      * @param EntityManagerInterface $entityManager
-     * @param int $lockMode
      */
     public function __construct(
         MessageBus $eventBus,
         ObjectClass $aggregateRootClass,
-        EntityManagerInterface $entityManager,
-        $lockMode = LockMode::OPTIMISTIC
+        EntityManagerInterface $entityManager
     ) {
         parent::__construct($eventBus, $aggregateRootClass);
         $this->entityManager = $entityManager;
-        $this->lockMode = $lockMode;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLockMode()
-    {
-        return $this->lockMode;
     }
 
     /**
@@ -113,38 +97,13 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
      *
      * @param AggregateRoot $aggregateRoot
      * @param Iterator $events
-     * @param int|null $version
      * @return void
      */
-    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
+    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events)
     {
         $entityManager = $this->getEntityManager();
-        if ($version == 0) {
+        if (!$entityManager->contains($aggregateRoot)) {
             $entityManager->persist($aggregateRoot);
         }
-        if ($version !== null) {
-            $entityManager->lock($aggregateRoot, $this->lockMode, $version);
-        }
-        $currentVersion = $this->currentVersion($aggregateRoot);
-        if ($currentVersion !== null) {
-            $this->initVersionFields($events, $currentVersion);
-        }
-    }
-
-    protected function initVersionFields(Iterator $events, $version)
-    {
-        foreach ($events as $event) {
-            AbstractDomainEventInitializer::initVersion($event, $version);
-        }
-    }
-
-    protected function currentVersion(AggregateRoot $aggregateRoot)
-    {
-        $version = null;
-        $class = $this->getEntityManager()->getClassMetadata($aggregateRoot->getClassName());
-        if ($class instanceof ClassMetadata && $class->isVersioned) {
-            $version = (int) $class->reflFields[$class->versionField]->getValue($aggregateRoot);
-        }
-        return $version;
     }
 }

@@ -50,21 +50,18 @@ abstract class CachedMessageHandlerDescriptorFactory implements MessageHandlerDe
     public function __construct(FunctionDescriptorFactory $functionDescFactory)
     {
         $this->functionDescFactory = $functionDescFactory;
-        $self = $this;
         $this->descriptorMap = new CallbackLazyMap(
-            function ($handlerClassName) use ($self) {
-                return $self->innerCreate($handlerClassName);
+            function ($handlerClassName) {
+                return $this->innerCreate($handlerClassName);
             }
         );
     }
 
     /**
-     * Do not call it from outside. Public visibility is necessary for PHP 5.3
-     *
      * @param string $handlerClassName
      * @return MessageHandlerDescriptor
      */
-    abstract public function innerCreate($handlerClassName);
+    abstract protected function innerCreate($handlerClassName);
 
     /**
      * @param object $handler

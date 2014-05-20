@@ -35,19 +35,12 @@ class MessageCallbackClosuresBuilder
     /**
      * @var Closure|null
      */
-    protected $onSuccessClosure;
+    protected $successClosure;
 
     /**
      * @var Closure|null
      */
-    protected $onFailureClosure;
-
-    /**
-     * Use builder() method instead.
-     */
-    protected function __construct()
-    {
-    }
+    protected $failureClosure;
 
     /**
      * @param callable $closure
@@ -55,7 +48,7 @@ class MessageCallbackClosuresBuilder
      */
     public function successClosure(Closure $closure)
     {
-        $this->onSuccessClosure = $closure;
+        $this->successClosure = $closure;
         return $this;
     }
 
@@ -65,8 +58,24 @@ class MessageCallbackClosuresBuilder
      */
     public function failureClosure(Closure $closure)
     {
-        $this->onFailureClosure = $closure;
+        $this->failureClosure = $closure;
         return $this;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getFailureClosure()
+    {
+        return $this->failureClosure;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getSuccessClosure()
+    {
+        return $this->successClosure;
     }
 
     /**
@@ -74,9 +83,6 @@ class MessageCallbackClosuresBuilder
      */
     public function build()
     {
-        $callback = new MessageCallbackClosures();
-        $callback->onSuccessClosure = $this->onSuccessClosure;
-        $callback->onFailureClosure = $this->onFailureClosure;
-        return $callback;
+        return MessageCallbackClosures::build($this);
     }
 }

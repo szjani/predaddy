@@ -24,6 +24,7 @@
 namespace predaddy\commandhandling;
 
 use predaddy\domain\AggregateId;
+use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\Message;
 
 /**
@@ -32,7 +33,7 @@ use predaddy\messagehandling\Message;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface Command extends Message
+interface Command extends Message, StateHashAware
 {
     /**
      * Returns the identifier of this command.
@@ -45,9 +46,4 @@ interface Command extends Message
      * @return AggregateId|null null if it is a create command
      */
     public function getAggregateId();
-
-    /**
-     * @return null|int null means no explicit version check is being triggered
-     */
-    public function getVersion();
 }

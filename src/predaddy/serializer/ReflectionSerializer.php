@@ -44,7 +44,7 @@ class ReflectionSerializer implements Serializer
     /**
      * @param string[] $blackListProperties
      */
-    public function __construct(array $blackListProperties = array())
+    public function __construct(array $blackListProperties = [])
     {
         $this->blackListProperties = $blackListProperties;
     }
@@ -55,7 +55,7 @@ class ReflectionSerializer implements Serializer
      */
     public function serialize(ObjectInterface $object)
     {
-        $array = array();
+        $array = [];
         $properties = $object->getObjectClass()->getProperties();
         /* @var $property \ReflectionProperty */
         foreach ($properties as $property) {

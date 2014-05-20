@@ -41,6 +41,6 @@ class SimpleMessageBusFactory implements MessageBusFactory
      */
     public function createBus($name)
     {
-        return new SimpleMessageBus($this->handlerDescFactory, $name);
+        return new SimpleMessageBus($this->handlerDescFactory, [], null, $name);
     }
 }

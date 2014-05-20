@@ -23,6 +23,7 @@
 
 namespace predaddy\messagehandling;
 
+use Closure;
 use Iterator;
 
 class DefaultInterceptorChain implements InterceptorChain
@@ -38,20 +39,20 @@ class DefaultInterceptorChain implements InterceptorChain
     private $handlerInterceptors;
 
     /**
-     * @var CallableWrapper
+     * @var Closure
      */
-    private $callable;
+    private $dispatcher;
 
     /**
      * @param $message
      * @param Iterator $handlerInterceptors
-     * @param CallableWrapper $callable
+     * @param callable $dispatcher
      */
-    public function __construct($message, Iterator $handlerInterceptors, CallableWrapper $callable)
+    public function __construct($message, Iterator $handlerInterceptors, callable $dispatcher)
     {
         $this->message = $message;
         $this->handlerInterceptors = $handlerInterceptors;
-        $this->callable = $callable;
+        $this->dispatcher = $dispatcher;
     }
 
     public function proceed()
@@ -59,8 +60,9 @@ class DefaultInterceptorChain implements InterceptorChain
         if ($this->handlerInterceptors->valid()) {
             $current = $this->handlerInterceptors->current();
             $this->handlerInterceptors->next();
-            return $current->invoke($this->message, $this);
+            $current->invoke($this->message, $this);
+            return;
         }
-        return $this->callable->invoke($this->message);
+        call_user_func($this->dispatcher);
     }
 }

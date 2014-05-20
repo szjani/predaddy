@@ -33,14 +33,16 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 class MessageBusObjectMother
 {
     /**
+     * @param array $interceptors
      * @return SimpleMessageBus
      */
-    public static function createAnnotatedBus()
+    public static function createAnnotatedBus(array $interceptors = [])
     {
         return new SimpleMessageBus(
             new AnnotatedMessageHandlerDescriptorFactory(
                 new DefaultFunctionDescriptorFactory()
-            )
+            ),
+            $interceptors
         );
     }
 }

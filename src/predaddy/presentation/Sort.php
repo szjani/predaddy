@@ -38,7 +38,7 @@ use precore\util\Objects;
  */
 class Sort extends Object implements IteratorAggregate, Countable
 {
-    private $orders = array();
+    private $orders = [];
 
     /**
      * @param array $orders Array of Order objects
@@ -60,7 +60,7 @@ class Sort extends Object implements IteratorAggregate, Countable
         if ($direction === null) {
             $direction = Direction::$ASC;
         }
-        $orders = array();
+        $orders = [];
         foreach ($properties as $property) {
             $orders[] = new Order($direction, $property);
         }

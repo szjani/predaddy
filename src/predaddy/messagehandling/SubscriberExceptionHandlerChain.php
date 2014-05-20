@@ -21,17 +21,35 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
+
+use Exception;
+use precore\lang\Object;
 
 /**
- * @package predaddy\domain
+ * @package predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface Versionable
+abstract class SubscriberExceptionHandlerChain extends Object implements SubscriberExceptionHandler
 {
     /**
-     * @return int|null
+     * @var SubscriberExceptionHandler
      */
-    public function getVersion();
+    private $next;
+
+    public function __construct(SubscriberExceptionHandler $next = null)
+    {
+        $this->next = $next;
+    }
+
+    abstract protected function doHandleException(Exception $exception, SubscriberExceptionContext $context);
+
+    final public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    {
+        $this->doHandleException($exception, $context);
+        if ($this->next !== null) {
+            $this->next->handleException($exception, $context);
+        }
+    }
 }

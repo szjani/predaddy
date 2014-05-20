@@ -24,13 +24,10 @@
 namespace predaddy\messagehandling;
 
 use Closure;
-use EmptyIterator;
 use Exception;
-use Iterator;
-use precore\lang\Object;
 use precore\lang\ObjectClass;
+use precore\util\Objects;
 use ReflectionFunction;
-use RuntimeException;
 use SplObjectStorage;
 use SplPriorityQueue;
 
@@ -42,7 +39,7 @@ use SplPriorityQueue;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class SimpleMessageBus extends Object implements MessageBus
+class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
 {
     const DEFAULT_NAME = 'default-bus';
 
@@ -57,6 +54,11 @@ class SimpleMessageBus extends Object implements MessageBus
     private $handlerDescriptorFactory;
 
     /**
+     * @var FunctionDescriptorFactory
+     */
+    private $closureDescriptorFactory;
+
+    /**
      * @var SplObjectStorage
      */
     private $handlers;
@@ -67,54 +69,32 @@ class SimpleMessageBus extends Object implements MessageBus
     private $closures;
 
     /**
-     * @var FunctionDescriptorFactory
+     * @var SubscriberExceptionHandler
      */
-    private $closureDescriptorFactory;
-
-    /**
-     * @var Iterator
-     */
-    private $interceptors;
+    private $exceptionHandler;
 
     /**
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param $identifier
+     * @param array $interceptors
+     * @param SubscriberExceptionHandler $exceptionHandler
+     * @param string $identifier
      */
     public function __construct(
         MessageHandlerDescriptorFactory $handlerDescFactory,
+        array $interceptors = [],
+        SubscriberExceptionHandler $exceptionHandler = null,
         $identifier = self::DEFAULT_NAME
     ) {
+        parent::__construct($interceptors);
         $this->handlers = new SplObjectStorage();
         $this->closures = new SplObjectStorage();
         $this->identifier = (string) $identifier;
         $this->handlerDescriptorFactory = $handlerDescFactory;
         $this->closureDescriptorFactory = $handlerDescFactory->getFunctionDescriptorFactory();
-        $this->interceptors = new EmptyIterator();
-    }
-
-    /**
-     * @param object $message
-     * @param MessageCallback $callback
-     * @throws RuntimeException
-     */
-    public function post($message, MessageCallback $callback = null)
-    {
-        if (!is_object($message)) {
-            throw new RuntimeException('Message must be an object!');
+        if ($exceptionHandler === null) {
+            $exceptionHandler = new NullSubscriberExceptionHandler();
         }
-        self::getLogger()->debug(
-            "The following message has been posted to '{}' message bus: {}",
-            array($this->identifier, $message)
-        );
-        $this->innerPost($message, $callback);
-    }
-
-    /**
-     * @param Iterator $interceptors
-     */
-    public function setInterceptors(Iterator $interceptors)
-    {
-        $this->interceptors = $interceptors;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     /**
@@ -152,14 +132,68 @@ class SimpleMessageBus extends Object implements MessageBus
         $this->closures->detach($closure);
     }
 
-    protected function innerPost($message, MessageCallback $callback = null)
+    /**
+     * Dispatches $message to all handlers.
+     *
+     * @param $message
+     * @param MessageCallback $callback
+     * @return void
+     */
+    protected function dispatch($message, MessageCallback $callback)
     {
-        $this->forwardMessage($message, $callback);
+        $handled = false;
+        foreach ($this->callableWrappersFor($message) as $callable) {
+            $handled = true;
+            try {
+                $result = $callable->invoke($message);
+                self::getLogger()->debug(
+                    "The following message has been dispatched to handler '{}' through message bus '{}': {}",
+                    [$callable, $this, $message]
+                );
+                if ($result !== null) {
+                    $callback->onSuccess($result);
+                }
+            } catch (Exception $exp) {
+                self::getLogger()->warn(
+                    "An error occurred in the following message handler through message bus '{}': {}, message is {}!",
+                    [$this, $callable, $message],
+                    $exp
+                );
+                $context = new SubscriberExceptionContext($this, $message, $callable);
+                try {
+                    $this->exceptionHandler->handleException(
+                        $exp,
+                        $context
+                    );
+                } catch (Exception $e) {
+                    self::getLogger()->error(
+                        "An error occurred in the exception handler with context '{}'",
+                        [$context],
+                        $e
+                    );
+                }
+                try {
+                    $callback->onFailure($exp);
+                } catch (Exception $e) {
+                    self::getLogger()->error("An error occurred in message callback on bus '{}'", [$this], $e);
+                }
+            }
+        }
+        if (!$handled && !($message instanceof DeadMessage)) {
+            self::getLogger()->debug(
+                "The following message as a DeadMessage is being posted to '{}' message bus: {}",
+                [$this, $message]
+            );
+            $this->dispatch(new DeadMessage($message), $callback);
+        }
     }
 
-    protected function forwardMessage($message, MessageCallback $callback = null)
+    /**
+     * @param $message
+     * @return \Iterator
+     */
+    protected function callableWrappersFor($message)
     {
-        $forwarded = false;
         $objectClass = ObjectClass::forName(get_class($message));
         $callbackQueue = new SplPriorityQueue();
         foreach ($this->handlers as $handler) {
@@ -182,48 +216,13 @@ class SimpleMessageBus extends Object implements MessageBus
                 $callbackQueue->insert(new ClosureWrapper($closure), $functionDescriptor->getPriority());
             }
         }
-
-        foreach ($callbackQueue as $callableWrapper) {
-            $this->dispatch($message, $callableWrapper, $callback);
-            $forwarded = true;
-        }
-
-        if (!$forwarded && !($message instanceof DeadMessage)) {
-            self::getLogger()->debug(
-                "The following message as a DeadMessage has been posted to '{}' message bus: {}",
-                array($this->identifier, $message)
-            );
-            $this->forwardMessage(new DeadMessage($message), $callback);
-        }
+        return $callbackQueue;
     }
 
-    protected function doDispatch($message, CallableWrapper $callable)
+    public function toString()
     {
-        $this->interceptors->rewind();
-        $chain = new DefaultInterceptorChain($message, $this->interceptors, $callable);
-        return $chain->proceed();
-    }
-
-    protected function dispatch($message, CallableWrapper $callable, MessageCallback $callback = null)
-    {
-        try {
-            $result = $this->doDispatch($message, $callable);
-            self::getLogger()->debug(
-                "The following message has been dispatched to handler '{}' through message bus '{}': {}",
-                array($callable, $this->identifier, $message)
-            );
-            if ($callback !== null && $result !== null) {
-                $callback->onSuccess($result);
-            }
-        } catch (Exception $e) {
-            self::getLogger()->warn(
-                "An error occurred in the following message handler through message bus '{}': {}, message is {}!",
-                array($this->identifier, $callable, $message),
-                $e
-            );
-            if ($callback !== null) {
-                $callback->onFailure($e);
-            }
-        }
+        return Objects::toStringHelper($this)
+            ->add('id', $this->identifier)
+            ->toString();
     }
 }

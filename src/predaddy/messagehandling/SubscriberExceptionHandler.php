@@ -21,26 +21,16 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
+
+use Exception;
 
 /**
- * @package predaddy\domain
+ * @package predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AbstractDomainEventInitializer extends AbstractDomainEvent
+interface SubscriberExceptionHandler
 {
-    public static function initAggregateId(DomainEvent $event, AggregateId $aggregateId)
-    {
-        if ($event instanceof AbstractDomainEvent) {
-            $event->aggregateId = $aggregateId;
-        }
-    }
-
-    public static function initVersion(DomainEvent $event, $originatedVersion)
-    {
-        if ($event instanceof AbstractDomainEvent && $originatedVersion !== null) {
-            $event->version = $event->calculateNewVersion($originatedVersion);
-        }
-    }
+    public function handleException(Exception $exception, SubscriberExceptionContext $context);
 }

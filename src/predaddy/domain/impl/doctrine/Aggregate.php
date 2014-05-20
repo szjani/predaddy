@@ -27,6 +27,7 @@ use DateTime;
 use precore\lang\Object;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\AggregateId;
+use predaddy\domain\DomainEvent;
 
 /**
  * Meta entity to store aggregate roots. It supports snapshotting.
@@ -88,11 +89,28 @@ class Aggregate extends Object
     }
 
     /**
-     * Workaround to increase version number since Doctrine does not support FORCE_INCREMENT.
+     * @param DomainEvent $event
+     * @param $serializedEvent
+     * @return Event
      */
-    public function touch(DateTime $timestamp)
+    public function createMetaEvent(DomainEvent $event, $serializedEvent)
     {
-        $this->updated = $timestamp;
+        $this->updated = clone $event->getTimestamp();
+        return new Event($this->aggregateId, $this->type, $event, $this->version + 1, $serializedEvent);
+    }
+
+    /**
+     * @param string $serialized
+     * @return Snapshot
+     */
+    public function createSnapshot($serialized)
+    {
+        return new Snapshot($this->aggregateId, $serialized, $this->type, $this->version);
+    }
+
+    public function updateSnapshot(Snapshot $existing, $serialized)
+    {
+        $existing->update($serialized, $this->version);
     }
 
     /**

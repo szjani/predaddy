@@ -35,23 +35,19 @@ use predaddy\eventhandling\AbstractEvent;
 abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
 {
     protected $aggregateId;
-    protected $version;
 
-    public function __construct(AggregateId $aggregateId = null, $originatedVersion = null)
+    public static function initAggregateId(AbstractDomainEvent $event, AggregateId $aggregateId)
+    {
+        $event->aggregateId = $aggregateId;
+    }
+
+    public function __construct(AggregateId $aggregateId = null)
     {
         parent::__construct();
         if ($aggregateId === null) {
             $aggregateId = new NullAggregateId();
         }
         $this->aggregateId = $aggregateId;
-        $this->version = $originatedVersion === null
-            ? null
-            : $this->calculateNewVersion($originatedVersion);
-    }
-
-    protected function calculateNewVersion($originatedVersion)
-    {
-        return $originatedVersion + 1;
     }
 
     /**
@@ -63,17 +59,17 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    public function getVersion()
+    public function getStateHash()
     {
-        return $this->version;
+        return $this->getEventIdentifier();
     }
 
     protected function toStringHelper()
     {
         return parent::toStringHelper()
             ->add('aggregateId', $this->getAggregateId())
-            ->add('version', $this->getVersion());
+            ->add('stateHash', $this->getStateHash());
     }
 }

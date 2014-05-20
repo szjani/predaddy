@@ -54,24 +54,19 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
         $this->eventBus = $this->getMock('\predaddy\messagehandling\MessageBus');
         $this->repository = $this->getMock(
             DoctrineAggregateRootRepository::className(),
-            array('currentVersion'),
-            array(
+            ['currentVersion'],
+            [
                 $this->eventBus,
                 ObjectClass::forName(self::AR_CLASS),
                 $this->entityManager,
                 $this->lockMode
-            )
+            ]
         );
 
         $this->repository
             ->expects(self::any())
             ->method('currentVersion')
             ->will(self::returnValue(1));
-    }
-
-    public function testLockMode()
-    {
-        self::assertEquals($this->lockMode, $this->repository->getLockMode());
     }
 
     /**
@@ -87,10 +82,6 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
             ->method('persist')
             ->with($aggregateRoot);
 
-        $this->entityManager
-            ->expects(self::never())
-            ->method('lock');
-
         $this->repository->save($aggregateRoot, $version);
     }
 
@@ -99,19 +90,19 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function updateAggregate()
     {
-        $version = 1;
         $aggregateRoot = new User();
+
+        $this->entityManager
+            ->expects(self::once())
+            ->method('contains')
+            ->with($aggregateRoot)
+            ->will(self::returnValue(true));
 
         $this->entityManager
             ->expects(self::never())
             ->method('persist');
 
-        $this->entityManager
-            ->expects(self::once())
-            ->method('lock')
-            ->with($aggregateRoot, $this->lockMode, $version);
-
-        $this->repository->save($aggregateRoot, $version);
+        $this->repository->save($aggregateRoot);
     }
 
     public function testGetters()
@@ -154,7 +145,7 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $user = new User();
         $user->increment();
-        $events = array();
+        $events = [];
         $this->eventBus
             ->expects(self::exactly(2))
             ->method('post')
@@ -173,7 +164,7 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
         self::assertInstanceOf(UserCreated::className(), $createdEvent);
         self::assertInstanceOf(IncrementedEvent::className(), $incrementedEvent);
 
-        self::assertNotNull($createdEvent->getVersion());
-        self::assertNotNull($incrementedEvent->getVersion());
+        self::assertNotNull($createdEvent->getStateHash());
+        self::assertNotNull($incrementedEvent->getStateHash());
     }
 }

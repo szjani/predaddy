@@ -26,7 +26,7 @@ namespace predaddy\commandhandling;
 use predaddy\domain\RepositoryRepository;
 use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use trf4php\TransactionManager;
+use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
  * DirectCommandBus automatically registers a DirectCommandForwarder object as a handler
@@ -44,20 +44,22 @@ use trf4php\TransactionManager;
 class DirectCommandBus extends CommandBus
 {
     /**
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     * @param TransactionManager $transactionManager
      * @param RepositoryRepository $repositoryRepository Is being passed to the registered DirectCommandForwarder
      * @param MessageBusFactory $messageBusFactory Is being passed to the registered DirectCommandForwarder
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param array $interceptors
+     * @param SubscriberExceptionHandler $exceptionHandler
      * @param string $identifier
      */
     public function __construct(
-        MessageHandlerDescriptorFactory $handlerDescFactory,
-        TransactionManager $transactionManager,
         RepositoryRepository $repositoryRepository,
         MessageBusFactory $messageBusFactory,
+        MessageHandlerDescriptorFactory $handlerDescFactory,
+        array $interceptors = [],
+        SubscriberExceptionHandler $exceptionHandler = null,
         $identifier = self::DEFAULT_NAME
     ) {
-        parent::__construct($handlerDescFactory, $transactionManager, $identifier);
+        parent::__construct($handlerDescFactory, $interceptors, $exceptionHandler, $identifier);
         $this->register(new DirectCommandForwarder($repositoryRepository, $messageBusFactory));
     }
 }

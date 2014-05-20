@@ -47,7 +47,7 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
     public function testEquals()
     {
         $user = new User();
-        $clone = $this->getMock(User::className(), array('getId'), array(), '', false);
+        $clone = $this->getMock(User::className(), ['getId'], [], '', false);
         $clone
             ->expects(self::once())
             ->method('getId')

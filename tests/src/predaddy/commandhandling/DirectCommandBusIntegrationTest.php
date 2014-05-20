@@ -31,6 +31,7 @@ use predaddy\domain\AggregateId;
 use predaddy\domain\CreateEventSourcedUser;
 use predaddy\domain\Decrement;
 use predaddy\domain\DecrementedEvent;
+use predaddy\domain\DomainEvent;
 use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
 use predaddy\domain\impl\LazyEventSourcedRepositoryRepository;
 use predaddy\domain\Increment;
@@ -40,6 +41,9 @@ use predaddy\domain\UserCreated;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\interceptors\BlockerInterceptor;
+use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
+use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\SimpleMessageBusFactory;
 use trf4php\doctrine\DoctrineTransactionManager;
 
@@ -69,14 +73,14 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
     {
         $isDevMode = true;
         $config = Setup::createAnnotationMetadataConfiguration(
-            array(str_replace(DIRECTORY_SEPARATOR . 'tests', '', __DIR__ . '/../domain/impl/doctrine')),
+            [str_replace(DIRECTORY_SEPARATOR . 'tests', '', __DIR__ . '/../domain/impl/doctrine')],
             $isDevMode,
             '/tmp',
             null,
             false
         );
 
-        $connectionOptions = array('driver' => 'pdo_sqlite', 'memory' => true);
+        $connectionOptions = ['driver' => 'pdo_sqlite', 'memory' => true];
 
         // obtaining the entity manager
         self::$entityManager =  EntityManager::create($connectionOptions, $config);
@@ -93,22 +97,32 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $transactionManager = new DoctrineTransactionManager(self::$entityManager);
+        $handDesc = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
+        $blockerInterceptor = new BlockerInterceptor();
         $this->eventBus = new EventBus(
             new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
-            $transactionManager
+            [$blockerInterceptor]
         );
         $eventStore = new DoctrineOrmEventStore(self::$entityManager);
-        $handDesc = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
+        $trInterceptor = new WrapInTransactionInterceptor($transactionManager);
         $this->commandBus = new DirectCommandBus(
-            $handDesc,
-            $transactionManager,
             new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$ALWAYS),
-            new SimpleMessageBusFactory($handDesc)
+            new SimpleMessageBusFactory($handDesc),
+            $handDesc,
+            [$trInterceptor, $blockerInterceptor->manager()],
+            new TransactionalExceptionHandler($trInterceptor, $blockerInterceptor->manager())
         );
     }
 
     public function testIntegration()
     {
+        $currentVersion = null;
+        $this->eventBus->registerClosure(
+            function (DomainEvent $event) use (&$currentVersion) {
+                $currentVersion = $event->getStateHash();
+            }
+        );
+
         /* @var $aggregateId AggregateId */
         $aggregateId = null;
         $this->eventBus->registerClosure(
@@ -126,14 +140,13 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
                 $incremented++;
             }
         );
-        $this->commandBus->post(new Increment($aggregateId->getValue(), 1));
-        $this->commandBus->post(new Increment($aggregateId->getValue(), 2));
+        $this->commandBus->post(new Increment($aggregateId->getValue(), $currentVersion));
+        $this->commandBus->post(new Increment($aggregateId->getValue(), $currentVersion));
         self::assertEquals(2, $incremented);
 
         $decremented = 0;
         $this->eventBus->registerClosure(
             function (DecrementedEvent $event) use (&$decremented, $aggregateId) {
-                DirectCommandBusIntegrationTest::assertTrue($event->getVersion() !== null && 0 < $event->getVersion());
                 DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
                 $decremented++;
             }

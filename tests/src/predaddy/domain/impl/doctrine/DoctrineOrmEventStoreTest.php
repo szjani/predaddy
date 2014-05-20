@@ -50,20 +50,20 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
     /**
      * @var DoctrineOrmEventStore
      */
-    private $eventStorage;
+    private $eventStore;
 
     public static function setUpBeforeClass()
     {
         $isDevMode = true;
         $config = Setup::createAnnotationMetadataConfiguration(
-            array(str_replace(DIRECTORY_SEPARATOR . 'tests', '', __DIR__)),
+            [str_replace(DIRECTORY_SEPARATOR . 'tests', '', __DIR__)],
             $isDevMode,
             null,
             null,
             false
         );
 
-        $connectionOptions = array('driver' => 'pdo_sqlite', 'memory' => true);
+        $connectionOptions = ['driver' => 'pdo_sqlite', 'memory' => true];
 
         // obtaining the entity manager
         self::$entityManager =  EntityManager::create($connectionOptions, $config);
@@ -79,48 +79,48 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->eventStorage = new DoctrineOrmEventStore(self::$entityManager);
+        $this->eventStore = new DoctrineOrmEventStore(self::$entityManager);
     }
 
     public function testEventSave()
     {
-        $raisedEvents = array();
+        $raisedEvents = [];
         /* @var $aggregateId AggregateId */
         $aggregateId = null;
         $user = null;
-        $eventStorage = $this->eventStorage;
+        $eventStorage = $this->eventStore;
         self::$entityManager->transactional(
             function () use ($eventStorage, &$aggregateId, &$user, &$raisedEvents) {
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment());
                 $aggregateId = $user->getId();
                 $raisedEvents = $user->getAndClearRaisedEvents();
-                $eventStorage->saveChanges(EventSourcedUser::className(), $raisedEvents, 0);
+                $eventStorage->saveChanges(EventSourcedUser::className(), $raisedEvents);
             }
         );
         self::$entityManager->clear();
 
         self::assertCount(2, $raisedEvents);
-        $storedEvents = $this->eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId);
+        $storedEvents = $this->eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId);
         self::assertEquals($raisedEvents[0], $storedEvents->current());
         $storedEvents->next();
         self::assertEquals($raisedEvents[1], $storedEvents->current());
 
         $user2 = EventSourcedUser::objectClass()->newInstanceWithoutConstructor();
-        $user2->loadFromHistory($this->eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId));
+        $user2->loadFromHistory($this->eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId));
         self::assertEquals($user->value, $user2->value);
     }
 
     public function testSnapshottingOutsideTransaction()
     {
         $aggregateId = null;
-        $eventStorage = $this->eventStorage;
+        $eventStorage = $this->eventStore;
         self::$entityManager->transactional(
             function () use ($eventStorage, &$aggregateId) {
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment());
                 $aggregateId = $user->getId();
-                $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents(), 0);
+                $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents());
             }
         );
 
@@ -142,30 +142,30 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
     public function testSnapshottingInsideTransaction()
     {
         $aggregateId = null;
-        $eventStorage = $this->eventStorage;
+        $eventStore = $this->eventStore;
         /* @var $user EventSourcedUser */
         $user = null;
         self::$entityManager->transactional(
-            function () use ($eventStorage, &$aggregateId, &$user) {
+            function () use ($eventStore, &$aggregateId, &$user) {
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment($aggregateId));
                 $aggregateId = $user->getId();
-                $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents(), 0);
+                $eventStore->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents());
             }
         );
 
         self::$entityManager->transactional(
-            function () use ($eventStorage, &$aggregateId, &$user) {
+            function () use ($eventStore, &$aggregateId, &$user) {
                 $user->increment(new Increment($aggregateId, 1));
-                $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents(), 1);
-                $eventStorage->createSnapshot(EventSourcedUser::className(), $aggregateId);
+                $eventStore->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents());
+                $eventStore->createSnapshot(EventSourcedUser::className(), $aggregateId);
             }
         );
 
-        $events = $eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId);
+        $events = $eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId);
         self::assertCount(1, $events);
 
-        $aggregateRoot = $eventStorage->loadSnapshot(EventSourcedUser::className(), $aggregateId);
+        $aggregateRoot = $eventStore->loadSnapshot(EventSourcedUser::className(), $aggregateId);
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE + 1, $aggregateRoot->value);
     }
 }

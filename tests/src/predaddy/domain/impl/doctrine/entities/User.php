@@ -72,11 +72,6 @@ class User extends AbstractAggregateRoot
         return new UUIDAggregateId(UUID::fromString($this->id));
     }
 
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
     public function increment()
     {
         $this->value++;

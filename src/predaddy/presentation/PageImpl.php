@@ -36,7 +36,7 @@ use precore\util\Objects;
  */
 class PageImpl extends Object implements IteratorAggregate, Page
 {
-    private $content = array();
+    private $content = [];
 
     /**
      * @var Pageable

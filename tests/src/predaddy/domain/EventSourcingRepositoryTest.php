@@ -50,8 +50,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->eventBus = new EventBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
-            new NOPTransactionManager()
+            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory())
         );
         $this->eventStore = $this->getMock('\predaddy\domain\EventStore');
         $this->repository = new EventSourcingRepository(
@@ -103,9 +102,8 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             ->method('saveChanges')
             ->will(
                 self::returnCallback(
-                    function ($className, Iterator $events, $getVersion) use ($version) {
+                    function ($className, Iterator $events) use ($version) {
                         $events->rewind();
-                        EventSourcingRepositoryTest::assertEquals($version, $getVersion);
                         EventSourcingRepositoryTest::assertEquals(EventSourcedUser::className(), $className);
                         EventSourcingRepositoryTest::assertInstanceOf(UserCreated::className(), $events->current());
                         $events->next();
@@ -117,7 +115,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
                 )
             );
 
-        $events = array();
+        $events = [];
         $this->eventBus->registerClosure(
             function (DomainEvent $event) use (&$events) {
                 $events[] = $event;
@@ -141,7 +139,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('getEventsFor')
             ->with(EventSourcedUser::className(), $aggregateId)
-            ->will(self::returnValue(new ArrayIterator(array())));
+            ->will(self::returnValue(new ArrayIterator([])));
         $this->repository->load($aggregateId);
     }
 
@@ -157,7 +155,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $aggregateId = new UUIDAggregateId(UUID::randomUUID());
 
-        $events = new ArrayIterator(array(new IncrementedEvent($aggregateId, 1)));
+        $events = new ArrayIterator([new IncrementedEvent($aggregateId, 1)]);
         $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
         $eventStore
             ->expects(self::once())
@@ -181,8 +179,8 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
         $aggregateId = new UUIDAggregateId(UUID::randomUUID());
         $aggregateRoot = $this->getMock(
             EventSourcedUser::className(),
-            array('getId', 'getAndClearRaisedEvents'),
-            array(),
+            ['getId', 'getAndClearRaisedEvents'],
+            [],
             '',
             false
         );
@@ -191,7 +189,7 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
             ->method('getId')
             ->will(self::returnValue($aggregateId));
 
-        $events = new ArrayIterator(array(new IncrementedEvent($aggregateId, 1)));
+        $events = new ArrayIterator([new IncrementedEvent($aggregateId, 1)]);
 
         $aggregateRoot
             ->expects(self::once())
@@ -220,22 +218,22 @@ class EventSourcingRepositoryTest extends PHPUnit_Framework_TestCase
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$userId, &$version) {
                 $userId = $event->getAggregateId();
-                $version = $event->getVersion();
+                $version = $event->getStateHash();
             }
         );
         $this->repository->save($user);
         self::assertNotNull($userId);
-        self::assertEquals(1, $version);
+        self::assertEquals($version, $user->getStateHash());
 
         $this->eventBus->registerClosure(
             function (DecrementedEvent $event) use (&$userId, &$version) {
                 $userId = $event->getAggregateId();
-                $version = $event->getVersion();
+                $version = $event->getStateHash();
             }
         );
         $user->decrement(new Decrement());
-        $this->repository->save($user, 1);
+        $this->repository->save($user);
         self::assertNotNull($userId);
-        self::assertNull($version, 'Command does not contain the version and no transaction synchronization');
+        self::assertEquals($version, $user->getStateHash());
     }
 }

@@ -27,9 +27,9 @@ class UserCreated extends AbstractDomainEvent
 {
     private $userId;
 
-    public function __construct(AggregateId $userId, $originatedVersion)
+    public function __construct(AggregateId $userId)
     {
-        parent::__construct($userId, $originatedVersion);
+        parent::__construct($userId);
         $this->userId = $userId;
     }
 

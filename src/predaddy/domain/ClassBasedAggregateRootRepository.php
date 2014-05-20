@@ -57,13 +57,12 @@ abstract class ClassBasedAggregateRootRepository extends AggregateRootRepository
 
     /**
      * @param AggregateRoot $aggregateRoot
-     * @param int|null $version
      * @throws InvalidArgumentException If the given $aggregateRoot is not an instance of the handled AggregateRoot
      */
-    public function save(AggregateRoot $aggregateRoot, $version = null)
+    public function save(AggregateRoot $aggregateRoot)
     {
         $this->aggregateRootClass->cast($aggregateRoot);
-        parent::save($aggregateRoot, $version);
+        parent::save($aggregateRoot);
     }
 
 

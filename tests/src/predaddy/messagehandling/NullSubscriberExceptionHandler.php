@@ -21,46 +21,19 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\monitoring;
+namespace predaddy\messagehandling;
 
 use Exception;
-use precore\lang\Object;
-use predaddy\messagehandling\HandlerInterceptor;
-use predaddy\messagehandling\InterceptorChain;
-use predaddy\messagehandling\MessageBus;
 
 /**
- * Although you can use MessageCallbacks to handle Exceptions, if you need to handle errors in most general way
- * you can use MonitoringInterceptor. It creates an ErrorMessage from the original message
- * and the exception thrown by the handler and posts it to a MessageBus.
- *
- * @package predaddy\messagehandling\monitoring
+ * @package src\predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class MonitoringInterceptor extends Object implements HandlerInterceptor
+class NullSubscriberExceptionHandler implements SubscriberExceptionHandler
 {
-    /**
-     * @var MessageBus
-     */
-    private $errorBus;
-
-    /**
-     * @param MessageBus $errorBus
-     */
-    public function __construct(MessageBus $errorBus)
+    public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
-        $this->errorBus = $errorBus;
-    }
-
-    public function invoke($message, InterceptorChain $chain)
-    {
-        try {
-            return $chain->proceed();
-        } catch (Exception $exception) {
-            $errorMessage = new ErrorMessage($message, $exception);
-            $this->errorBus->post($errorMessage);
-            throw $exception;
-        }
+        // noop
     }
 }

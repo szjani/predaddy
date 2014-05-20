@@ -24,7 +24,6 @@
 namespace predaddy\messagehandling;
 
 use Closure;
-use Iterator;
 
 /**
  * @author Szurovecz János <szjani@szjani.hu>
@@ -42,15 +41,9 @@ interface MessageBus
      * @param object $message
      * @param MessageCallback $callback
      * @return void
-     * @throws \RuntimeException If $message is not an object
+     * @throws \InvalidArgumentException If $message is not an object
      */
     public function post($message, MessageCallback $callback = null);
-
-    /**
-     * @param Iterator $interceptors HandlerInterceptor instances
-     * @return void
-     */
-    public function setInterceptors(Iterator $interceptors);
 
     /**
      * Register the given handler to this bus. When registered, it will receive all messages posted to this bus.

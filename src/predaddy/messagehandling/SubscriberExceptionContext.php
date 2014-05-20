@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,21 +21,59 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\messagehandling;
 
-use predaddy\eventhandling\Event;
+use precore\lang\Object;
+use precore\util\Objects;
 
 /**
- * Base class for all Domain Events.
- * This class contains the basic behavior expected from any event
- * to be processed by event sourcing engines and aggregates.
+ * @package src\predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface DomainEvent extends Event, StateHashAware
+class SubscriberExceptionContext extends Object
 {
+    private $messageBus;
+    private $message;
+    private $callableWrapper;
+
+    public function __construct(MessageBus $messageBus, $message, CallableWrapper $callableWrapper)
+    {
+        $this->callableWrapper = $callableWrapper;
+        $this->message = $message;
+        $this->messageBus = $messageBus;
+    }
+
     /**
-     * @return AggregateId
+     * @return CallableWrapper
      */
-    public function getAggregateId();
+    public function getCallableWrapper()
+    {
+        return $this->callableWrapper;
+    }
+
+    /**
+     * @return object
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
+     * @return MessageBus
+     */
+    public function getMessageBus()
+    {
+        return $this->messageBus;
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('bus', $this->messageBus)
+            ->add('message', $this->message)
+            ->add('wrapper', $this->callableWrapper)
+            ->toString();
+    }
 }
