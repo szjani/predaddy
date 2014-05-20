@@ -26,7 +26,7 @@ namespace predaddy\messagehandling;
 use Closure;
 use precore\lang\Object;
 
-class ClosureWrapper extends Object implements CallableWrapper
+final class ClosureWrapper extends Object implements CallableWrapper
 {
     /**
      * @var Closure

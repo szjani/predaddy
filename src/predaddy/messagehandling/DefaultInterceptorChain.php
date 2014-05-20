@@ -26,7 +26,7 @@ namespace predaddy\messagehandling;
 use Closure;
 use Iterator;
 
-class DefaultInterceptorChain implements InterceptorChain
+final class DefaultInterceptorChain implements InterceptorChain
 {
     /**
      * @var object

@@ -30,7 +30,7 @@ use Closure;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class MessageCallbackClosuresBuilder
+final class MessageCallbackClosuresBuilder
 {
     /**
      * @var Closure|null

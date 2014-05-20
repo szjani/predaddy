@@ -31,7 +31,7 @@ use precore\util\Objects;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class SubscriberExceptionContext extends Object
+final class SubscriberExceptionContext extends Object
 {
     private $messageBus;
     private $message;

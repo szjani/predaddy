@@ -44,7 +44,7 @@ use predaddy\messagehandling\MessageCallback;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class MessageCallbackClosures extends Object implements MessageCallback
+final class MessageCallbackClosures extends Object implements MessageCallback
 {
     /**
      * @var Closure|null

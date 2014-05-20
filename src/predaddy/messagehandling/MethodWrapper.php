@@ -27,7 +27,7 @@ use precore\lang\Object;
 use precore\util\Objects;
 use ReflectionMethod;
 
-class MethodWrapper extends Object implements CallableWrapper
+final class MethodWrapper extends Object implements CallableWrapper
 {
     /**
      * @var
