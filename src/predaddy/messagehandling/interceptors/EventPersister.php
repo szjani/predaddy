@@ -23,43 +23,36 @@
 
 namespace predaddy\messagehandling\interceptors;
 
-use Exception;
-use precore\lang\Object;
-use predaddy\messagehandling\SubscriberExceptionContext;
-use predaddy\messagehandling\SubscriberExceptionHandler;
+use ArrayIterator;
+use precore\lang\ObjectClass;
+use predaddy\domain\EventStore;
+use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\InterceptorChain;
 
 /**
- * @package predaddy\support
+ * @package predaddy\messagehandling\interceptors
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler
+class EventPersister implements HandlerInterceptor
 {
     /**
-     * @var WrapInTransactionInterceptor
+     * @var EventStore
      */
-    private $transactionInterceptor;
-    /**
-     * @var BlockerInterceptorManager
-     */
-    private $blockerInterceptorManager;
+    private $eventStore;
 
-    public function __construct(
-        WrapInTransactionInterceptor $transactionInt,
-        BlockerInterceptorManager $blockerIntManager
-    ) {
-        $this->transactionInterceptor = $transactionInt;
-        $this->blockerInterceptorManager = $blockerIntManager;
+    /**
+     * @param EventStore $eventStore
+     */
+    public function __construct(EventStore $eventStore)
+    {
+        $this->eventStore = $eventStore;
     }
 
-    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    public function invoke($message, InterceptorChain $chain)
     {
-        self::getLogger()->warn(
-            'Exception occurred with context {[]}, clearing event buffer...',
-            [$context],
-            $exception
-        );
-        $this->transactionInterceptor->handleException($exception, $context);
-        $this->blockerInterceptorManager->handleException($exception, $context);
+        ObjectClass::forName('predaddy\domain\DomainEvent')->cast($message);
+        $this->eventStore->saveChanges($message->getAggregateClass(), new ArrayIterator([$message]));
+        $chain->proceed();
     }
 }

@@ -23,43 +23,37 @@
 
 namespace predaddy\domain\impl\doctrine;
 
-use Doctrine\DBAL\LockMode;
-use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
 use precore\util\UUID;
 use predaddy\domain\DomainEvent;
+use predaddy\domain\DomainTestCase;
+use predaddy\domain\EventPublisher;
 use predaddy\domain\IncrementedEvent;
 use predaddy\domain\User;
 use predaddy\domain\UserCreated;
 use predaddy\domain\UUIDAggregateId;
 
-class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
+class DoctrineAggregateRootRepositoryTest extends DomainTestCase
 {
     const AR_CLASS = 'predaddy\domain\User';
 
     private $entityManager;
-
-    private $lockMode = LockMode::PESSIMISTIC_READ;
 
     /**
      * @var DoctrineAggregateRootRepository
      */
     private $repository;
 
-    private $eventBus;
-
     protected function setUp()
     {
+        parent::setUp();
         $this->entityManager = $this->getMock('Doctrine\ORM\EntityManagerInterface');
-        $this->eventBus = $this->getMock('\predaddy\messagehandling\MessageBus');
         $this->repository = $this->getMock(
             DoctrineAggregateRootRepository::className(),
             ['currentVersion'],
             [
-                $this->eventBus,
                 ObjectClass::forName(self::AR_CLASS),
-                $this->entityManager,
-                $this->lockMode
+                $this->entityManager
             ]
         );
 
@@ -143,19 +137,10 @@ class DoctrineAggregateRootRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function versionMustBeSet()
     {
+        EventPublisher::instance()->setEventBus($this->eventBus);
         $user = new User();
         $user->increment();
-        $events = [];
-        $this->eventBus
-            ->expects(self::exactly(2))
-            ->method('post')
-            ->will(
-                self::returnCallback(
-                    function (DomainEvent $event) use (&$events) {
-                        $events[] = $event;
-                    }
-                )
-            );
+        $events = $this->getAndClearRaisedEvents();
         $this->repository->save($user);
         /* @var $createdEvent UserCreated */
         $createdEvent = $events[0];

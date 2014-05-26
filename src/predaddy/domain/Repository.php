@@ -40,8 +40,7 @@ interface Repository
     public function load(AggregateId $aggregateId);
 
     /**
-     * Persisting the given $aggregateRoot, $version can be used for locking.
-     * Events raised in $aggregateRoot should be posted to the domain event bus.
+     * Persisting the given $aggregateRoot.
      *
      * @param AggregateRoot $aggregateRoot
      */

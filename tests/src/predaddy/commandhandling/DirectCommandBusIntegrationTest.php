@@ -32,6 +32,7 @@ use predaddy\domain\CreateEventSourcedUser;
 use predaddy\domain\Decrement;
 use predaddy\domain\DecrementedEvent;
 use predaddy\domain\DomainEvent;
+use predaddy\domain\EventPublisher;
 use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
 use predaddy\domain\impl\LazyEventSourcedRepositoryRepository;
 use predaddy\domain\Increment;
@@ -42,6 +43,7 @@ use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\BlockerInterceptor;
+use predaddy\messagehandling\interceptors\EventPersister;
 use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\SimpleMessageBusFactory;
@@ -97,16 +99,17 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $transactionManager = new DoctrineTransactionManager(self::$entityManager);
+        $eventStore = new DoctrineOrmEventStore(self::$entityManager);
         $handDesc = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
         $blockerInterceptor = new BlockerInterceptor();
         $this->eventBus = new EventBus(
             new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
-            [$blockerInterceptor]
+            [new EventPersister($eventStore), $blockerInterceptor]
         );
-        $eventStore = new DoctrineOrmEventStore(self::$entityManager);
+        EventPublisher::instance()->setEventBus($this->eventBus);
         $trInterceptor = new WrapInTransactionInterceptor($transactionManager);
         $this->commandBus = new DirectCommandBus(
-            new LazyEventSourcedRepositoryRepository($this->eventBus, $eventStore, TrivialSnapshotStrategy::$ALWAYS),
+            new LazyEventSourcedRepositoryRepository($eventStore),
             new SimpleMessageBusFactory($handDesc),
             $handDesc,
             [$trInterceptor, $blockerInterceptor->manager()],

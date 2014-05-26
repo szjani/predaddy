@@ -81,14 +81,14 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
                     $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
                     $this->entityManager->persist($aggregate);
                     self::getLogger()->debug(
-                        "Aggregate [{}, {}] has been persisted",
+                        "Aggregate has been persisted [{}, {}]",
                         array($aggregateRootClass, $aggregateId)
                     );
                 }
             }
             $metaEvent = $aggregate->createMetaEvent($event, $this->serializer->serialize($event));
             $this->entityManager->persist($metaEvent);
-            self::getLogger()->debug("Event [{}] has been persisted", array($metaEvent));
+            self::getLogger()->debug("Event has been persisted [{}]", array($metaEvent));
         }
     }
 

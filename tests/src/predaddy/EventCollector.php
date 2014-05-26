@@ -21,45 +21,36 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\interceptors;
+namespace predaddy;
 
-use Exception;
-use precore\lang\Object;
-use predaddy\messagehandling\SubscriberExceptionContext;
-use predaddy\messagehandling\SubscriberExceptionHandler;
+use predaddy\eventhandling\Event;
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
- * @package predaddy\support
+ * @package predaddy
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler
+class EventCollector
 {
-    /**
-     * @var WrapInTransactionInterceptor
-     */
-    private $transactionInterceptor;
-    /**
-     * @var BlockerInterceptorManager
-     */
-    private $blockerInterceptorManager;
+    private $events = [];
 
-    public function __construct(
-        WrapInTransactionInterceptor $transactionInt,
-        BlockerInterceptorManager $blockerIntManager
-    ) {
-        $this->transactionInterceptor = $transactionInt;
-        $this->blockerInterceptorManager = $blockerIntManager;
+    /**
+     * @Subscribe
+     * @param Event $object
+     */
+    public function collect(Event $object)
+    {
+        $this->events[] = $object;
     }
 
-    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    /**
+     * @return Event[]
+     */
+    public function events()
     {
-        self::getLogger()->warn(
-            'Exception occurred with context {[]}, clearing event buffer...',
-            [$context],
-            $exception
-        );
-        $this->transactionInterceptor->handleException($exception, $context);
-        $this->blockerInterceptorManager->handleException($exception, $context);
+        $events = $this->events;
+        $this->events = [];
+        return $events;
     }
 }

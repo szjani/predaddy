@@ -35,10 +35,12 @@ use predaddy\eventhandling\AbstractEvent;
 abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
 {
     protected $aggregateId;
+    protected $aggregateClass;
 
-    public static function initAggregateId(AbstractDomainEvent $event, AggregateId $aggregateId)
+    public static function initEvent(AbstractDomainEvent $event, AggregateId $aggregateId, $aggregateClass)
     {
         $event->aggregateId = $aggregateId;
+        $event->aggregateClass = $aggregateClass;
     }
 
     public function __construct(AggregateId $aggregateId = null)
@@ -66,10 +68,19 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
         return $this->getEventIdentifier();
     }
 
+    /**
+     * @return string
+     */
+    public function getAggregateClass()
+    {
+        return $this->aggregateClass;
+    }
+
     protected function toStringHelper()
     {
         return parent::toStringHelper()
             ->add('aggregateId', $this->getAggregateId())
+            ->add('aggregateClass', $this->getAggregateClass())
             ->add('stateHash', $this->getStateHash());
     }
 }

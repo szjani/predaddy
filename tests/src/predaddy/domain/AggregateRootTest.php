@@ -24,6 +24,11 @@
 namespace predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
+use predaddy\eventhandling\EventBus;
+use predaddy\eventhandling\EventFunctionDescriptorFactory;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
+use SplObjectStorage;
 
 /**
  * Description of AggregateRootTest
@@ -32,12 +37,26 @@ use PHPUnit_Framework_TestCase;
  */
 class AggregateRootTest extends PHPUnit_Framework_TestCase
 {
+    public static function collectEvents()
+    {
+        $events = new SplObjectStorage();
+        $eventBus = new EventBus(new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()));
+        EventPublisher::instance()->setEventBus($eventBus);
+        $eventBus->registerClosure(
+            function (DomainEvent $event) use (&$events) {
+                $events->attach($event);
+                $events->rewind();
+            }
+        );
+        return $events;
+    }
+
     public function testCallHandleMethod()
     {
         $user = new User();
         self::assertEquals(User::DEFAULT_VALUE, $user->value);
 
-        $events = $user->getAndClearRaisedEvents();
+        $events = self::collectEvents();
         $user->increment();
         self::assertEquals(2, $user->value);
         self::assertTrue($events->valid());

@@ -24,10 +24,10 @@
 namespace predaddy\domain;
 
 use InvalidArgumentException;
+use precore\lang\Object;
 use precore\lang\ObjectClass;
-use predaddy\messagehandling\MessageBus;
 
-abstract class ClassBasedAggregateRootRepository extends AggregateRootRepository
+abstract class ClassBasedAggregateRootRepository extends Object implements Repository
 {
     /**
      * @var ObjectClass
@@ -37,13 +37,11 @@ abstract class ClassBasedAggregateRootRepository extends AggregateRootRepository
     /**
      * Using EventBus instance is recommended.
      *
-     * @param MessageBus $eventBus DomainEvents, raised in the aggregate, are being posted to it
      * @param ObjectClass $aggregateRootClass
      * @throws InvalidArgumentException If $aggregateRootClass does not extend AggregateRoot
      */
-    public function __construct(MessageBus $eventBus, ObjectClass $aggregateRootClass)
+    public function __construct(ObjectClass $aggregateRootClass)
     {
-        parent::__construct($eventBus);
         if (!ObjectClass::forName('predaddy\domain\AggregateRoot')->isAssignableFrom($aggregateRootClass)) {
             throw new InvalidArgumentException(
                 sprintf(
@@ -62,7 +60,6 @@ abstract class ClassBasedAggregateRootRepository extends AggregateRootRepository
     public function save(AggregateRoot $aggregateRoot)
     {
         $this->aggregateRootClass->cast($aggregateRoot);
-        parent::save($aggregateRoot);
     }
 
 

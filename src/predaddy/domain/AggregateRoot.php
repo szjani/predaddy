@@ -36,10 +36,4 @@ interface AggregateRoot extends Entity
      * @return AggregateId
      */
     public function getId();
-
-    /**
-     * @see AggregateRootRepository::save()
-     * @return Iterator of DomainEvent objects
-     */
-    public function getAndClearRaisedEvents();
 }

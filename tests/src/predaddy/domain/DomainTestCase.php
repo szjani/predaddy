@@ -21,45 +21,41 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\interceptors;
+namespace predaddy\domain;
 
-use Exception;
-use precore\lang\Object;
-use predaddy\messagehandling\SubscriberExceptionContext;
-use predaddy\messagehandling\SubscriberExceptionHandler;
+use ArrayIterator;
+use PHPUnit_Framework_TestCase;
+use predaddy\EventCollector;
+use predaddy\eventhandling\EventBus;
+use predaddy\eventhandling\EventFunctionDescriptorFactory;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 
 /**
- * @package predaddy\support
+ * @package predaddy\domain
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler
+abstract class DomainTestCase extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var WrapInTransactionInterceptor
-     */
-    private $transactionInterceptor;
-    /**
-     * @var BlockerInterceptorManager
-     */
-    private $blockerInterceptorManager;
+    protected $eventBus;
 
-    public function __construct(
-        WrapInTransactionInterceptor $transactionInt,
-        BlockerInterceptorManager $blockerIntManager
-    ) {
-        $this->transactionInterceptor = $transactionInt;
-        $this->blockerInterceptorManager = $blockerIntManager;
+    /**
+     * @var EventCollector
+     */
+    private $eventCollector;
+
+    protected function setUp()
+    {
+        $this->eventBus = new EventBus(
+            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory())
+        );
+        $this->eventCollector = new EventCollector();
+        $this->eventBus->register($this->eventCollector);
+        EventPublisher::instance()->setEventBus($this->eventBus);
     }
 
-    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    protected function getAndClearRaisedEvents()
     {
-        self::getLogger()->warn(
-            'Exception occurred with context {[]}, clearing event buffer...',
-            [$context],
-            $exception
-        );
-        $this->transactionInterceptor->handleException($exception, $context);
-        $this->blockerInterceptorManager->handleException($exception, $context);
+        return new ArrayIterator($this->eventCollector->events());
     }
 }

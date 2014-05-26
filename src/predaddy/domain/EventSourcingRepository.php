@@ -24,9 +24,7 @@
 namespace predaddy\domain;
 
 use InvalidArgumentException;
-use Iterator;
 use precore\lang\ObjectClass;
-use predaddy\messagehandling\MessageBus;
 
 /**
  * Should be used for event sourcing.
@@ -43,28 +41,15 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
     private $eventStore;
 
     /**
-     * @var SnapshotStrategy
-     */
-    private $snapshotStrategy;
-
-    /**
      * @param ObjectClass $aggregateRootClass Must be an EventSourcedAggregateRoot type
-     * @param MessageBus $eventBus
      * @param EventStore $eventStore
-     * @param SnapshotStrategy $snapshotStrategy
      */
     public function __construct(
         ObjectClass $aggregateRootClass,
-        MessageBus $eventBus,
-        EventStore $eventStore,
-        SnapshotStrategy $snapshotStrategy = null
+        EventStore $eventStore
     ) {
-        parent::__construct($eventBus, $aggregateRootClass);
+        parent::__construct($aggregateRootClass);
         $this->eventStore = $eventStore;
-        if ($snapshotStrategy === null) {
-            $snapshotStrategy = TrivialSnapshotStrategy::$ALWAYS;
-        }
-        $this->snapshotStrategy = $snapshotStrategy;
     }
 
     /**
@@ -99,23 +84,5 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
         $aggregateRootClass->cast($aggregate);
         $aggregate->loadFromHistory($events);
         return $aggregate;
-    }
-
-    /**
-     * @param AggregateRoot $aggregateRoot
-     * @param Iterator $events
-     */
-    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events)
-    {
-        $aggregateRootClass = $this->getAggregateRootClass();
-        $this->eventStore->saveChanges($aggregateRootClass->getName(), $events);
-        if ($this->eventStore instanceof SnapshotEventStore) {
-            $events->rewind();
-            $firstEvent = $events->current();
-            if ($firstEvent !== null
-                && $this->snapshotStrategy->snapshotRequired($aggregateRoot, $firstEvent->getStateHash())) {
-                $this->eventStore->createSnapshot($aggregateRootClass->getName(), $aggregateRoot->getId());
-            }
-        }
     }
 }

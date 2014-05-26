@@ -23,23 +23,16 @@
 
 namespace predaddy\domain\impl\doctrine;
 
-use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use InvalidArgumentException;
-use Iterator;
 use precore\lang\ObjectClass;
-use predaddy\domain\AbstractDomainEventInitializer;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\ClassBasedAggregateRootRepository;
-use predaddy\messagehandling\MessageBus;
 
 /**
  * Generic repository class based on Doctrine ORM.
  * Should be used as a base class for repositories.
- *
- * Using a version field in AR for optimistic locking is mandatory.
  *
  * @package predaddy\domain\impl\doctrine
  *
@@ -53,16 +46,14 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     private $entityManager;
 
     /**
-     * @param MessageBus $eventBus
      * @param ObjectClass $aggregateRootClass
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        MessageBus $eventBus,
         ObjectClass $aggregateRootClass,
         EntityManagerInterface $entityManager
     ) {
-        parent::__construct($eventBus, $aggregateRootClass);
+        parent::__construct($aggregateRootClass);
         $this->entityManager = $entityManager;
     }
 
@@ -91,16 +82,12 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     }
 
     /**
-     * If $version is not null, explicit lock is being checked.
-     * It obtains the version field from the entity if that is versioned
-     * and initializes the events' version field.
-     *
      * @param AggregateRoot $aggregateRoot
-     * @param Iterator $events
      * @return void
      */
-    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events)
+    public function save(AggregateRoot $aggregateRoot)
     {
+        parent::save($aggregateRoot);
         $entityManager = $this->getEntityManager();
         if (!$entityManager->contains($aggregateRoot)) {
             $entityManager->persist($aggregateRoot);

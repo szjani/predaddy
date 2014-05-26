@@ -6,7 +6,7 @@
         </layout>
     </appender>
     <root>
-        <level value="error" />
+        <level value="debug" />
         <appender_ref ref="default" />
     </root>
 </configuration>

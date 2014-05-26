@@ -26,9 +26,9 @@ namespace predaddy\domain\impl\doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
-use PHPUnit_Framework_TestCase;
 use predaddy\domain\AggregateId;
 use predaddy\domain\CreateEventSourcedUser;
+use predaddy\domain\DomainTestCase;
 use predaddy\domain\EventSourcedUser;
 use predaddy\domain\Increment;
 
@@ -40,7 +40,7 @@ use predaddy\domain\Increment;
  * @author Szurovecz János <szjani@szjani.hu>
  * @group integration
  */
-class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
+class DoctrineOrmEventStoreTest extends DomainTestCase
 {
     /**
      * @var EntityManager
@@ -79,6 +79,7 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        parent::setUp();
         $this->eventStore = new DoctrineOrmEventStore(self::$entityManager);
     }
 
@@ -94,7 +95,7 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment());
                 $aggregateId = $user->getId();
-                $raisedEvents = $user->getAndClearRaisedEvents();
+                $raisedEvents = $this->getAndClearRaisedEvents();
                 $eventStorage->saveChanges(EventSourcedUser::className(), $raisedEvents);
             }
         );
@@ -120,7 +121,7 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment());
                 $aggregateId = $user->getId();
-                $eventStorage->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents());
+                $eventStorage->saveChanges(EventSourcedUser::className(), $this->getAndClearRaisedEvents());
             }
         );
 
@@ -150,14 +151,14 @@ class DoctrineOrmEventStoreTest extends PHPUnit_Framework_TestCase
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment($aggregateId));
                 $aggregateId = $user->getId();
-                $eventStore->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents());
+                $eventStore->saveChanges(EventSourcedUser::className(), $this->getAndClearRaisedEvents());
             }
         );
 
         self::$entityManager->transactional(
             function () use ($eventStore, &$aggregateId, &$user) {
                 $user->increment(new Increment($aggregateId, 1));
-                $eventStore->saveChanges(EventSourcedUser::className(), $user->getAndClearRaisedEvents());
+                $eventStore->saveChanges(EventSourcedUser::className(), $this->getAndClearRaisedEvents());
                 $eventStore->createSnapshot(EventSourcedUser::className(), $aggregateId);
             }
         );

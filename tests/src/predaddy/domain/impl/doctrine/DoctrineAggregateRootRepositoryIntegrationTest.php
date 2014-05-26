@@ -27,6 +27,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use PHPUnit_Framework_TestCase;
+use predaddy\domain\EventPublisher;
 use predaddy\domain\impl\doctrine\entities\IncrementedEvent;
 use predaddy\domain\impl\doctrine\entities\UnversionedUser;
 use predaddy\domain\impl\doctrine\entities\User;
@@ -44,6 +45,11 @@ use predaddy\messagehandling\interceptors\BlockerInterceptor;
  */
 class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var BlockerInterceptor
+     */
+    private $blockerInterceptor;
+
     /**
      * @var EventBus
      */
@@ -91,18 +97,17 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
 
     protected function setUp()
     {
-        $blockerInterceptor = new BlockerInterceptor();
+        $this->blockerInterceptor = new BlockerInterceptor();
         $this->eventBus = new EventBus(
             new AnnotatedMessageHandlerDescriptorFactory(new DefaultFunctionDescriptorFactory()),
-            [$blockerInterceptor]
+            [$this->blockerInterceptor]
         );
+        EventPublisher::instance()->setEventBus($this->eventBus);
         $this->userRepo = new DoctrineAggregateRootRepository(
-            $this->eventBus,
             User::objectClass(),
             self::$entityManager
         );
         $this->unversionedUserRepo = new DoctrineAggregateRootRepository(
-            $this->eventBus,
             UnversionedUser::objectClass(),
             self::$entityManager
         );
@@ -116,6 +121,7 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         $called = 0;
         /* @var $user User */
         $user = null;
+        $this->blockerInterceptor->startBlocking();
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$called, &$user) {
                 PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
@@ -127,6 +133,7 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         );
         $user = new User();
         $this->userRepo->save($user);
+        $this->blockerInterceptor->flush();
         self::assertEquals(1, $called);
 
         // next transaction
@@ -142,6 +149,7 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
 
         $user->increment();
         $this->userRepo->save($user);
+        $this->blockerInterceptor->flush();
         self::assertEquals(2, $called);
     }
 
@@ -158,8 +166,10 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
                 $called++;
             }
         );
+        $this->blockerInterceptor->startBlocking();
         $user = new UnversionedUser();
         $this->unversionedUserRepo->save($user);
+        $this->blockerInterceptor->flush();
         self::assertEquals(1, $called);
 
         // next transaction
@@ -175,6 +185,7 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
 
         $user->increment();
         $this->unversionedUserRepo->save($user);
+        $this->blockerInterceptor->flush();
         self::assertEquals(2, $called);
     }
 }

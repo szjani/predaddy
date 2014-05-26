@@ -21,45 +21,55 @@
  * SOFTWARE.
  */
 
-namespace predaddy\messagehandling\interceptors;
+namespace predaddy\domain;
 
-use Exception;
-use precore\lang\Object;
-use predaddy\messagehandling\SubscriberExceptionContext;
-use predaddy\messagehandling\SubscriberExceptionHandler;
+use predaddy\eventhandling\EventBus;
+use predaddy\messagehandling\MessageBus;
+use predaddy\messagehandling\util\NullMessageBus;
 
 /**
- * @package predaddy\support
+ * @package predaddy\domain
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler
+final class EventPublisher
 {
-    /**
-     * @var WrapInTransactionInterceptor
-     */
-    private $transactionInterceptor;
-    /**
-     * @var BlockerInterceptorManager
-     */
-    private $blockerInterceptorManager;
+    private static $instance;
 
-    public function __construct(
-        WrapInTransactionInterceptor $transactionInt,
-        BlockerInterceptorManager $blockerIntManager
-    ) {
-        $this->transactionInterceptor = $transactionInt;
-        $this->blockerInterceptorManager = $blockerIntManager;
+    /**
+     * @var MessageBus
+     */
+    private $eventBus;
+
+    private function __construct()
+    {
+        $this->eventBus = new NullMessageBus();
     }
 
-    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    /**
+     * @param EventBus $eventBus
+     */
+    public function setEventBus(EventBus $eventBus = null)
     {
-        self::getLogger()->warn(
-            'Exception occurred with context {[]}, clearing event buffer...',
-            [$context],
-            $exception
-        );
-        $this->transactionInterceptor->handleException($exception, $context);
-        $this->blockerInterceptorManager->handleException($exception, $context);
+        $this->eventBus = $eventBus ?: new NullMessageBus();
+    }
+
+    /**
+     * @return EventPublisher
+     */
+    public static function instance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new EventPublisher();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * @param DomainEvent $event
+     */
+    public function post(DomainEvent $event)
+    {
+        $this->eventBus->post($event);
     }
 }

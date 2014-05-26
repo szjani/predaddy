@@ -23,9 +23,7 @@
 
 namespace predaddy\domain;
 
-use PHPUnit_Framework_TestCase;
-
-class DefaultEventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
+class DefaultEventSourcedAggregateRootTest extends DomainTestCase
 {
     public function testLoadFromHistory()
     {
@@ -37,7 +35,7 @@ class DefaultEventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
         $user->increment(new Increment());
         $user->increment(new Increment());
 
-        $raisedEvents = $user->getAndClearRaisedEvents();
+        $raisedEvents = $this->getAndClearRaisedEvents();
 
         // 1 create and 3 increment events raised
         self::assertInstanceOf(UserCreated::className(), $raisedEvents->current());
@@ -54,7 +52,7 @@ class DefaultEventSourcedAggregateRootTest extends PHPUnit_Framework_TestCase
 
         // increment only $replayedUser's value
         $replayedUser->increment(new Increment());
-        $raisedEvents = $replayedUser->getAndClearRaisedEvents();
+        $raisedEvents = $this->getAndClearRaisedEvents();
         self::assertEquals($user->value + 1, $replayedUser->value);
         self::assertEquals(1, count($raisedEvents));
 

@@ -23,8 +23,6 @@
 
 namespace predaddy\domain;
 
-use ArrayIterator;
-use Iterator;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
@@ -38,27 +36,10 @@ use UnexpectedValueException;
 abstract class AbstractAggregateRoot extends Object implements StateHashAwareAggregateRoot
 {
     /**
-     * Do not persist it.
-     * @var array
-     */
-    protected $events = [];
-
-    /**
      * Must be persisted.
      * @var string
      */
     protected $stateHash;
-
-    /**
-     * @see AggregateRootRepository::save()
-     * @return Iterator of DomainEvent objects
-     */
-    public function getAndClearRaisedEvents()
-    {
-        $events = new ArrayIterator($this->events);
-        $this->events = [];
-        return $events;
-    }
 
     public function toString()
     {
@@ -76,10 +57,10 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
     protected function raise(DomainEvent $event)
     {
         if ($event instanceof AbstractDomainEvent) {
-            AbstractDomainEvent::initAggregateId($event, $this->getId());
+            AbstractDomainEvent::initEvent($event, $this->getId(), $this->getClassName());
         }
         $this->stateHash = $event->getStateHash();
-        $this->events[] = $event;
+        EventPublisher::instance()->post($event);
     }
 
     /**
