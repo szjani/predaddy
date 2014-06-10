@@ -23,8 +23,6 @@
 
 namespace predaddy\domain;
 
-use Iterator;
-
 /**
  * Aggregate root class.
  *
