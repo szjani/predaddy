@@ -45,6 +45,7 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
     {
         return Objects::toStringHelper($this)
             ->add('id', $this->getId())
+            ->add('stateHash', $this->stateHash)
             ->toString();
     }
 
