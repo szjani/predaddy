@@ -30,7 +30,7 @@ use Iterator;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface EventSourcedAggregateRoot extends AggregateRoot
+interface EventSourcedAggregateRoot extends StateHashAwareAggregateRoot
 {
     /**
      * Initialize the aggregate from the given events.

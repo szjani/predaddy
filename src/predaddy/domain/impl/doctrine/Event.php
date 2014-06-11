@@ -29,6 +29,7 @@ use precore\util\Objects;
 use predaddy\domain\AggregateId;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\DomainEvent;
+use predaddy\domain\StateHashAware;
 
 /**
  * Meta class which stores DomainEvent object.
@@ -43,11 +44,12 @@ use predaddy\domain\DomainEvent;
  *   indexes={
  *     @ORM\Index(name="event_aggregate_id_type", columns={"aggregate_id", "aggregate_type"}),
  *     @ORM\Index(name="event_created", columns={"created"}),
- *     @ORM\Index(name="event_version", columns={"version"})
+ *     @ORM\Index(name="event_version", columns={"version"}),
+ *     @ORM\Index(name="event_state_hash", columns={"state_hash"})
  *   }
  * )
  */
-class Event extends Object
+class Event extends Object implements StateHashAware
 {
     /**
      * @ORM\Id
@@ -56,6 +58,12 @@ class Event extends Object
      * @var int
      */
     private $sequenceNumber;
+
+    /**
+     * @ORM\Column(type="string", name="state_hash")
+     * @var string
+     */
+    private $stateHash;
 
     /**
      * @ORM\Column(type="string", name="aggregate_id")
@@ -115,6 +123,7 @@ class Event extends Object
         $this->version = $version;
         $this->created = clone $event->getTimestamp();
         $this->eventType = $event->getClassName();
+        $this->stateHash = $event->getStateHash();
     }
 
     /**
@@ -182,5 +191,13 @@ class Event extends Object
     public function getEventType()
     {
         return $this->eventType;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getStateHash()
+    {
+        return $this->stateHash;
     }
 }

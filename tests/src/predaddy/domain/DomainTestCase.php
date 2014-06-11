@@ -37,6 +37,9 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
  */
 abstract class DomainTestCase extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventBus
+     */
     protected $eventBus;
 
     /**

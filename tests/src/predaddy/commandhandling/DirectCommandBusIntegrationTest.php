@@ -37,7 +37,6 @@ use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
 use predaddy\domain\impl\LazyEventSourcedRepositoryRepository;
 use predaddy\domain\Increment;
 use predaddy\domain\IncrementedEvent;
-use predaddy\domain\TrivialSnapshotStrategy;
 use predaddy\domain\UserCreated;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;

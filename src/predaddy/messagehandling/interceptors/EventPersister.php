@@ -23,7 +23,6 @@
 
 namespace predaddy\messagehandling\interceptors;
 
-use ArrayIterator;
 use precore\lang\ObjectClass;
 use predaddy\domain\EventStore;
 use predaddy\messagehandling\HandlerInterceptor;
@@ -52,7 +51,7 @@ class EventPersister implements HandlerInterceptor
     public function invoke($message, InterceptorChain $chain)
     {
         ObjectClass::forName('predaddy\domain\DomainEvent')->cast($message);
-        $this->eventStore->saveChanges($message->getAggregateClass(), new ArrayIterator([$message]));
+        $this->eventStore->persist($message);
         $chain->proceed();
     }
 }

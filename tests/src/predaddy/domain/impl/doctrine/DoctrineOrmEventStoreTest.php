@@ -96,7 +96,9 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 $user->increment(new Increment());
                 $aggregateId = $user->getId();
                 $raisedEvents = $this->getAndClearRaisedEvents();
-                $eventStorage->saveChanges(EventSourcedUser::className(), $raisedEvents);
+                foreach ($raisedEvents as $event) {
+                    $eventStorage->persist($event);
+                }
             }
         );
         self::$entityManager->clear();
@@ -121,7 +123,9 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment());
                 $aggregateId = $user->getId();
-                $eventStorage->saveChanges(EventSourcedUser::className(), $this->getAndClearRaisedEvents());
+                foreach ($this->getAndClearRaisedEvents() as $event) {
+                    $eventStorage->persist($event);
+                }
             }
         );
 
@@ -133,7 +137,7 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 $eventStorage->createSnapshot(EventSourcedUser::className(), $aggregateId);
             }
         );
-        $events = $eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId);
+        $events = $eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId, $events[1]->getStateHash());
         self::assertCount(0, $events);
 
         $aggregateRoot = $eventStorage->loadSnapshot(EventSourcedUser::className(), $aggregateId);
@@ -151,22 +155,62 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 $user = new EventSourcedUser(new CreateEventSourcedUser());
                 $user->increment(new Increment($aggregateId));
                 $aggregateId = $user->getId();
-                $eventStore->saveChanges(EventSourcedUser::className(), $this->getAndClearRaisedEvents());
+                foreach ($this->getAndClearRaisedEvents() as $event) {
+                    $eventStore->persist($event);
+                }
             }
         );
 
         self::$entityManager->transactional(
             function () use ($eventStore, &$aggregateId, &$user) {
                 $user->increment(new Increment($aggregateId, 1));
-                $eventStore->saveChanges(EventSourcedUser::className(), $this->getAndClearRaisedEvents());
+                foreach ($this->getAndClearRaisedEvents() as $event) {
+                    $eventStore->persist($event);
+                }
                 $eventStore->createSnapshot(EventSourcedUser::className(), $aggregateId);
             }
         );
 
-        $events = $eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId);
+        $user = $eventStore->loadSnapshot(EventSourcedUser::className(), $aggregateId);
+        $events = $eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId, $user->getStateHash());
         self::assertCount(1, $events);
 
         $aggregateRoot = $eventStore->loadSnapshot(EventSourcedUser::className(), $aggregateId);
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE + 1, $aggregateRoot->value);
+    }
+
+    /**
+     * @test
+     */
+    public function testSnapshotting()
+    {
+        $aggregateId = null;
+        /* @var $user EventSourcedUser */
+        $user = null;
+        $raisedEvents = [];
+        self::$entityManager->transactional(
+            function () use (&$aggregateId, &$user, &$raisedEvents) {
+                $user = new EventSourcedUser(new CreateEventSourcedUser());
+                $user->increment(new Increment($aggregateId));
+                $aggregateId = $user->getId();
+                $raisedEvents = $this->getAndClearRaisedEvents();
+                foreach ($raisedEvents as $event) {
+                    $this->eventStore->persist($event);
+                }
+            }
+        );
+        self::assertEquals(2, count($raisedEvents));
+        self::$entityManager->transactional(
+            function () use ($aggregateId) {
+                $this->eventStore->createSnapshot(EventSourcedUser::className(), $aggregateId);
+            }
+        );
+        self::assertEquals($raisedEvents[1]->getStateHash(), $user->getStateHash());
+        $reducedEvents = $this->eventStore->getEventsFor(
+            EventSourcedUser::className(),
+            $aggregateId,
+            $raisedEvents[0]->getStateHash()
+        );
+        self::assertCount(1, $reducedEvents);
     }
 }

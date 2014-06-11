@@ -27,9 +27,13 @@ use ArrayIterator;
 use Iterator;
 use precore\lang\ObjectClass;
 use precore\util\UUID;
+use predaddy\domain\impl\InMemoryEventStore;
 
 class EventSourcingRepositoryTest extends DomainTestCase
 {
+    /**
+     * @var EventStore
+     */
     private $eventStore;
 
     /**
@@ -217,5 +221,27 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $this->repository->save($user);
         self::assertNotNull($userId);
         self::assertEquals($version, $user->getStateHash());
+    }
+
+    public function testWithInMemoryMessageBus()
+    {
+        $this->eventStore = new InMemoryEventStore();
+        $this->repository = new EventSourcingRepository(
+            EventSourcedUser::objectClass(),
+            $this->eventStore
+        );
+        $this->eventBus->registerClosure(
+            function (DomainEvent $event) {
+                $this->eventStore->persist($event);
+            }
+        );
+        $user = new EventSourcedUser(new CreateEventSourcedUser());
+        $user->increment(new Increment());
+        $this->eventStore->createSnapshot(EventSourcedUser::className(), $user->getId());
+        self::assertEquals($user, $this->eventStore->loadSnapshot(EventSourcedUser::className(), $user->getId()));
+
+        $user->increment(new Increment());
+        $loadedUser = $this->repository->load($user->getId());
+        self::assertEquals($user, $loadedUser);
     }
 }

@@ -70,11 +70,15 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
     public function load(AggregateId $aggregateId)
     {
         $aggregateRootClass = $this->getAggregateRootClass();
-        $events = $this->eventStore->getEventsFor($aggregateRootClass->getName(), $aggregateId);
         $aggregate = null;
+        $stateHash = null;
         if ($this->eventStore instanceof SnapshotEventStore) {
             $aggregate = $this->eventStore->loadSnapshot($aggregateRootClass->getName(), $aggregateId);
+            $stateHash = $aggregate === null
+                ? null
+                : $aggregate->getStateHash();
         }
+        $events = $this->eventStore->getEventsFor($aggregateRootClass->getName(), $aggregateId, $stateHash);
         if ($aggregate === null) {
             if (!$events->valid()) {
                 $this->throwInvalidAggregateIdException($aggregateId);

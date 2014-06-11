@@ -24,21 +24,18 @@
 namespace predaddy\domain\impl\doctrine;
 
 use ArrayIterator;
-use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Iterator;
-use precore\lang\Object;
 use precore\lang\ObjectClass;
-use predaddy\domain\AbstractDomainEventInitializer;
+use predaddy\domain\AbstractSnapshotEventStore;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventSourcedAggregateRoot;
 use predaddy\domain\SnapshotEventStore;
+use predaddy\domain\SnapshotStrategy;
 use predaddy\serializer\PHPSerializer;
 use predaddy\serializer\Serializer;
 
-class DoctrineOrmEventStore extends Object implements SnapshotEventStore
+class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements SnapshotEventStore
 {
     /**
      * @var EntityManagerInterface
@@ -52,10 +49,15 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
 
     /**
      * @param EntityManagerInterface $entityManager
+     * @param SnapshotStrategy $snapshotStrategy
      * @param Serializer $serializer Used to serialize events and ARs for snapshotting
      */
-    public function __construct(EntityManagerInterface $entityManager, Serializer $serializer = null)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        SnapshotStrategy $snapshotStrategy = null,
+        Serializer $serializer = null
+    ) {
+        parent::__construct($snapshotStrategy);
         $this->entityManager = $entityManager;
         if ($serializer === null) {
             $serializer = new PHPSerializer();
@@ -65,100 +67,45 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
 
     /**
      * @param string $aggregateRootClass
-     * @param Iterator $events
-     * @throws InvalidArgumentException
-     * @return void
-     */
-    public function saveChanges($aggregateRootClass, Iterator $events)
-    {
-        $aggregate = null;
-        /* @var $event DomainEvent */
-        foreach ($events as $event) {
-            $aggregateId = $event->getAggregateId();
-            if ($aggregate === null) {
-                $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
-                if ($aggregate === null) {
-                    $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
-                    $this->entityManager->persist($aggregate);
-                    self::getLogger()->debug(
-                        "Aggregate has been persisted [{}, {}]",
-                        array($aggregateRootClass, $aggregateId)
-                    );
-                }
-            }
-            $metaEvent = $aggregate->createMetaEvent($event, $this->serializer->serialize($event));
-            $this->entityManager->persist($metaEvent);
-            self::getLogger()->debug("Event has been persisted [{}]", array($metaEvent));
-        }
-    }
-
-    /**
-     * @param string $aggregateRootClass
      * @param AggregateId $aggregateId
+     * @param null $stateHash
      * @return ArrayIterator
      */
-    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId)
+    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId, $stateHash = null)
     {
-        /* @var $snapshot Snapshot */
-        $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
-        $fromVersion = $snapshot === null ? 0 : $snapshot->getVersion();
-        $events = $this->entityManager->createQueryBuilder()
+        $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('e')
             ->from(Event::className(), 'e')
-            ->where('e.aggregateType = :type AND e.aggregateId = :aggregateId AND e.version > :version')
-            ->orderBy('e.sequenceNumber')
-            ->getQuery()
-            ->execute(
-                array(
+            ->where('e.aggregateType = :type AND e.aggregateId = :aggregateId')
+            ->setParameters(
+                [
                     'type' => $aggregateRootClass,
-                    'aggregateId' => $aggregateId->getValue(),
-                    'version' => $fromVersion
+                    'aggregateId' => $aggregateId->getValue()
+                ]
+            );
+        if ($stateHash !== null) {
+            $queryBuilder->andWhere(
+                sprintf(
+                    'e.sequenceNumber > (
+                        SELECT e2.sequenceNumber
+                        FROM %s e2
+                        WHERE e2.aggregateType = :type AND e2.aggregateId = :aggregateId AND e2.stateHash = :stateHash
+                    )',
+                    Event::className()
                 )
             );
+            $queryBuilder->setParameter('stateHash', $stateHash);
+        }
+        $events = $queryBuilder
+            ->orderBy('e.sequenceNumber')
+            ->getQuery()
+            ->execute();
         $result = [];
         /* @var $event Event */
         foreach ($events as $event) {
             $result[] = $this->serializer->deserialize($event->getData(), ObjectClass::forName($event->getEventType()));
         }
         return new ArrayIterator($result);
-    }
-
-    /**
-     * Events raised in the current transaction are not being stored in this snapshot.
-     * Only the already persisted events are being utilized.
-     *
-     * @param string $aggregateRootClass
-     * @param AggregateId $aggregateId
-     */
-    public function createSnapshot($aggregateRootClass, AggregateId $aggregateId)
-    {
-        $events = $this->getEventsFor($aggregateRootClass, $aggregateId);
-        if ($events->count() == 0) {
-            return;
-        }
-
-        /* @var $aggregateRoot EventSourcedAggregateRoot */
-        $aggregateRoot = $this->loadSnapshot($aggregateRootClass, $aggregateId);
-        if ($aggregateRoot === null) {
-            $objectClass = ObjectClass::forName($aggregateRootClass);
-            $aggregateRoot = $objectClass->newInstanceWithoutConstructor();
-        }
-        $aggregateRoot->loadFromHistory($events);
-
-        /* @var $snapshot Snapshot */
-        $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
-        $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
-        $serialized = $this->serializer->serialize($aggregateRoot);
-        if ($snapshot === null) {
-            $snapshot = $aggregate->createSnapshot($serialized);
-            $this->entityManager->persist($snapshot);
-        } else {
-            $aggregate->updateSnapshot($snapshot, $serialized);
-        }
-        self::getLogger()->debug(
-            "Snapshot has been persisted for aggregate [{}, {}], version [{}]",
-            array($aggregateRootClass, $aggregateId, $aggregate->getVersion())
-        );
     }
 
     /**
@@ -174,9 +121,53 @@ class DoctrineOrmEventStore extends Object implements SnapshotEventStore
         if ($snapshot !== null) {
             $reflectionClass = ObjectClass::forName($aggregateRootClass);
             $aggregateRoot = $this->serializer->deserialize($snapshot->getAggregateRoot(), $reflectionClass);
-            self::getLogger()->debug("Snapshot loaded [{}, {}]", array($aggregateRootClass, $aggregateId));
+            self::getLogger()->debug("Snapshot loaded [{}, {}]", [$aggregateRootClass, $aggregateId]);
         }
         return $aggregateRoot;
+    }
+
+    /**
+     * @param DomainEvent $event
+     * @return int
+     */
+    protected function doPersist(DomainEvent $event)
+    {
+        /* @var $event DomainEvent */
+        $aggregateId = $event->getAggregateId();
+        $aggregateRootClass = $event->getAggregateClass();
+        $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
+        if ($aggregate === null) {
+            $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
+            $this->entityManager->persist($aggregate);
+            self::getLogger()->debug(
+                "Aggregate has been persisted [{}, {}]",
+                [$aggregateRootClass, $aggregateId]
+            );
+        }
+        $metaEvent = $aggregate->createMetaEvent($event, $this->serializer->serialize($event));
+        $this->entityManager->persist($metaEvent);
+        self::getLogger()->debug("Event has been persisted [{}]", [$metaEvent]);
+        return $aggregate->getVersion();
+    }
+
+    protected function doCreateSnapshot(EventSourcedAggregateRoot $aggregateRoot)
+    {
+        $aggregateRootClass = $aggregateRoot->getClassName();
+        $aggregateId = $aggregateRoot->getId();
+        /* @var $snapshot Snapshot */
+        $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
+        $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
+        $serialized = $this->serializer->serialize($aggregateRoot);
+        if ($snapshot === null) {
+            $snapshot = $aggregate->createSnapshot($serialized);
+            $this->entityManager->persist($snapshot);
+        } else {
+            $aggregate->updateSnapshot($snapshot, $serialized);
+        }
+        self::getLogger()->debug(
+            "Snapshot has been persisted for aggregate [{}, {}], version [{}]",
+            [$aggregateRootClass, $aggregateId, $aggregate->getVersion()]
+        );
     }
 
     /**

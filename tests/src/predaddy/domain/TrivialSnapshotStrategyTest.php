@@ -29,8 +29,8 @@ class TrivialSnapshotStrategyTest extends PHPUnit_Framework_TestCase
 {
     public function testSnapshotRequired()
     {
-        $aggregate = $this->getMock(__NAMESPACE__ . '\EventSourcedAggregateRoot');
-        self::assertTrue(TrivialSnapshotStrategy::$ALWAYS->snapshotRequired($aggregate, 1));
-        self::assertFalse(TrivialSnapshotStrategy::$NEVER->snapshotRequired($aggregate, 1));
+        $event = $this->getMock(__NAMESPACE__ . '\DomainEvent');
+        self::assertTrue(TrivialSnapshotStrategy::$ALWAYS->snapshotRequired($event, 1));
+        self::assertFalse(TrivialSnapshotStrategy::$NEVER->snapshotRequired($event, 1));
     }
 }

@@ -33,9 +33,9 @@ namespace predaddy\domain;
 interface SnapshotStrategy
 {
     /**
-     * @param EventSourcedAggregateRoot $aggregateRoot
+     * @param DomainEvent $event
      * @param int|null $originalVersion
      * @return boolean
      */
-    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion);
+    public function snapshotRequired(DomainEvent $event, $originalVersion);
 }

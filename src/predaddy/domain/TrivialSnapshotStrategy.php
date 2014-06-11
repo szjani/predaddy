@@ -41,10 +41,10 @@ class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
 
     protected static function constructorArgs()
     {
-        return array(
-            'ALWAYS' => array(true),
-            'NEVER' => array(false)
-        );
+        return [
+            'ALWAYS' => [true],
+            'NEVER' => [false]
+        ];
     }
 
     protected function __construct($snapshotRequired)
@@ -53,11 +53,11 @@ class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
     }
 
     /**
-     * @param EventSourcedAggregateRoot $aggregateRoot
+     * @param DomainEvent $event
      * @param int|null $originalVersion
      * @return boolean
      */
-    public function snapshotRequired(EventSourcedAggregateRoot $aggregateRoot, $originalVersion)
+    public function snapshotRequired(DomainEvent $event, $originalVersion)
     {
         return $this->snapshotRequired;
     }
