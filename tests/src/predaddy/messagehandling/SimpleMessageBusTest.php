@@ -39,7 +39,7 @@ use RuntimeException;
 class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var MessageBus
+     * @var SimpleMessageBus
      */
     protected $bus;
 
@@ -401,5 +401,30 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
             );
 
         $bus->post(UUID::randomUUID(), $callback);
+    }
+
+    public function testRegisterHandlerFactory()
+    {
+        $handler = new SimpleMessageHandler();
+        $factory = function (Message $message) use ($handler) {
+            return $handler;
+        };
+        $this->bus->registerHandlerFactory($factory);
+        $message = new SimpleMessage();
+        $this->bus->post($message);
+        self::assertSame($message, $handler->lastMessage);
+    }
+
+    public function testUnregisterHandlerFactory()
+    {
+        $handler = new SimpleMessageHandler();
+        $factory = function (Message $message) use ($handler) {
+            return $handler;
+        };
+        $this->bus->registerHandlerFactory($factory);
+        $this->bus->unregisterHandlerFactory($factory);
+        $message = new SimpleMessage();
+        $this->bus->post($message);
+        self::assertNull($handler->lastMessage);
     }
 }

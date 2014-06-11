@@ -31,7 +31,7 @@ namespace predaddy\messagehandling;
 interface MessageHandlerDescriptor
 {
     /**
-     * @return array of FunctionDescriptor
+     * @return FunctionDescriptor[]
      */
     public function getFunctionDescriptors();
 }

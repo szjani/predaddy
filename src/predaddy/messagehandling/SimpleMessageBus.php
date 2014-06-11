@@ -66,6 +66,11 @@ class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
     /**
      * @var SplObjectStorage
      */
+    private $factories;
+
+    /**
+     * @var SplObjectStorage
+     */
     private $closures;
 
     /**
@@ -88,6 +93,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
         parent::__construct($interceptors);
         $this->handlers = new SplObjectStorage();
         $this->closures = new SplObjectStorage();
+        $this->factories = new SplObjectStorage();
         $this->identifier = (string) $identifier;
         $this->handlerDescriptorFactory = $handlerDescFactory;
         $this->closureDescriptorFactory = $handlerDescFactory->getFunctionDescriptorFactory();
@@ -95,6 +101,17 @@ class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
             $exceptionHandler = new NullSubscriberExceptionHandler();
         }
         $this->exceptionHandler = $exceptionHandler;
+    }
+
+    public function registerHandlerFactory(Closure $factory)
+    {
+        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($factory), self::DEFAULT_PRIORITY);
+        $this->factories->attach($factory, $descriptor);
+    }
+
+    public function unregisterHandlerFactory(Closure $factory)
+    {
+        $this->factories->detach($factory);
     }
 
     /**
@@ -197,26 +214,69 @@ class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
         $objectClass = ObjectClass::forName(get_class($message));
         $callbackQueue = new SplPriorityQueue();
         foreach ($this->handlers as $handler) {
-            /* @var $descriptor MessageHandlerDescriptor */
-            $descriptor = $this->handlers[$handler];
-            /* @var $functionDescriptor FunctionDescriptor */
-            foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
-                if ($functionDescriptor->isHandlerFor($objectClass)) {
-                    $callbackQueue->insert(
-                        new MethodWrapper($handler, $functionDescriptor->getReflectionFunction()),
-                        $functionDescriptor->getPriority()
-                    );
-                }
+            $this->addAllWrappers(
+                $callbackQueue,
+                $this->handlers[$handler],
+                $objectClass,
+                $handler
+            );
+        }
+
+        foreach ($this->factories as $factory) {
+            /* @var $factoryDescriptor FunctionDescriptor */
+            $factoryDescriptor = $this->factories[$factory];
+            if ($factoryDescriptor->isHandlerFor($objectClass)) {
+                $handler = call_user_func($factory, $message);
+                $this->addAllWrappers(
+                    $callbackQueue,
+                    $this->handlerDescriptorFactory->create($handler),
+                    $objectClass,
+                    $handler
+                );
             }
         }
+
         /* @var $functionDescriptor FunctionDescriptor */
         foreach ($this->closures as $closure) {
-            $functionDescriptor = $this->closures[$closure];
-            if ($functionDescriptor->isHandlerFor($objectClass)) {
-                $callbackQueue->insert(new ClosureWrapper($closure), $functionDescriptor->getPriority());
-            }
+            $this->addCallableWrapperIfNecessary(
+                $callbackQueue,
+                $this->closures[$closure],
+                $objectClass,
+                function () use ($closure) {
+                    return new ClosureWrapper($closure);
+                }
+            );
         }
         return $callbackQueue;
+    }
+
+    private function addAllWrappers(
+        SplPriorityQueue $queue,
+        MessageHandlerDescriptor $descriptor,
+        ObjectClass $objectClass,
+        $handler
+    ) {
+        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
+            $this->addCallableWrapperIfNecessary(
+                $queue,
+                $functionDescriptor,
+                $objectClass,
+                function () use ($handler, $functionDescriptor) {
+                    return new MethodWrapper($handler, $functionDescriptor->getReflectionFunction());
+                }
+            );
+        }
+    }
+
+    private function addCallableWrapperIfNecessary(
+        SplPriorityQueue $queue,
+        FunctionDescriptor $descriptor,
+        ObjectClass $objectClass,
+        Closure $callableWrapperFactory
+    ) {
+        if ($descriptor->isHandlerFor($objectClass)) {
+            $queue->insert(call_user_func($callableWrapperFactory), $descriptor->getPriority());
+        }
     }
 
     public function toString()
