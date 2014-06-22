@@ -39,7 +39,7 @@ use SplPriorityQueue;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class SimpleMessageBus extends InterceptableMessageBus implements MessageBus
+class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactoryRegisterableMessageBus
 {
     const DEFAULT_NAME = 'default-bus';
 
