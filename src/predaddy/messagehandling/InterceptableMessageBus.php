@@ -38,7 +38,7 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
 abstract class InterceptableMessageBus extends Object implements MessageBus
 {
     /**
-     * @var HandlerInterceptor[]
+     * @var DispatchInterceptor[]
      */
     private $interceptors;
 

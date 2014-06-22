@@ -25,7 +25,7 @@ namespace predaddy\messagehandling\interceptors;
 
 use precore\lang\ObjectClass;
 use predaddy\domain\EventStore;
-use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 
 /**
@@ -33,7 +33,7 @@ use predaddy\messagehandling\InterceptorChain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventPersister implements HandlerInterceptor
+class EventPersister implements DispatchInterceptor
 {
     /**
      * @var EventStore

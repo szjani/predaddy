@@ -23,7 +23,7 @@
 
 namespace predaddy\messagehandling;
 
-interface HandlerInterceptor
+interface DispatchInterceptor
 {
     public function invoke($message, InterceptorChain $chain);
 }

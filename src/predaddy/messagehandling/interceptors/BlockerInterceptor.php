@@ -23,7 +23,7 @@
 
 namespace predaddy\messagehandling\interceptors;
 
-use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 
 /**
@@ -31,7 +31,7 @@ use predaddy\messagehandling\InterceptorChain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class BlockerInterceptor implements HandlerInterceptor
+class BlockerInterceptor implements DispatchInterceptor
 {
     private $blocking = false;
 

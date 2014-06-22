@@ -25,7 +25,7 @@ namespace predaddy\messagehandling\interceptors;
 
 use Exception;
 use precore\lang\Object;
-use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 use predaddy\messagehandling\SubscriberExceptionContext;
 use predaddy\messagehandling\SubscriberExceptionHandler;
@@ -38,7 +38,7 @@ use trf4php\TransactionManager;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class WrapInTransactionInterceptor extends Object implements HandlerInterceptor, SubscriberExceptionHandler
+class WrapInTransactionInterceptor extends Object implements DispatchInterceptor, SubscriberExceptionHandler
 {
     /**
      * @var TransactionManager

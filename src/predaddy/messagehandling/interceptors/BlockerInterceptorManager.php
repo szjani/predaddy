@@ -24,7 +24,7 @@
 namespace predaddy\messagehandling\interceptors;
 
 use Exception;
-use predaddy\messagehandling\HandlerInterceptor;
+use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 use predaddy\messagehandling\SubscriberExceptionContext;
 use predaddy\messagehandling\SubscriberExceptionHandler;
@@ -34,7 +34,7 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class BlockerInterceptorManager implements HandlerInterceptor, SubscriberExceptionHandler
+class BlockerInterceptorManager implements DispatchInterceptor, SubscriberExceptionHandler
 {
     /**
      * @var BlockerInterceptor

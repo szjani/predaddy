@@ -176,7 +176,7 @@ use predaddy\messagehandling\annotation\Subscribe;
 
 ### Interceptors
 
-It's possible to extend bus behaviour when messages are being dispatched to message handlers. `HandlerInterceptor` objects wrap
+It's possible to extend bus behaviour when messages are being dispatched to message handlers. `DispatchInterceptor` objects wrap
 the concrete dispatch process and are able to modify that. It is usable for logging, transactions, etc.
 
 There are three builtin interceptors:
