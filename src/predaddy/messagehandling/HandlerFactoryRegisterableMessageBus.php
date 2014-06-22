@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,15 +23,34 @@
 
 namespace predaddy\messagehandling;
 
+use Closure;
+
 /**
- * Finds and provide handler methods in the given message.
+ * Handler factories can be registered in order to create handlers only when it is required.
+ *
+ * @package predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface MessageHandlerDescriptor
+interface HandlerFactoryRegisterableMessageBus extends MessageBus
 {
     /**
-     * @return FunctionDescriptor[]
+     * The factory must look like a handler Closure. All messages are being forwarded
+     * which is compatible with the defined typehint.
+     *
+     * The factory must return a handler which the message is being forwarded to
+     * just like it would be registered directly to the bus.
+     *
+     * @param Closure $factory
+     * @return mixed
      */
-    public function getFunctionDescriptors();
+    public function registerHandlerFactory(Closure $factory);
+
+    /**
+     * Unregisters the given factory.
+     *
+     * @param Closure $factory
+     * @return mixed
+     */
+    public function unregisterHandlerFactory(Closure $factory);
 }
