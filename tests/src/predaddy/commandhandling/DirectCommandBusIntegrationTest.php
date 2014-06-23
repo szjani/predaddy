@@ -98,10 +98,9 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $transactionManager = new DoctrineTransactionManager(self::$entityManager);
         $eventStore = new DoctrineOrmEventStore(self::$entityManager);
         $transactionalBuses = TransactionalBuses::create(
-            $transactionManager,
+            new DoctrineTransactionManager(self::$entityManager),
             new LazyEventSourcedRepositoryRepository($eventStore),
             [],
             [new EventPersister($eventStore)]
