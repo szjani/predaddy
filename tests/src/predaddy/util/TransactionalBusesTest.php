@@ -28,6 +28,7 @@ use predaddy\commandhandling\SimpleCommand;
 use predaddy\eventhandling\SimpleEvent;
 use predaddy\MessageHandler;
 use RuntimeException;
+use trf4php\TransactionException;
 
 /**
  * @package predaddy\util
@@ -43,10 +44,17 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
      */
     private $buses;
 
+    /**
+     * @var MessageHandler
+     */
+    private $eventHandler;
+
     protected function setUp()
     {
         $this->transactionManager = $this->getMock('\trf4php\TransactionManager');
         $this->buses = TransactionalBuses::create($this->transactionManager);
+        $this->eventHandler = new MessageHandler();
+        $this->buses->eventBus()->register($this->eventHandler);
     }
 
     /**
@@ -54,9 +62,6 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
      */
     public function collectedEventsMustBeSent()
     {
-        $eventHandler = new MessageHandler();
-        $this->buses->eventBus()->register($eventHandler);
-
         $commandBus = $this->buses->commandBus();
         $event = new SimpleEvent();
         $commandBus->registerClosure(
@@ -68,7 +73,7 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('commit');
         $commandBus->post(new SimpleCommand());
-        self::assertTrue($eventHandler->called(1));
+        self::assertTrue($this->eventHandler->called(1));
     }
 
     /**
@@ -76,9 +81,6 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
      */
     public function collectedEventsMustBeDeletedIfCommandHandlerFails()
     {
-        $eventHandler = new MessageHandler();
-        $this->buses->eventBus()->register($eventHandler);
-
         $commandBus = $this->buses->commandBus();
         $event = new SimpleEvent();
         $commandBus->registerClosure(
@@ -95,6 +97,30 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
             ->method('rollback');
 
         $commandBus->post(new SimpleCommand());
-        self::assertTrue($eventHandler->neverCalled());
+        self::assertTrue($this->eventHandler->neverCalled());
+    }
+
+    /**
+     * @test
+     */
+    public function collectedEventsMustBeDeletedIfCommitFails()
+    {
+        $commandBus = $this->buses->commandBus();
+        $event = new SimpleEvent();
+        $commandBus->registerClosure(
+            function (SimpleCommand $command) use ($event) {
+                $this->buses->eventBus()->post($event);
+            }
+        );
+        $this->transactionManager
+            ->expects(self::once())
+            ->method('commit')
+            ->will(self::throwException(new TransactionException()));
+        try {
+            $commandBus->post(new SimpleCommand());
+            self::fail('Exception should be throws');
+        } catch (TransactionException $e) {
+        }
+        self::assertTrue($this->eventHandler->neverCalled());
     }
 }

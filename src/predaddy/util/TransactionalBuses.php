@@ -84,7 +84,7 @@ final class TransactionalBuses
             $repositoryRepository,
             new SimpleMessageBusFactory($cmdHandlerDescFact),
             $cmdHandlerDescFact,
-            array_merge([$trInterceptor, $blockerIntManager], $commandInterceptors),
+            array_merge([$blockerIntManager, $trInterceptor], $commandInterceptors),
             $exceptionHandler
         );
         $result->eventBus = new EventBus(

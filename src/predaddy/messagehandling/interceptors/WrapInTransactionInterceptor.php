@@ -61,15 +61,25 @@ class WrapInTransactionInterceptor extends Object implements DispatchInterceptor
         $this->inTransaction = true;
         $chain->proceed();
         if ($this->inTransaction) {
-            $this->transactionManager->commit();
-            $this->inTransaction = false;
+            try {
+                $this->transactionManager->commit();
+                $this->inTransaction = false;
+            } catch (Exception $e) {
+                $this->inTransaction = false;
+                throw $e;
+            }
         }
     }
 
     public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
-        $this->transactionManager->rollback();
-        $this->inTransaction = false;
-        self::getLogger()->debug("Transaction rollback invoked with context '{}'!", [$context], $exception);
+        try {
+            self::getLogger()->debug("Transaction rollback invoked with context '{}'!", [$context], $exception);
+            $this->transactionManager->rollback();
+            $this->inTransaction = false;
+        } catch (Exception $e) {
+            $this->inTransaction = false;
+            throw $e;
+        }
     }
 }
