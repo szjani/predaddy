@@ -142,7 +142,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->repoRepo
             ->expects(self::once())
             ->method('getRepository')
-            ->with(ObjectClass::forName($command->getAggregateClass()))
+            ->with($command->getAggregateClass())
             ->will(self::returnValue($repo));
 
         $exceptionThrown = false;
@@ -172,7 +172,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->repoRepo
             ->expects(self::once())
             ->method('getRepository')
-            ->with(ObjectClass::forName($command->getAggregateClass()))
+            ->with($command->getAggregateClass())
             ->will(self::returnValue($repo));
 
         $resultPassed = false;

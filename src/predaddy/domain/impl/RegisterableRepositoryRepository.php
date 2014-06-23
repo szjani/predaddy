@@ -55,16 +55,15 @@ class RegisterableRepositoryRepository implements RepositoryRepository
     }
 
     /**
-     * @param ObjectClass $aggregateClass
+     * @param string $aggregateClass
      * @throws InvalidArgumentException If there is no repository registered for the given aggregate
      * @return Repository
      */
-    public function getRepository(ObjectClass $aggregateClass)
+    public function getRepository($aggregateClass)
     {
-        $class = $aggregateClass->getName();
-        if (!array_key_exists($class, $this->repositories)) {
-            throw new InvalidArgumentException("No registered repository for class " . $class);
+        if (!array_key_exists($aggregateClass, $this->repositories)) {
+            throw new InvalidArgumentException("No registered repository for class " . $aggregateClass);
         }
-        return $this->repositories[$class];
+        return $this->repositories[$aggregateClass];
     }
 }

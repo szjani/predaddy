@@ -92,7 +92,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
         $this->repositoryRepository
             ->expects(self::once())
             ->method('getRepository')
-            ->with(ObjectClass::forName($aggregateClass))
+            ->with($aggregateClass)
             ->will(self::returnValue($repository));
 
         $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
@@ -141,7 +141,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
         $this->repositoryRepository
             ->expects(self::once())
             ->method('getRepository')
-            ->with(ObjectClass::forName($aggregateClass))
+            ->with($aggregateClass)
             ->will(self::returnValue($repository));
 
         $bus = $this->getMock('\predaddy\messagehandling\MessageBus');

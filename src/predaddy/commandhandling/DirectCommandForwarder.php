@@ -88,18 +88,18 @@ class DirectCommandForwarder extends Object
      */
     protected function forwardCommand(DirectCommand $command)
     {
-        $class = ObjectClass::forName($command->getAggregateClass());
+        $class = $command->getAggregateClass();
         $repository = $this->repositoryRepository->getRepository($class);
         $aggregateId = $command->getAggregateId();
         if ($aggregateId === null) {
-            $aggregate = $class->newInstanceWithoutConstructor();
+            $aggregate = ObjectClass::forName($class)->newInstanceWithoutConstructor();
         } else {
             $aggregate = $repository->load($aggregateId);
             if ($aggregate instanceof StateHashAwareAggregateRoot && $command->getStateHash() !== null) {
                 $aggregate->failWhenStateHashViolation($command->getStateHash());
             }
         }
-        $forwarderBus = $this->messageBusFactory->createBus($class->getName());
+        $forwarderBus = $this->messageBusFactory->createBus($class);
         $forwarderBus->register($aggregate);
         $result = null;
         $thrownException = null;

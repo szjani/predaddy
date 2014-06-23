@@ -23,13 +23,11 @@
 
 namespace predaddy\domain;
 
-use precore\lang\ObjectClass;
-
 interface RepositoryRepository
 {
     /**
-     * @param ObjectClass $aggregateClass
+     * @param string $aggregateClass
      * @return Repository
      */
-    public function getRepository(ObjectClass $aggregateClass);
+    public function getRepository($aggregateClass);
 }

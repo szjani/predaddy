@@ -48,7 +48,7 @@ class RegisterableRepositoryRepositoryTest extends PHPUnit_Framework_TestCase
         $class = __CLASS__;
         $repo = $this->getMock('\predaddy\domain\Repository');
         $this->repoRepo->register($class, $repo);
-        self::assertSame($repo, $this->repoRepo->getRepository(ObjectClass::forName($class)));
+        self::assertSame($repo, $this->repoRepo->getRepository($class));
     }
 
     /**
@@ -57,7 +57,7 @@ class RegisterableRepositoryRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function missingRepoCauseException()
     {
-        $this->repoRepo->getRepository(ObjectClass::forName(__CLASS__));
+        $this->repoRepo->getRepository(__CLASS__);
     }
 
     /**
@@ -69,6 +69,6 @@ class RegisterableRepositoryRepositoryTest extends PHPUnit_Framework_TestCase
         $repo = $this->getMock('\predaddy\domain\Repository');
         $this->repoRepo->register($class, $repo);
         $this->repoRepo->unregister($class);
-        $this->repoRepo->getRepository(ObjectClass::forName(__CLASS__));
+        $this->repoRepo->getRepository(__CLASS__);
     }
 }

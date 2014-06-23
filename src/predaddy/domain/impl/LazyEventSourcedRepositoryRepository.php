@@ -54,12 +54,11 @@ class LazyEventSourcedRepositoryRepository implements RepositoryRepository
     }
 
     /**
-     * @param ObjectClass $aggregateClass
+     * @param string $aggregateClass
      * @return \predaddy\domain\Repository
      */
-    public function getRepository(ObjectClass $aggregateClass)
+    public function getRepository($aggregateClass)
     {
-        $className = $aggregateClass->getName();
-        return $this->map->$className;
+        return $this->map->$aggregateClass;
     }
 }
