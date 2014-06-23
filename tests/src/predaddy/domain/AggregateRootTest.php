@@ -35,29 +35,15 @@ use SplObjectStorage;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class AggregateRootTest extends PHPUnit_Framework_TestCase
+class AggregateRootTest extends DomainTestCase
 {
-    public static function collectEvents()
-    {
-        $events = new SplObjectStorage();
-        $eventBus = new EventBus(new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()));
-        EventPublisher::instance()->setEventBus($eventBus);
-        $eventBus->registerClosure(
-            function (DomainEvent $event) use (&$events) {
-                $events->attach($event);
-                $events->rewind();
-            }
-        );
-        return $events;
-    }
-
     public function testCallHandleMethod()
     {
         $user = new User();
         self::assertEquals(User::DEFAULT_VALUE, $user->value);
 
-        $events = self::collectEvents();
         $user->increment();
+        $events = $this->getAndClearRaisedEvents();
         self::assertEquals(2, $user->value);
         self::assertTrue($events->valid());
         self::assertEquals($events->current()->getAggregateId(), $user->getId());
@@ -78,5 +64,41 @@ class AggregateRootTest extends PHPUnit_Framework_TestCase
     {
         $user = new User();
         self::assertStringStartsWith(User::className(), $user->toString());
+    }
+
+    /**
+     * @test
+     */
+    public function stateHashMatching()
+    {
+        $user = new User();
+        $events = $this->getAndClearRaisedEvents();
+        self::assertCount(1, $events);
+        $event = $events[0];
+        /* @var $event DomainEvent */
+        self::assertEquals($event->getStateHash(), $user->getStateHash());
+        $user->failWhenStateHashViolation($event->getStateHash());
+    }
+
+    /**
+     * @test
+     * @expectedException \UnexpectedValueException
+     */
+    public function stateHashViolationShouldThrowException()
+    {
+        $user = new User();
+        $events = $this->getAndClearRaisedEvents();
+        self::assertCount(1, $events);
+        $event = $events[0];
+        /* @var $event DomainEvent */
+        self::assertEquals($event->getStateHash(), $user->getStateHash());
+
+        $user->increment();
+        $events = $this->getAndClearRaisedEvents();
+        self::assertCount(1, $events);
+        $event = $events[0];
+        $user->failWhenStateHashViolation($event->getStateHash());
+
+        $user->failWhenStateHashViolation('invalid');
     }
 }
