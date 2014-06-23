@@ -25,6 +25,7 @@ namespace predaddy\messagehandling\interceptors;
 
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
+use predaddy\messagehandling\MessageBusObjectMother;
 use predaddy\messagehandling\SubscriberExceptionContext;
 use RuntimeException;
 
@@ -90,7 +91,7 @@ class BlockerInterceptorManagerTest extends PHPUnit_Framework_TestCase
      */
     public function chainsMustBeClearedIfExceptionOccur()
     {
-        $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
+        $bus = MessageBusObjectMother::createAnnotatedBus();
         $wrapper = $this->getMock('\predaddy\messagehandling\CallableWrapper');
         $context = new SubscriberExceptionContext($bus, $this->message, $wrapper);
         $this->mainChain
