@@ -46,6 +46,7 @@ use predaddy\messagehandling\interceptors\EventPersister;
 use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\SimpleMessageBusFactory;
+use predaddy\util\TransactionalBuses;
 use trf4php\doctrine\DoctrineTransactionManager;
 
 /**
@@ -99,21 +100,14 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
     {
         $transactionManager = new DoctrineTransactionManager(self::$entityManager);
         $eventStore = new DoctrineOrmEventStore(self::$entityManager);
-        $handDesc = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
-        $blockerInterceptor = new BlockerInterceptor();
-        $this->eventBus = new EventBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
-            [new EventPersister($eventStore), $blockerInterceptor]
-        );
-        EventPublisher::instance()->setEventBus($this->eventBus);
-        $trInterceptor = new WrapInTransactionInterceptor($transactionManager);
-        $this->commandBus = new DirectCommandBus(
+        $transactionalBuses = TransactionalBuses::create(
+            $transactionManager,
             new LazyEventSourcedRepositoryRepository($eventStore),
-            new SimpleMessageBusFactory($handDesc),
-            $handDesc,
-            [$trInterceptor, $blockerInterceptor->manager()],
-            new TransactionalExceptionHandler($trInterceptor, $blockerInterceptor->manager())
+            [],
+            [new EventPersister($eventStore)]
         );
+        $this->commandBus = $transactionalBuses->commandBus();
+        $this->eventBus = $transactionalBuses->eventBus();
     }
 
     public function testIntegration()
