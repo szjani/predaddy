@@ -70,6 +70,6 @@ class WrapInTransactionInterceptor extends Object implements DispatchInterceptor
     {
         $this->transactionManager->rollback();
         $this->inTransaction = false;
-        self::getLogger()->warn("Transaction rollback invoked with context '{}'!", [$context], $exception);
+        self::getLogger()->debug("Transaction rollback invoked with context '{}'!", [$context], $exception);
     }
 }

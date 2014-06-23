@@ -54,11 +54,6 @@ class TransactionalExceptionHandler extends Object implements SubscriberExceptio
 
     public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
-        self::getLogger()->warn(
-            'Exception occurred with context {[]}, clearing event buffer...',
-            [$context],
-            $exception
-        );
         $this->transactionInterceptor->handleException($exception, $context);
         $this->blockerInterceptorManager->handleException($exception, $context);
     }

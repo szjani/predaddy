@@ -24,6 +24,7 @@
 namespace predaddy\messagehandling\interceptors;
 
 use Exception;
+use precore\lang\Object;
 use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 use predaddy\messagehandling\SubscriberExceptionContext;
@@ -34,7 +35,7 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class BlockerInterceptorManager implements DispatchInterceptor, SubscriberExceptionHandler
+class BlockerInterceptorManager extends Object implements DispatchInterceptor, SubscriberExceptionHandler
 {
     /**
      * @var BlockerInterceptor
@@ -57,5 +58,10 @@ class BlockerInterceptorManager implements DispatchInterceptor, SubscriberExcept
     public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
         $this->blockerInterceptor->clear();
+        self::getLogger()->debug(
+            "Blocked chains have been cleared due to thrown exception with context '{}'!",
+            [$context],
+            $exception
+        );
     }
 }

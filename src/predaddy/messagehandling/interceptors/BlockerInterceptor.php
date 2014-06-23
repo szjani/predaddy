@@ -23,6 +23,7 @@
 
 namespace predaddy\messagehandling\interceptors;
 
+use precore\lang\Object;
 use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 
@@ -31,7 +32,7 @@ use predaddy\messagehandling\InterceptorChain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class BlockerInterceptor implements DispatchInterceptor
+class BlockerInterceptor extends Object implements DispatchInterceptor
 {
     private $blocking = false;
 
@@ -72,15 +73,17 @@ class BlockerInterceptor implements DispatchInterceptor
     public function flush()
     {
         $chains = $this->chains;
-        $this->clear();
+        $this->chains = [];
         foreach ($chains as $chain) {
             $chain->proceed();
         }
+        self::getLogger()->debug('Blocked chains have been flushed, {} item(s) was sent', [count($chains)]);
     }
 
     public function clear()
     {
         $this->chains = [];
+        self::getLogger()->debug('Blocked chains have been cleared');
     }
 
     /**
