@@ -33,7 +33,7 @@ use precore\lang\ObjectClass;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventSourcingRepository extends ClassBasedAggregateRootRepository
+class EventSourcingRepository extends AbstractRepository
 {
     /**
      * @var EventStore
@@ -41,14 +41,10 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
     private $eventStore;
 
     /**
-     * @param ObjectClass $aggregateRootClass Must be an EventSourcedAggregateRoot type
      * @param EventStore $eventStore
      */
-    public function __construct(
-        ObjectClass $aggregateRootClass,
-        EventStore $eventStore
-    ) {
-        parent::__construct($aggregateRootClass);
+    public function __construct(EventStore $eventStore)
+    {
         $this->eventStore = $eventStore;
     }
 
@@ -69,7 +65,7 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        $aggregateRootClass = $this->getAggregateRootClass();
+        $aggregateRootClass = ObjectClass::forName($aggregateId->aggregateClass());
         $aggregate = null;
         $stateHash = null;
         if ($this->eventStore instanceof SnapshotEventStore) {
@@ -88,5 +84,14 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
         $aggregateRootClass->cast($aggregate);
         $aggregate->loadFromHistory($events);
         return $aggregate;
+    }
+
+    /**
+     * Persisting the given $aggregateRoot.
+     *
+     * @param AggregateRoot $aggregateRoot
+     */
+    public function save(AggregateRoot $aggregateRoot)
+    {
     }
 }

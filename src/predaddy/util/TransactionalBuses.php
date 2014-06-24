@@ -27,8 +27,7 @@ use predaddy\commandhandling\CommandBus;
 use predaddy\commandhandling\CommandFunctionDescriptorFactory;
 use predaddy\commandhandling\DirectCommandBus;
 use predaddy\domain\EventPublisher;
-use predaddy\domain\impl\RegisterableRepositoryRepository;
-use predaddy\domain\RepositoryRepository;
+use predaddy\domain\Repository;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
@@ -56,20 +55,17 @@ final class TransactionalBuses
 
     /**
      * @param TransactionManager $tmManager
-     * @param RepositoryRepository $repositoryRepository
+     * @param Repository $repository
      * @param array $commandInterceptors
      * @param array $eventInterceptors
      * @return TransactionalBuses
      */
     public static function create(
         TransactionManager $tmManager,
-        RepositoryRepository $repositoryRepository = null,
+        Repository $repository,
         array $commandInterceptors = [],
         array $eventInterceptors = []
     ) {
-        if ($repositoryRepository === null) {
-            $repositoryRepository = new RegisterableRepositoryRepository();
-        }
         $result = new static();
         /* @var $result TransactionalBuses */
         $blockerInterceptor = new BlockerInterceptor();
@@ -81,7 +77,7 @@ final class TransactionalBuses
             new CommandFunctionDescriptorFactory()
         );
         $result->commandBus = new DirectCommandBus(
-            $repositoryRepository,
+            $repository,
             new SimpleMessageBusFactory($cmdHandlerDescFact),
             $cmdHandlerDescFact,
             array_merge([$blockerIntManager, $trInterceptor], $commandInterceptors),

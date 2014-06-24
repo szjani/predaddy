@@ -23,11 +23,18 @@
 
 namespace predaddy\domain;
 
-interface RepositoryRepository
+use InvalidArgumentException;
+use precore\lang\Object;
+
+/**
+ * @package predaddy\domain
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+abstract class AbstractRepository extends Object implements Repository
 {
-    /**
-     * @param string $aggregateClass
-     * @return Repository
-     */
-    public function getRepository($aggregateClass);
+    protected function throwInvalidAggregateIdException(AggregateId $aggregateId)
+    {
+        throw new InvalidArgumentException(sprintf("Aggregate with ID [%s] does not exist", $aggregateId));
+    }
 }

@@ -51,10 +51,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
         $this->repository = $this->getMock(
             DoctrineAggregateRootRepository::className(),
             ['currentVersion'],
-            [
-                ObjectClass::forName(self::AR_CLASS),
-                $this->entityManager
-            ]
+            [$this->entityManager]
         );
 
         $this->repository
@@ -102,7 +99,6 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
     public function testGetters()
     {
         self::assertSame($this->entityManager, $this->repository->getEntityManager());
-        self::assertSame(self::AR_CLASS, $this->repository->getAggregateRootClass()->getName());
     }
 
     public function testLoad()

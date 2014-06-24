@@ -52,7 +52,10 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->transactionManager = $this->getMock('\trf4php\TransactionManager');
-        $this->buses = TransactionalBuses::create($this->transactionManager);
+        $this->buses = TransactionalBuses::create(
+            $this->transactionManager,
+            $this->getMock('\predaddy\domain\Repository')
+        );
         $this->eventHandler = new MessageHandler();
         $this->buses->eventBus()->register($this->eventHandler);
     }

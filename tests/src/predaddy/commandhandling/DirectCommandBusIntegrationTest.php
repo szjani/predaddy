@@ -32,20 +32,13 @@ use predaddy\domain\CreateEventSourcedUser;
 use predaddy\domain\Decrement;
 use predaddy\domain\DecrementedEvent;
 use predaddy\domain\DomainEvent;
-use predaddy\domain\EventPublisher;
+use predaddy\domain\EventSourcingRepository;
 use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
-use predaddy\domain\impl\LazyEventSourcedRepositoryRepository;
 use predaddy\domain\Increment;
 use predaddy\domain\IncrementedEvent;
 use predaddy\domain\UserCreated;
 use predaddy\eventhandling\EventBus;
-use predaddy\eventhandling\EventFunctionDescriptorFactory;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\interceptors\BlockerInterceptor;
 use predaddy\messagehandling\interceptors\EventPersister;
-use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
-use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
-use predaddy\messagehandling\SimpleMessageBusFactory;
 use predaddy\util\TransactionalBuses;
 use trf4php\doctrine\DoctrineTransactionManager;
 
@@ -101,7 +94,7 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $eventStore = new DoctrineOrmEventStore(self::$entityManager);
         $transactionalBuses = TransactionalBuses::create(
             new DoctrineTransactionManager(self::$entityManager),
-            new LazyEventSourcedRepositoryRepository($eventStore),
+            new EventSourcingRepository($eventStore),
             [],
             [new EventPersister($eventStore)]
         );

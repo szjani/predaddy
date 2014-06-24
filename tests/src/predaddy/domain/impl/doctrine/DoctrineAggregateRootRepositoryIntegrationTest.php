@@ -103,14 +103,8 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
             [$this->blockerInterceptor]
         );
         EventPublisher::instance()->setEventBus($this->eventBus);
-        $this->userRepo = new DoctrineAggregateRootRepository(
-            User::objectClass(),
-            self::$entityManager
-        );
-        $this->unversionedUserRepo = new DoctrineAggregateRootRepository(
-            UnversionedUser::objectClass(),
-            self::$entityManager
-        );
+        $this->userRepo = new DoctrineAggregateRootRepository(self::$entityManager);
+        $this->unversionedUserRepo = new DoctrineAggregateRootRepository(self::$entityManager);
     }
 
     /**

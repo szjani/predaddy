@@ -39,7 +39,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
 {
     private $handlerDescFact;
     private $transactionManager;
-    private $repoRepo;
+    private $repo;
     private $messageBusFactory;
 
     /**
@@ -51,11 +51,11 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     {
         $this->handlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
         $this->transactionManager = new NOPTransactionManager();
-        $this->repoRepo = $this->getMock('\predaddy\domain\RepositoryRepository');
+        $this->repo = $this->getMock('\predaddy\domain\Repository');
         $this->messageBusFactory = new SimpleMessageBusFactory($this->handlerDescFact);
         $trInterceptor = new WrapInTransactionInterceptor($this->transactionManager);
         $this->bus = new DirectCommandBus(
-            $this->repoRepo,
+            $this->repo,
             $this->messageBusFactory,
             $this->handlerDescFact,
             [$trInterceptor],
@@ -68,10 +68,6 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldNotBeForwarder()
     {
-        $this->repoRepo
-            ->expects(self::never())
-            ->method('getRepository');
-
         $called = false;
         $this->bus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
@@ -88,11 +84,9 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldBeCalledIfNoExplicitHandler()
     {
-        $repo = $this->getMock('\predaddy\domain\Repository');
-        $this->repoRepo
+        $this->repo
             ->expects(self::once())
-            ->method('getRepository')
-            ->will(self::returnValue($repo));
+            ->method('save');
         $this->bus->post(new SimpleCommand());
     }
 
@@ -101,9 +95,9 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldNotBeCalledIfExplicitHandler()
     {
-        $this->repoRepo
+        $this->repo
             ->expects(self::never())
-            ->method('getRepository');
+            ->method('save');
         $this->bus->registerClosure(
             function (SimpleCommand $cmd) {
             }
@@ -116,9 +110,9 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      */
     public function shouldNotBeCalledIfHandlerThrowsException()
     {
-        $this->repoRepo
+        $this->repo
             ->expects(self::never())
-            ->method('getRepository');
+            ->method('save');
         $this->bus->registerClosure(
             function (SimpleCommand $cmd) {
                 throw new RuntimeException('Expected exception');
@@ -134,16 +128,10 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     {
         $aggRoot = new TestAggregate01();
         $command = new ThrowException($aggRoot->getId()->value());
-        $repo = $this->getMock('\predaddy\domain\Repository');
-        $repo
+        $this->repo
             ->expects(self::once())
             ->method('load')
             ->will(self::returnValue($aggRoot));
-        $this->repoRepo
-            ->expects(self::once())
-            ->method('getRepository')
-            ->with($command->aggregateClass())
-            ->will(self::returnValue($repo));
 
         $exceptionThrown = false;
         $callback = MessageCallbackClosures::builder()
@@ -164,16 +152,10 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     {
         $aggRoot = new TestAggregate01();
         $command = new ReturnResult($aggRoot->getId()->value());
-        $repo = $this->getMock('\predaddy\domain\Repository');
-        $repo
+        $this->repo
             ->expects(self::once())
             ->method('load')
             ->will(self::returnValue($aggRoot));
-        $this->repoRepo
-            ->expects(self::once())
-            ->method('getRepository')
-            ->with($command->aggregateClass())
-            ->will(self::returnValue($repo));
 
         $resultPassed = false;
         $callback = MessageCallbackClosures::builder()

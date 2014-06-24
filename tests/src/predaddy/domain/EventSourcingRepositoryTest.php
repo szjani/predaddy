@@ -45,18 +45,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
     {
         parent::setUp();
         $this->eventStore = $this->getMock('\predaddy\domain\EventStore');
-        $this->repository = new EventSourcingRepository(
-            EventSourcedUser::objectClass(),
-            $this->eventStore
-        );
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidAggregateRootClass()
-    {
-        new EventSourcingRepository(ObjectClass::forName(__CLASS__), $this->eventStore);
+        $this->repository = new EventSourcingRepository($this->eventStore);
     }
 
     public function testGetEventStorage()
@@ -129,11 +118,6 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $this->repository->load($aggregateId);
     }
 
-    public function testGetAggregateRootClass()
-    {
-        self::assertEquals(EventSourcedUser::objectClass(), $this->repository->getAggregateRootClass());
-    }
-
     /**
      * @test
      */
@@ -149,7 +133,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
             ->with($aggregateId)
             ->will(self::returnValue($events));
 
-        $repository = new EventSourcingRepository(EventSourcedUser::objectClass(), $eventStore);
+        $repository = new EventSourcingRepository($eventStore);
         $eventStore
             ->expects(self::once())
             ->method('loadSnapshot')
@@ -187,7 +171,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
 //            ->expects(self::once())
 //            ->method('saveChanges');
 
-        $repository = new EventSourcingRepository(EventSourcedUser::objectClass(), $eventStore);
+        $repository = new EventSourcingRepository($eventStore);
 //        $eventStore
 //            ->expects(self::once())
 //            ->method('createSnapshot')
@@ -226,10 +210,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
     public function testWithInMemoryMessageBus()
     {
         $this->eventStore = new InMemoryEventStore();
-        $this->repository = new EventSourcingRepository(
-            EventSourcedUser::objectClass(),
-            $this->eventStore
-        );
+        $this->repository = new EventSourcingRepository($this->eventStore);
         $this->eventBus->registerClosure(
             function (DomainEvent $event) {
                 $this->eventStore->persist($event);

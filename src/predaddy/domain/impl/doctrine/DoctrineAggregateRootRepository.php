@@ -26,6 +26,7 @@ namespace predaddy\domain\impl\doctrine;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use precore\lang\ObjectClass;
+use predaddy\domain\AbstractRepository;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\ClassBasedAggregateRootRepository;
@@ -38,7 +39,7 @@ use predaddy\domain\ClassBasedAggregateRootRepository;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
+class DoctrineAggregateRootRepository extends AbstractRepository
 {
     /**
      * @var EntityManagerInterface
@@ -46,23 +47,11 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
     private $entityManager;
 
     /**
-     * @param ObjectClass $aggregateRootClass
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(
-        ObjectClass $aggregateRootClass,
-        EntityManagerInterface $entityManager
-    ) {
-        parent::__construct($aggregateRootClass);
-        $this->entityManager = $entityManager;
-    }
-
-    /**
-     * @return EntityManagerInterface
-     */
-    public function getEntityManager()
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        return $this->entityManager;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -74,7 +63,7 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        $result = $this->getEntityManager()->find($this->getAggregateRootClass()->getName(), $aggregateId->value());
+        $result = $this->getEntityManager()->find($aggregateId->aggregateClass(), $aggregateId->value());
         if ($result === null) {
             $this->throwInvalidAggregateIdException($aggregateId);
         }
@@ -87,10 +76,17 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
      */
     public function save(AggregateRoot $aggregateRoot)
     {
-        parent::save($aggregateRoot);
         $entityManager = $this->getEntityManager();
         if (!$entityManager->contains($aggregateRoot)) {
             $entityManager->persist($aggregateRoot);
         }
+    }
+
+    /**
+     * @return EntityManagerInterface
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager;
     }
 }

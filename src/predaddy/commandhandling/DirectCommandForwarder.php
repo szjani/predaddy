@@ -27,7 +27,7 @@ use Exception;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\DefaultAggregateId;
-use predaddy\domain\RepositoryRepository;
+use predaddy\domain\Repository;
 use predaddy\domain\StateHashAwareAggregateRoot;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
@@ -49,9 +49,9 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
 class DirectCommandForwarder extends Object
 {
     /**
-     * @var RepositoryRepository
+     * @var Repository
      */
-    private $repositoryRepository;
+    private $repository;
 
     /**
      * @var MessageBusFactory
@@ -59,14 +59,14 @@ class DirectCommandForwarder extends Object
     private $messageBusFactory;
 
     /**
-     * @param RepositoryRepository $repositoryRepository
+     * @param Repository $repository
      * @param MessageBusFactory $messageBusFactory
      */
     public function __construct(
-        RepositoryRepository $repositoryRepository,
+        Repository $repository,
         MessageBusFactory $messageBusFactory
     ) {
-        $this->repositoryRepository = $repositoryRepository;
+        $this->repository = $repository;
         $this->messageBusFactory = $messageBusFactory;
     }
 
@@ -89,18 +89,17 @@ class DirectCommandForwarder extends Object
      */
     protected function forwardCommand(DirectCommand $command)
     {
-        $class = $command->aggregateClass();
-        $repository = $this->repositoryRepository->getRepository($class);
+        $aggregateClass = $command->aggregateClass();
         $aggregateId = $command->aggregateId();
         if ($aggregateId === null) {
-            $aggregate = ObjectClass::forName($class)->newInstanceWithoutConstructor();
+            $aggregate = ObjectClass::forName($aggregateClass)->newInstanceWithoutConstructor();
         } else {
-            $aggregate = $repository->load(new DefaultAggregateId($aggregateId, $command->aggregateClass()));
+            $aggregate = $this->repository->load(new DefaultAggregateId($aggregateId, $aggregateClass));
             if ($aggregate instanceof StateHashAwareAggregateRoot && $command->stateHash() !== null) {
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }
-        $forwarderBus = $this->messageBusFactory->createBus($class);
+        $forwarderBus = $this->messageBusFactory->createBus($aggregateClass);
         $forwarderBus->register($aggregate);
         $result = null;
         $thrownException = null;
@@ -120,7 +119,7 @@ class DirectCommandForwarder extends Object
         if ($thrownException instanceof Exception) {
             throw $thrownException;
         }
-        $repository->save($aggregate);
+        $this->repository->save($aggregate);
         self::getLogger()->info("Command [{}] has been applied", [$command]);
         return $result;
     }

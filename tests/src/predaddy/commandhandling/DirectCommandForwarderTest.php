@@ -33,7 +33,7 @@ use predaddy\messagehandling\DeadMessage;
 
 class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
 {
-    private $repositoryRepository;
+    private $repository;
     private $messageBusFactory;
 
     /**
@@ -44,9 +44,9 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->messageBusFactory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
-        $this->repositoryRepository = $this->getMock('\predaddy\domain\RepositoryRepository');
+        $this->repository = $this->getMock('\predaddy\domain\Repository');
         $this->directCommandForwarder = new DirectCommandForwarder(
-            $this->repositoryRepository,
+            $this->repository,
             $this->messageBusFactory
         );
     }
@@ -78,8 +78,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
             ->method('aggregateId')
             ->will(self::returnValue(null));
 
-        $repository = $this->getMock('\predaddy\domain\Repository');
-        $repository
+        $this->repository
             ->expects(self::once())
             ->method('save')
             ->will(
@@ -89,12 +88,6 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
                     }
                 )
             );
-
-        $this->repositoryRepository
-            ->expects(self::once())
-            ->method('getRepository')
-            ->with($aggregateClass)
-            ->will(self::returnValue($repository));
 
         $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
         $this->messageBusFactory
@@ -132,8 +125,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
             ->method('aggregateId')
             ->will(self::returnValue($aggregateId));
 
-        $repository = $this->getMock('\predaddy\domain\Repository');
-        $repository
+        $this->repository
             ->expects(self::once())
             ->method('load')
             ->will(
@@ -144,12 +136,6 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
                     }
                 )
             );
-
-        $this->repositoryRepository
-            ->expects(self::once())
-            ->method('getRepository')
-            ->with($aggregateClass)
-            ->will(self::returnValue($repository));
 
         $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
         $this->messageBusFactory
