@@ -28,5 +28,5 @@ interface DirectCommand extends Command
     /**
      * @return string
      */
-    public function getAggregateClass();
+    public function aggregateClass();
 }

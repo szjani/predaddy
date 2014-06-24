@@ -70,7 +70,7 @@ class InMemoryEventStoreTest extends DomainTestCase
         }
         $returnedEvents = $this->eventStore->getEventsFor(
             $user->getId(),
-            $returnedSnapshot->getStateHash()
+            $returnedSnapshot->stateHash()
         );
         self::assertCount(1, $returnedEvents);
         self::assertSame($events[0], $returnedEvents[0]);

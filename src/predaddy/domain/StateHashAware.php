@@ -33,5 +33,5 @@ interface StateHashAware
     /**
      * @return null|string
      */
-    public function getStateHash();
+    public function stateHash();
 }

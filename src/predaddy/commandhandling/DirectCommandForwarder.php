@@ -77,7 +77,7 @@ class DirectCommandForwarder extends Object
      */
     public function catchDeadCommand(DeadMessage $deadMessage)
     {
-        $innerMessage = $deadMessage->getMessage();
+        $innerMessage = $deadMessage->wrappedMessage();
         ObjectClass::forName(__NAMESPACE__ . '\DirectCommand')->cast($innerMessage);
         return $this->forwardCommand($innerMessage);
     }
@@ -89,15 +89,15 @@ class DirectCommandForwarder extends Object
      */
     protected function forwardCommand(DirectCommand $command)
     {
-        $class = $command->getAggregateClass();
+        $class = $command->aggregateClass();
         $repository = $this->repositoryRepository->getRepository($class);
-        $aggregateId = $command->getAggregateId();
+        $aggregateId = $command->aggregateId();
         if ($aggregateId === null) {
             $aggregate = ObjectClass::forName($class)->newInstanceWithoutConstructor();
         } else {
-            $aggregate = $repository->load(new DefaultAggregateId($aggregateId, $command->getAggregateClass()));
-            if ($aggregate instanceof StateHashAwareAggregateRoot && $command->getStateHash() !== null) {
-                $aggregate->failWhenStateHashViolation($command->getStateHash());
+            $aggregate = $repository->load(new DefaultAggregateId($aggregateId, $command->aggregateClass()));
+            if ($aggregate instanceof StateHashAwareAggregateRoot && $command->stateHash() !== null) {
+                $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }
         $forwarderBus = $this->messageBusFactory->createBus($class);

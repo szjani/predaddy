@@ -60,7 +60,7 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
         if ($event instanceof AbstractDomainEvent) {
             AbstractDomainEvent::initEvent($event, $this->getId());
         }
-        $this->stateHash = $event->getStateHash();
+        $this->stateHash = $event->stateHash();
         EventPublisher::instance()->post($event);
     }
 
@@ -80,7 +80,7 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
     /**
      * @return null|string
      */
-    public function getStateHash()
+    public function stateHash()
     {
         return $this->stateHash;
     }

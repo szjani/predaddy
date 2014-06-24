@@ -56,7 +56,7 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
      */
     protected function doPersist(DomainEvent $event)
     {
-        $key = $this->createKey($event->getAggregateId());
+        $key = $this->createKey($event->aggregateId());
         $this->events[$key][] = $event;
         return count($this->events[$key]);
     }
@@ -79,7 +79,7 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
         foreach ($this->events[$this->createKey($aggregateId)] as $event) {
             if ($add || $stateHash === null) {
                 $result[] = $event;
-            } elseif ($event->getStateHash() === $stateHash) {
+            } elseif ($event->stateHash() === $stateHash) {
                 $add = true;
             }
         }
@@ -106,6 +106,6 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
 
     private function createKey(AggregateId $aggregateId)
     {
-        return $aggregateId->aggregateClass() . $aggregateId->getValue();
+        return $aggregateId->aggregateClass() . $aggregateId->value();
     }
 }

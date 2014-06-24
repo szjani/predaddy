@@ -124,9 +124,9 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         $this->blockerInterceptor->startBlocking();
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
+                PHPUnit_Framework_TestCase::assertEquals($user->stateHash(), $event->stateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
-                    $event->getAggregateId()->equals($user->getId())
+                    $event->aggregateId()->equals($user->getId())
                 );
                 $called++;
             }
@@ -139,9 +139,9 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         // next transaction
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
+                PHPUnit_Framework_TestCase::assertEquals($user->stateHash(), $event->stateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
-                    $event->getAggregateId()->equals($user->getId())
+                    $event->aggregateId()->equals($user->getId())
                 );
                 $called++;
             }
@@ -159,9 +159,9 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         $user = null;
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
+                PHPUnit_Framework_TestCase::assertEquals($user->stateHash(), $event->stateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
-                    $event->getAggregateId()->equals($user->getId())
+                    $event->aggregateId()->equals($user->getId())
                 );
                 $called++;
             }
@@ -175,9 +175,9 @@ class DoctrineAggregateRootRepositoryIntegrationTest extends PHPUnit_Framework_T
         // next transaction
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$called, &$user) {
-                PHPUnit_Framework_TestCase::assertEquals($user->getStateHash(), $event->getStateHash());
+                PHPUnit_Framework_TestCase::assertEquals($user->stateHash(), $event->stateHash());
                 PHPUnit_Framework_TestCase::assertTrue(
-                    $event->getAggregateId()->equals($user->getId())
+                    $event->aggregateId()->equals($user->getId())
                 );
                 $called++;
             }

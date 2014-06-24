@@ -79,7 +79,6 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
         $this->commandBus->registerClosure(
             function (SimpleCommand $command) use (&$called) {
                 $called = true;
-                CommandBusTest::assertEquals($command->getMessageIdentifier(), $command->getCommandIdentifier());
             }
         );
         $this->tm

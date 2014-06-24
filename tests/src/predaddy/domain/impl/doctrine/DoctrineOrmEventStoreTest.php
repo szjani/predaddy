@@ -137,7 +137,7 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 $eventStorage->createSnapshot($aggregateId);
             }
         );
-        $events = $eventStorage->getEventsFor($aggregateId, $events[1]->getStateHash());
+        $events = $eventStorage->getEventsFor($aggregateId, $events[1]->stateHash());
         self::assertCount(0, $events);
 
         $aggregateRoot = $eventStorage->loadSnapshot($aggregateId);
@@ -172,7 +172,7 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
         );
 
         $user = $eventStore->loadSnapshot($aggregateId);
-        $events = $eventStore->getEventsFor($aggregateId, $user->getStateHash());
+        $events = $eventStore->getEventsFor($aggregateId, $user->stateHash());
         self::assertCount(1, $events);
 
         $aggregateRoot = $eventStore->loadSnapshot($aggregateId);
@@ -205,10 +205,10 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 $this->eventStore->createSnapshot($aggregateId);
             }
         );
-        self::assertEquals($raisedEvents[1]->getStateHash(), $user->getStateHash());
+        self::assertEquals($raisedEvents[1]->stateHash(), $user->stateHash());
         $reducedEvents = $this->eventStore->getEventsFor(
             $aggregateId,
-            $raisedEvents[0]->getStateHash()
+            $raisedEvents[0]->stateHash()
         );
         self::assertCount(1, $reducedEvents);
     }

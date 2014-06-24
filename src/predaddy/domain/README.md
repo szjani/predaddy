@@ -108,7 +108,7 @@ class UserCommandHandler
     public function handleCommand(ModifyEmail $command)
     {
         // somehow obtain the persistent aggregate root
-        $user = $this->userRepository->load($command->getAggregateId());
+        $user = $this->userRepository->load($command->aggregateId());
         $user->modifyEmailAddress($command->getEmail());
         $this->userRepository->save($user, $command->getVersion());
     }
@@ -238,8 +238,8 @@ $eventBus->registerClosure(
 );
 
 $commandBus->post(new CreateEventSourcedUser());
-$commandBus->post(new Increment($aggregateId->getValue(), 1));
-$commandBus->post(new Increment($aggregateId->getValue(), 2));
+$commandBus->post(new Increment($aggregateId->value(), 1));
+$commandBus->post(new Increment($aggregateId->value(), 2));
 ```
 
 ### EventStore

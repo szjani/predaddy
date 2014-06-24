@@ -18,7 +18,7 @@ class DeadMessageHandler
      */
     public function handleDeadEvents(DeadMessage $message)
     {
-        printf("Instance of %s has not been caught\n", $message->getMessage()->getClassName());
+        printf("Instance of %s has not been caught\n", $message->wrappedMessage()->getClassName());
     }
 }
 

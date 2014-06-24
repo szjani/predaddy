@@ -34,6 +34,6 @@ abstract class AbstractDirectCommand extends AbstractCommand implements DirectCo
 {
     protected function toStringHelper()
     {
-        return parent::toStringHelper()->add('aggregateClass', $this->getAggregateClass());
+        return parent::toStringHelper()->add('aggregateClass', $this->aggregateClass());
     }
 }

@@ -35,8 +35,8 @@ class SnapshotTest extends PHPUnit_Framework_TestCase
         $type = __CLASS__;
         $aggregateId = new UUIDAggregateId($type);
         $version = 2;
-        $snapshot = new Snapshot($aggregateId->getValue(), $aggregateRoot, $type, $version);
-        self::assertEquals($aggregateId->getValue(), $snapshot->getAggregateId());
+        $snapshot = new Snapshot($aggregateId->value(), $aggregateRoot, $type, $version);
+        self::assertEquals($aggregateId->value(), $snapshot->getAggregateId());
         self::assertEquals($version, $snapshot->getVersion());
         self::assertEquals($type, $snapshot->getType());
         self::assertEquals($aggregateRoot, $snapshot->getAggregateRoot());

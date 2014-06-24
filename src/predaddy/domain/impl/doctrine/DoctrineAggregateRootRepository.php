@@ -74,7 +74,7 @@ class DoctrineAggregateRootRepository extends ClassBasedAggregateRootRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        $result = $this->getEntityManager()->find($this->getAggregateRootClass()->getName(), $aggregateId->getValue());
+        $result = $this->getEntityManager()->find($this->getAggregateRootClass()->getName(), $aggregateId->value());
         if ($result === null) {
             $this->throwInvalidAggregateIdException($aggregateId);
         }

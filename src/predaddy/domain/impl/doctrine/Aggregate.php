@@ -74,7 +74,7 @@ class Aggregate extends Object
      */
     public static function createPrimaryIdArray(AggregateId $aggregateId)
     {
-        return ['aggregateId' => $aggregateId->getValue(), 'type' => $aggregateId->aggregateClass()];
+        return ['aggregateId' => $aggregateId->value(), 'type' => $aggregateId->aggregateClass()];
     }
 
     /**
@@ -82,7 +82,7 @@ class Aggregate extends Object
      */
     public function __construct(AggregateId $aggregateId)
     {
-        $this->aggregateId = $aggregateId->getValue();
+        $this->aggregateId = $aggregateId->value();
         $this->type = $aggregateId->aggregateClass();
     }
 
@@ -93,7 +93,7 @@ class Aggregate extends Object
      */
     public function createMetaEvent(DomainEvent $event, $serializedEvent)
     {
-        $this->updated = clone $event->getTimestamp();
+        $this->updated = clone $event->created();
         return new Event($this->aggregateId, $this->type, $event, $this->version + 1, $serializedEvent);
     }
 

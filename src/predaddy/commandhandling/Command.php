@@ -36,14 +36,7 @@ use predaddy\messagehandling\Message;
 interface Command extends Message, StateHashAware
 {
     /**
-     * Returns the identifier of this command.
-     *
-     * @return string
-     */
-    public function getCommandIdentifier();
-
-    /**
      * @return string|null null if it is a create command
      */
-    public function getAggregateId();
+    public function aggregateId();
 }

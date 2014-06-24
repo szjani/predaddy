@@ -77,7 +77,7 @@ abstract class ClassBasedAggregateRootRepository extends Object implements Repos
             sprintf(
                 "Aggregate [%s] with ID [%s] does not exist",
                 $this->getAggregateRootClass()->getName(),
-                $aggregateId->getValue()
+                $aggregateId->value()
             )
         );
     }

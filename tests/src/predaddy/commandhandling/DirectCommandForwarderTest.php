@@ -71,11 +71,11 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
         $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
         $command
             ->expects(self::once())
-            ->method('getAggregateClass')
+            ->method('aggregateClass')
             ->will(self::returnValue($aggregateClass));
         $command
             ->expects(self::once())
-            ->method('getAggregateId')
+            ->method('aggregateId')
             ->will(self::returnValue(null));
 
         $repository = $this->getMock('\predaddy\domain\Repository');
@@ -125,11 +125,11 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
         $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
         $command
             ->expects(self::atLeastOnce())
-            ->method('getAggregateClass')
+            ->method('aggregateClass')
             ->will(self::returnValue($aggregateClass));
         $command
             ->expects(self::once())
-            ->method('getAggregateId')
+            ->method('aggregateId')
             ->will(self::returnValue($aggregateId));
 
         $repository = $this->getMock('\predaddy\domain\Repository');
@@ -139,7 +139,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
             ->will(
                 self::returnCallback(
                     function (AggregateId $aggregateIdObj) use ($aggregateId, $aggregate) {
-                        self::assertEquals($aggregateId, $aggregateIdObj->getValue());
+                        self::assertEquals($aggregateId, $aggregateIdObj->value());
                         return $aggregate;
                     }
                 )

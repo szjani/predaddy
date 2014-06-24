@@ -76,7 +76,7 @@ class EventSourcingRepository extends ClassBasedAggregateRootRepository
             $aggregate = $this->eventStore->loadSnapshot($aggregateId);
             $stateHash = $aggregate === null
                 ? null
-                : $aggregate->getStateHash();
+                : $aggregate->stateHash();
         }
         $events = $this->eventStore->getEventsFor($aggregateId, $stateHash);
         if ($aggregate === null) {

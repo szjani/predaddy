@@ -30,6 +30,6 @@ class UserCreated extends AbstractDomainEvent
      */
     public function getUserId()
     {
-        return $this->getAggregateId();
+        return $this->aggregateId();
     }
 }

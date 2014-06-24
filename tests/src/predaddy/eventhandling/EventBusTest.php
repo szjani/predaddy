@@ -41,7 +41,6 @@ class EventBusTest extends PHPUnit_Framework_TestCase
         $commandBus->registerClosure(
             function(Event $incomingEvent) use (&$called, $event) {
                 $called = true;
-                EventBusTest::assertEquals($incomingEvent->getMessageIdentifier(), $incomingEvent->getEventIdentifier());
                 EventBusTest::assertSame($event, $incomingEvent);
             }
         );

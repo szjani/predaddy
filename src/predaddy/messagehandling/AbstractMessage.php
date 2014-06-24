@@ -37,18 +37,18 @@ use precore\util\UUID;
 abstract class AbstractMessage extends Object implements Message
 {
     protected $id;
-    protected $timestamp;
+    protected $created;
 
     public function __construct()
     {
-        $this->timestamp = new DateTime();
+        $this->created = new DateTime();
         $this->id = UUID::randomUUID()->toString();
     }
 
     /**
      * @return string
      */
-    public function getMessageIdentifier()
+    public function identifier()
     {
         return $this->id;
     }
@@ -56,9 +56,9 @@ abstract class AbstractMessage extends Object implements Message
     /**
      * @return DateTime
      */
-    public function getTimestamp()
+    public function created()
     {
-        return clone $this->timestamp;
+        return clone $this->created;
     }
 
     public function equals(ObjectInterface $object = null)
@@ -72,8 +72,8 @@ abstract class AbstractMessage extends Object implements Message
     protected function toStringHelper()
     {
         return Objects::toStringHelper($this)
-            ->add('id', $this->getMessageIdentifier())
-            ->add('timestamp', $this->getTimestamp());
+            ->add('id', $this->identifier())
+            ->add('created', $this->created());
     }
 
     public function toString()

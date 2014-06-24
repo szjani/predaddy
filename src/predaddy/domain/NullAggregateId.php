@@ -36,14 +36,9 @@ class NullAggregateId extends Object implements AggregateId
     /**
      * @return string
      */
-    public function getValue()
+    public function value()
     {
         return '';
-    }
-
-    public function toString()
-    {
-        return Objects::toStringHelper($this)->toString();
     }
 
     /**
@@ -52,5 +47,10 @@ class NullAggregateId extends Object implements AggregateId
     public function aggregateClass()
     {
         return '';
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)->toString();
     }
 }

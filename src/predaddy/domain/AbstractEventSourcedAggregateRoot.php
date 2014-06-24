@@ -119,6 +119,6 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      */
     protected function updateStateHash(DomainEvent $event)
     {
-        $this->stateHash = $event->getStateHash();
+        $this->stateHash = $event->stateHash();
     }
 }

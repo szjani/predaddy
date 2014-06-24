@@ -37,5 +37,5 @@ interface DomainEvent extends Event, StateHashAware
     /**
      * @return AggregateId
      */
-    public function getAggregateId();
+    public function aggregateId();
 }

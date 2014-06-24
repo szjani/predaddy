@@ -23,7 +23,7 @@
 
 namespace predaddy\domain;
 
-use predaddy\eventhandling\AbstractEvent;
+use predaddy\messagehandling\AbstractMessage;
 
 /**
  * Base class for all Domain Events.
@@ -32,7 +32,7 @@ use predaddy\eventhandling\AbstractEvent;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
+abstract class AbstractDomainEvent extends AbstractMessage implements DomainEvent
 {
     protected $aggregateId;
 
@@ -53,7 +53,7 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
     /**
      * @return AggregateId
      */
-    public function getAggregateId()
+    public function aggregateId()
     {
         return $this->aggregateId;
     }
@@ -61,15 +61,13 @@ abstract class AbstractDomainEvent extends AbstractEvent implements DomainEvent
     /**
      * @return string|null
      */
-    public function getStateHash()
+    public function stateHash()
     {
-        return $this->getEventIdentifier();
+        return $this->identifier();
     }
 
     protected function toStringHelper()
     {
-        return parent::toStringHelper()
-            ->add('aggregateId', $this->getAggregateId())
-            ->add('stateHash', $this->getStateHash());
+        return parent::toStringHelper()->add('aggregateId', $this->aggregateId());
     }
 }

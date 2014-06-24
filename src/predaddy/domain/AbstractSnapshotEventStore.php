@@ -65,7 +65,7 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
     public function persist(DomainEvent $event)
     {
         if ($this->snapshotStrategy->snapshotRequired($event, $this->doPersist($event))) {
-            $this->createSnapshot($event->getAggregateId());
+            $this->createSnapshot($event->aggregateId());
         }
     }
 
@@ -79,7 +79,7 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
     {
         /* @var $aggregateRoot EventSourcedAggregateRoot */
         $aggregateRoot = $this->loadSnapshot($aggregateId);
-        $stateHash = $aggregateRoot === null ? null : $aggregateRoot->getStateHash();
+        $stateHash = $aggregateRoot === null ? null : $aggregateRoot->stateHash();
         $events = $this->getEventsFor($aggregateId, $stateHash);
         if ($events->count() == 0) {
             return;

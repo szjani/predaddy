@@ -45,19 +45,19 @@ class EventTest extends PHPUnit_Framework_TestCase
             ->will(self::returnValue('\predaddy\domain\DomainEvent'));
         $domainEvent
             ->expects(self::once())
-            ->method('getTimestamp')
+            ->method('created')
             ->will(self::returnValue($created));
         $domainEvent
             ->expects(self::once())
-            ->method('getStateHash')
+            ->method('stateHash')
             ->will(self::returnValue($stateHash));
 
-        $event = new Event($aggregateId->getValue(), $type, $domainEvent, $version, $serializedEvent);
+        $event = new Event($aggregateId->value(), $type, $domainEvent, $version, $serializedEvent);
         self::assertEquals($version, $event->getVersion());
         self::assertEquals($type, $event->getAggregateType());
-        self::assertEquals($aggregateId->getValue(), $event->getAggregateId());
+        self::assertEquals($aggregateId->value(), $event->getAggregateId());
         self::assertEquals($created, $event->getCreated());
         self::assertEquals($serializedEvent, $event->getData());
-        self::assertEquals($stateHash, $event->getStateHash());
+        self::assertEquals($stateHash, $event->stateHash());
     }
 }

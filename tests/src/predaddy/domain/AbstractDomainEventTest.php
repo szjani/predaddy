@@ -35,7 +35,7 @@ class AbstractDomainEventTest extends PHPUnit_Framework_TestCase
     public function testEmptyConstructorResult()
     {
         $event = new DecrementedEvent();
-        self::assertEquals($event->getEventIdentifier(), $event->getStateHash());
-        self::assertEquals('', $event->getAggregateId()->getValue());
+        self::assertEquals($event->identifier(), $event->stateHash());
+        self::assertEquals('', $event->aggregateId()->value());
     }
 }

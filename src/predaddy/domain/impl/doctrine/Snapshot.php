@@ -71,7 +71,7 @@ class Snapshot extends Object
      */
     public static function createPrimaryIdArray(AggregateId $aggregateId)
     {
-        return ['aggregateId' => $aggregateId->getValue(), 'type' => $aggregateId->aggregateClass()];
+        return ['aggregateId' => $aggregateId->value(), 'type' => $aggregateId->aggregateClass()];
     }
 
     /**

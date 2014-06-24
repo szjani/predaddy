@@ -56,19 +56,9 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     }
 
     /**
-     * Returns the identifier of this command.
-     *
-     * @return string
-     */
-    public function getCommandIdentifier()
-    {
-        return $this->getMessageIdentifier();
-    }
-
-    /**
      * @return null|string
      */
-    public function getAggregateId()
+    public function aggregateId()
     {
         return $this->aggregateId;
     }
@@ -76,7 +66,7 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     /**
      * @return string|null
      */
-    public function getStateHash()
+    public function stateHash()
     {
         return $this->stateHash;
     }

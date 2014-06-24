@@ -112,7 +112,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
         $this->entityManager
             ->expects(self::once())
             ->method('find')
-            ->with(self::AR_CLASS, $aggregateRootId->getValue())
+            ->with(self::AR_CLASS, $aggregateRootId->value())
             ->will(self::returnValue($user));
 
         $user = $this->repository->load($aggregateRootId);
@@ -149,7 +149,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
         self::assertInstanceOf(UserCreated::className(), $createdEvent);
         self::assertInstanceOf(IncrementedEvent::className(), $incrementedEvent);
 
-        self::assertNotNull($createdEvent->getStateHash());
-        self::assertNotNull($incrementedEvent->getStateHash());
+        self::assertNotNull($createdEvent->stateHash());
+        self::assertNotNull($incrementedEvent->stateHash());
     }
 }

@@ -121,9 +121,9 @@ class Event extends Object implements StateHashAware
         $this->data = $serializedEvent;
         $this->aggregateId = $aggregateId;
         $this->version = $version;
-        $this->created = clone $event->getTimestamp();
+        $this->created = clone $event->created();
         $this->eventType = $event->getClassName();
-        $this->stateHash = $event->getStateHash();
+        $this->stateHash = $event->stateHash();
     }
 
     /**
@@ -196,7 +196,7 @@ class Event extends Object implements StateHashAware
     /**
      * @return null|string
      */
-    public function getStateHash()
+    public function stateHash()
     {
         return $this->stateHash;
     }

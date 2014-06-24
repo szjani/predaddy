@@ -44,7 +44,7 @@ final class DeadMessage extends AbstractMessage
     /**
      * @return object
      */
-    public function getMessage()
+    public function wrappedMessage()
     {
         return $this->message;
     }

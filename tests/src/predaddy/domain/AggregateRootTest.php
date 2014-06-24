@@ -46,7 +46,7 @@ class AggregateRootTest extends DomainTestCase
         $events = $this->getAndClearRaisedEvents();
         self::assertEquals(2, $user->value);
         self::assertTrue($events->valid());
-        self::assertEquals($events->current()->getAggregateId(), $user->getId());
+        self::assertEquals($events->current()->aggregateId(), $user->getId());
     }
 
     public function testEquals()
@@ -76,8 +76,8 @@ class AggregateRootTest extends DomainTestCase
         self::assertCount(1, $events);
         $event = $events[0];
         /* @var $event DomainEvent */
-        self::assertEquals($event->getStateHash(), $user->getStateHash());
-        $user->failWhenStateHashViolation($event->getStateHash());
+        self::assertEquals($event->stateHash(), $user->stateHash());
+        $user->failWhenStateHashViolation($event->stateHash());
     }
 
     /**
@@ -91,13 +91,13 @@ class AggregateRootTest extends DomainTestCase
         self::assertCount(1, $events);
         $event = $events[0];
         /* @var $event DomainEvent */
-        self::assertEquals($event->getStateHash(), $user->getStateHash());
+        self::assertEquals($event->stateHash(), $user->stateHash());
 
         $user->increment();
         $events = $this->getAndClearRaisedEvents();
         self::assertCount(1, $events);
         $event = $events[0];
-        $user->failWhenStateHashViolation($event->getStateHash());
+        $user->failWhenStateHashViolation($event->stateHash());
 
         $user->failWhenStateHashViolation('invalid');
     }

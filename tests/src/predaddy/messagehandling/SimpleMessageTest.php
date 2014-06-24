@@ -30,7 +30,7 @@ class SimpleMessageTest extends PHPUnit_Framework_TestCase
     public function testToString()
     {
         $message = new SimpleMessage();
-        self::assertTrue(false !== strpos($message->toString(), $message->getMessageIdentifier()));
+        self::assertTrue(false !== strpos($message->toString(), $message->identifier()));
     }
 
     public function testSerialization()

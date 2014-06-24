@@ -33,10 +33,4 @@ use predaddy\messagehandling\Message;
  */
 interface Event extends Message
 {
-    /**
-     * Returns the identifier of this event.
-     *
-     * @return string
-     */
-    public function getEventIdentifier();
 }

@@ -114,7 +114,7 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $currentVersion = null;
         $this->eventBus->registerClosure(
             function (DomainEvent $event) use (&$currentVersion) {
-                $currentVersion = $event->getStateHash();
+                $currentVersion = $event->stateHash();
             }
         );
 
@@ -122,7 +122,7 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $aggregateId = null;
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$aggregateId) {
-                $aggregateId = $event->getAggregateId();
+                $aggregateId = $event->aggregateId();
             }
         );
         $this->commandBus->post(new CreateEventSourcedUser());
@@ -131,23 +131,23 @@ class DirectCommandBusIntegrationTest extends PHPUnit_Framework_TestCase
         $incremented = 0;
         $this->eventBus->registerClosure(
             function (IncrementedEvent $event) use (&$incremented, $aggregateId) {
-                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
+                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->aggregateId());
                 $incremented++;
             }
         );
-        $this->commandBus->post(new Increment($aggregateId->getValue(), $currentVersion));
-        $this->commandBus->post(new Increment($aggregateId->getValue(), $currentVersion));
+        $this->commandBus->post(new Increment($aggregateId->value(), $currentVersion));
+        $this->commandBus->post(new Increment($aggregateId->value(), $currentVersion));
         self::assertEquals(2, $incremented);
 
         $decremented = 0;
         $this->eventBus->registerClosure(
             function (DecrementedEvent $event) use (&$decremented, $aggregateId) {
-                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->getAggregateId());
+                DirectCommandBusIntegrationTest::assertEquals($aggregateId, $event->aggregateId());
                 $decremented++;
             }
         );
-        $this->commandBus->post(new Decrement($aggregateId->getValue()));
-        $this->commandBus->post(new Decrement($aggregateId->getValue()));
+        $this->commandBus->post(new Decrement($aggregateId->value()));
+        $this->commandBus->post(new Decrement($aggregateId->value()));
         self::assertEquals(2, $decremented);
     }
 }

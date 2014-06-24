@@ -79,7 +79,7 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
             ->setParameters(
                 [
                     'type' => $aggregateId->aggregateClass(),
-                    'aggregateId' => $aggregateId->getValue()
+                    'aggregateId' => $aggregateId->value()
                 ]
             );
         if ($stateHash !== null) {
@@ -131,7 +131,7 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
     protected function doPersist(DomainEvent $event)
     {
         /* @var $event DomainEvent */
-        $aggregateId = $event->getAggregateId();
+        $aggregateId = $event->aggregateId();
         $aggregate = $this->findAggregate($aggregateId);
         if ($aggregate === null) {
             $aggregate = new Aggregate($aggregateId);

@@ -201,26 +201,26 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $version = null;
         $this->eventBus->registerClosure(
             function (UserCreated $event) use (&$userId, &$version) {
-                $userId = $event->getAggregateId();
-                $version = $event->getStateHash();
+                $userId = $event->aggregateId();
+                $version = $event->stateHash();
             }
         );
         $createCommand = new CreateEventSourcedUser(null, 0);
         $user = new EventSourcedUser($createCommand);
         $this->repository->save($user);
         self::assertNotNull($userId);
-        self::assertEquals($version, $user->getStateHash());
+        self::assertEquals($version, $user->stateHash());
 
         $this->eventBus->registerClosure(
             function (DecrementedEvent $event) use (&$userId, &$version) {
-                $userId = $event->getAggregateId();
-                $version = $event->getStateHash();
+                $userId = $event->aggregateId();
+                $version = $event->stateHash();
             }
         );
         $user->decrement(new Decrement());
         $this->repository->save($user);
         self::assertNotNull($userId);
-        self::assertEquals($version, $user->getStateHash());
+        self::assertEquals($version, $user->stateHash());
     }
 
     public function testWithInMemoryMessageBus()

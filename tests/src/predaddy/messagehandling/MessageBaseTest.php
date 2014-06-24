@@ -44,8 +44,8 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
     public function testGetTimestamp()
     {
         $message = new SimpleMessage();
-        self::assertInstanceOf('DateTime', $message->getTimestamp());
-        self::assertTrue($message->getTimestamp() <= new DateTime());
+        self::assertInstanceOf('DateTime', $message->created());
+        self::assertTrue($message->created() <= new DateTime());
     }
 
     public function testSerialize()
@@ -55,7 +55,7 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
         $deserialized = unserialize($text);
         self::assertEquals($message->getPrivateData(), $deserialized->getPrivateData());
         self::assertEquals($message->getProtectedData(), $deserialized->getProtectedData());
-        self::assertEquals($message->getMessageIdentifier(), $deserialized->getMessageIdentifier());
+        self::assertEquals($message->identifier(), $deserialized->identifier());
         self::assertEquals(SimpleMessage::PRIVATE_VALUE, $deserialized->getPrivateData());
     }
 }

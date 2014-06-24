@@ -38,12 +38,12 @@ interface Message extends ObjectInterface
      *
      * @return string
      */
-    public function getMessageIdentifier();
+    public function identifier();
 
     /**
      * Returns the timestamp of this message.
      *
      * @return DateTime
      */
-    public function getTimestamp();
+    public function created();
 }

@@ -33,7 +33,7 @@ class ReturnResult extends AbstractDirectCommand
     /**
      * @return string
      */
-    public function getAggregateClass()
+    public function aggregateClass()
     {
         return TestAggregate01::className();
     }

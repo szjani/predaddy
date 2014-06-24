@@ -28,10 +28,10 @@ interface AggregateId extends ValueObject
     /**
      * @return string
      */
-    public function getValue();
+    public function value();
 
     /**
-     * @return string
+     * @return string FQCN
      */
     public function aggregateClass();
 }

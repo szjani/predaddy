@@ -30,7 +30,7 @@ class Increment extends AbstractDirectCommand
     /**
      * @return string
      */
-    public function getAggregateClass()
+    public function aggregateClass()
     {
         return EventSourcedUser::className();
     }

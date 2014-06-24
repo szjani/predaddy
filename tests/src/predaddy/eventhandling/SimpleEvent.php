@@ -23,7 +23,9 @@
 
 namespace predaddy\eventhandling;
 
-class SimpleEvent extends AbstractEvent
+use predaddy\messagehandling\AbstractMessage;
+
+class SimpleEvent extends AbstractMessage implements Event
 {
     public $content;
 }

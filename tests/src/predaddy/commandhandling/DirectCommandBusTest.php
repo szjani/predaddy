@@ -133,7 +133,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     public function exceptionMustBePassedToCallback()
     {
         $aggRoot = new TestAggregate01();
-        $command = new ThrowException($aggRoot->getId()->getValue());
+        $command = new ThrowException($aggRoot->getId()->value());
         $repo = $this->getMock('\predaddy\domain\Repository');
         $repo
             ->expects(self::once())
@@ -142,7 +142,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->repoRepo
             ->expects(self::once())
             ->method('getRepository')
-            ->with($command->getAggregateClass())
+            ->with($command->aggregateClass())
             ->will(self::returnValue($repo));
 
         $exceptionThrown = false;
@@ -163,7 +163,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     public function resultMustBePassedToCallback()
     {
         $aggRoot = new TestAggregate01();
-        $command = new ReturnResult($aggRoot->getId()->getValue());
+        $command = new ReturnResult($aggRoot->getId()->value());
         $repo = $this->getMock('\predaddy\domain\Repository');
         $repo
             ->expects(self::once())
@@ -172,7 +172,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->repoRepo
             ->expects(self::once())
             ->method('getRepository')
-            ->with($command->getAggregateClass())
+            ->with($command->aggregateClass())
             ->will(self::returnValue($repo));
 
         $resultPassed = false;

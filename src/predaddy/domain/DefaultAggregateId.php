@@ -52,7 +52,7 @@ class DefaultAggregateId extends Object implements AggregateId
     /**
      * @return string
      */
-    public function getValue()
+    public function value()
     {
         return $this->value;
     }
@@ -76,7 +76,7 @@ class DefaultAggregateId extends Object implements AggregateId
     public function equals(ObjectInterface $object = null)
     {
         return $object instanceof self
-            && $this->getValue() == $object->getValue()
+            && $this->value() == $object->value()
             && $this->aggregateClass() == $object->aggregateClass();
     }
 }
