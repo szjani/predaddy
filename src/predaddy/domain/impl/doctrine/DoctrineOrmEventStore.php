@@ -146,7 +146,6 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
 
     protected function doCreateSnapshot(EventSourcedAggregateRoot $aggregateRoot)
     {
-        $aggregateRootClass = $aggregateRoot->getClassName();
         $aggregateId = $aggregateRoot->getId();
         /* @var $snapshot Snapshot */
         $aggregate = $this->findAggregate($aggregateId);
@@ -159,8 +158,8 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
             $aggregate->updateSnapshot($snapshot, $serialized);
         }
         self::getLogger()->debug(
-            "Snapshot has been persisted for aggregate [{}, {}], version [{}]",
-            [$aggregateRootClass, $aggregateId, $aggregate->getVersion()]
+            "Snapshot has been persisted for aggregate [{}], version [{}]",
+            [$aggregateId, $aggregate->getVersion()]
         );
     }
 
