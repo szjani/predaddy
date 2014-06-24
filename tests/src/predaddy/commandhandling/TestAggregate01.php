@@ -43,7 +43,7 @@ class TestAggregate01 extends AbstractAggregateRoot
 
     public function __construct()
     {
-        $this->id = new UUIDAggregateId(UUID::randomUUID());
+        $this->id = new UUIDAggregateId(self::className());
     }
 
     /**

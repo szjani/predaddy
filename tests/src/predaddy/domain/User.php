@@ -53,14 +53,13 @@ class User extends AbstractAggregateRoot
 
     public function __construct()
     {
-        $id = new UUIDAggregateId(UUID::randomUUID());
-        $this->id = $id->getValue();
-        $this->raise(new UserCreated($id, $this->version));
+        $this->id = UUID::randomUUID()->toString();
+        $this->raise(new UserCreated());
     }
 
     public function getId()
     {
-        return new UUIDAggregateId(UUID::fromString($this->id));
+        return new DefaultAggregateId($this->id, self::className());
     }
 
     public function increment()

@@ -42,10 +42,9 @@ interface EventStore
      *
      * If the $stateHash parameter is set, the result will contain only the newer DomainEvents.
      *
-     * @param string $aggregateRootClass FQCN
      * @param AggregateId $aggregateId
      * @param string $stateHash State hash
      * @return Iterator|Countable
      */
-    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId, $stateHash = null);
+    public function getEventsFor(AggregateId $aggregateId, $stateHash = null);
 }

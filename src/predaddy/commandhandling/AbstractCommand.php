@@ -66,11 +66,11 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     }
 
     /**
-     * @return null|AggregateId|DefaultAggregateId
+     * @return null|string
      */
     public function getAggregateId()
     {
-        return $this->aggregateId === null ? null : new DefaultAggregateId($this->aggregateId);
+        return $this->aggregateId;
     }
 
     /**

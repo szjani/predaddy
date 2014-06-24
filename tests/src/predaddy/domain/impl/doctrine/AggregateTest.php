@@ -31,8 +31,8 @@ class AggregateTest extends PHPUnit_Framework_TestCase
 {
     public function testGetters()
     {
-        $aggregateId = new UUIDAggregateId(UUID::randomUUID());
         $type = __CLASS__;
+        $aggregateId = new UUIDAggregateId($type);
         $aggregate = new Aggregate($aggregateId, $type);
         self::assertEquals($aggregateId->getValue(), $aggregate->getAggregateId());
         self::assertEquals($type, $aggregate->getType());

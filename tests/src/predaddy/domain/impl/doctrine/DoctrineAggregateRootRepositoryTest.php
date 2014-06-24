@@ -107,7 +107,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
 
     public function testLoad()
     {
-        $aggregateRootId = new UUIDAggregateId(UUID::randomUUID());
+        $aggregateRootId = new UUIDAggregateId(self::AR_CLASS);
         $user = new User();
         $this->entityManager
             ->expects(self::once())
@@ -129,7 +129,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
             ->method('find')
             ->will(self::returnValue(null));
 
-        $this->repository->load(new UUIDAggregateId(UUID::randomUUID()));
+        $this->repository->load(new UUIDAggregateId(__CLASS__));
     }
 
     /**

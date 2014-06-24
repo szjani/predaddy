@@ -32,8 +32,8 @@ class EventTest extends PHPUnit_Framework_TestCase
 {
     public function testGetters()
     {
-        $aggregateId = new UUIDAggregateId(UUID::randomUUID());
         $type = __CLASS__;
+        $aggregateId = new UUIDAggregateId($type);
         $version = 2;
         $created = new DateTime();
         $serializedEvent = __METHOD__;

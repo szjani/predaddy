@@ -45,4 +45,12 @@ class NullAggregateId extends Object implements AggregateId
     {
         return Objects::toStringHelper($this)->toString();
     }
+
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return '';
+    }
 }

@@ -33,16 +33,14 @@ namespace predaddy\domain;
 interface SnapshotEventStore extends EventStore
 {
     /**
-     * @param string $aggregateRootClass FQCN
      * @param AggregateId $aggregateId
      * @return void
      */
-    public function createSnapshot($aggregateRootClass, AggregateId $aggregateId);
+    public function createSnapshot(AggregateId $aggregateId);
 
     /**
-     * @param string $aggregateRootClass FQCN
      * @param AggregateId $aggregateId
      * @return EventSourcedAggregateRoot|null
      */
-    public function loadSnapshot($aggregateRootClass, AggregateId $aggregateId);
+    public function loadSnapshot(AggregateId $aggregateId);
 }

@@ -58,7 +58,7 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
     protected function raise(DomainEvent $event)
     {
         if ($event instanceof AbstractDomainEvent) {
-            AbstractDomainEvent::initEvent($event, $this->getId(), $this->getClassName());
+            AbstractDomainEvent::initEvent($event, $this->getId());
         }
         $this->stateHash = $event->getStateHash();
         EventPublisher::instance()->post($event);

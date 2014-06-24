@@ -65,7 +65,7 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
     public function persist(DomainEvent $event)
     {
         if ($this->snapshotStrategy->snapshotRequired($event, $this->doPersist($event))) {
-            $this->createSnapshot($event->getAggregateClass(), $event->getAggregateId());
+            $this->createSnapshot($event->getAggregateId());
         }
     }
 
@@ -73,21 +73,19 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
      * Events raised in the current transaction are not being stored in this snapshot.
      * Only the already persisted events are being utilized.
      *
-     * @param string $aggregateRootClass
      * @param AggregateId $aggregateId
      */
-    public function createSnapshot($aggregateRootClass, AggregateId $aggregateId)
+    public function createSnapshot(AggregateId $aggregateId)
     {
         /* @var $aggregateRoot EventSourcedAggregateRoot */
-        $aggregateRoot = $this->loadSnapshot($aggregateRootClass, $aggregateId);
+        $aggregateRoot = $this->loadSnapshot($aggregateId);
         $stateHash = $aggregateRoot === null ? null : $aggregateRoot->getStateHash();
-        $events = $this->getEventsFor($aggregateRootClass, $aggregateId, $stateHash);
+        $events = $this->getEventsFor($aggregateId, $stateHash);
         if ($events->count() == 0) {
             return;
         }
         if ($aggregateRoot === null) {
-            $objectClass = ObjectClass::forName($aggregateRootClass);
-            $aggregateRoot = $objectClass->newInstanceWithoutConstructor();
+            $aggregateRoot = ObjectClass::forName($aggregateId->aggregateClass())->newInstanceWithoutConstructor();
         }
         $aggregateRoot->loadFromHistory($events);
         $this->doCreateSnapshot($aggregateRoot);

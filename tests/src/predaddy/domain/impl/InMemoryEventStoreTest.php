@@ -54,13 +54,13 @@ class InMemoryEventStoreTest extends DomainTestCase
         foreach ($events as $event) {
             $this->eventStore->persist($event);
         }
-        $returnedEvents = $this->eventStore->getEventsFor(EventSourcedUser::className(), $user->getId());
+        $returnedEvents = $this->eventStore->getEventsFor($user->getId());
         self::assertCount(2, $returnedEvents);
         self::assertSame($events[0], $returnedEvents[0]);
         self::assertSame($events[1], $returnedEvents[1]);
 
-        $this->eventStore->createSnapshot(EventSourcedUser::className(), $user->getId());
-        $returnedSnapshot = $this->eventStore->loadSnapshot(EventSourcedUser::className(), $user->getId());
+        $this->eventStore->createSnapshot($user->getId());
+        $returnedSnapshot = $this->eventStore->loadSnapshot($user->getId());
         self::assertEquals($user, $returnedSnapshot);
 
         $user->increment(new Increment());
@@ -69,7 +69,6 @@ class InMemoryEventStoreTest extends DomainTestCase
             $this->eventStore->persist($event);
         }
         $returnedEvents = $this->eventStore->getEventsFor(
-            EventSourcedUser::className(),
             $user->getId(),
             $returnedSnapshot->getStateHash()
         );

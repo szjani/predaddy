@@ -104,13 +104,13 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
         self::$entityManager->clear();
 
         self::assertCount(2, $raisedEvents);
-        $storedEvents = $this->eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId);
+        $storedEvents = $this->eventStore->getEventsFor($aggregateId);
         self::assertEquals($raisedEvents[0], $storedEvents->current());
         $storedEvents->next();
         self::assertEquals($raisedEvents[1], $storedEvents->current());
 
         $user2 = EventSourcedUser::objectClass()->newInstanceWithoutConstructor();
-        $user2->loadFromHistory($this->eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId));
+        $user2->loadFromHistory($this->eventStore->getEventsFor($aggregateId));
         self::assertEquals($user->value, $user2->value);
     }
 
@@ -129,18 +129,18 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
             }
         );
 
-        $events = $eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId);
+        $events = $eventStorage->getEventsFor($aggregateId);
         self::assertCount(2, $events);
 
         self::$entityManager->transactional(
             function () use ($eventStorage, $aggregateId) {
-                $eventStorage->createSnapshot(EventSourcedUser::className(), $aggregateId);
+                $eventStorage->createSnapshot($aggregateId);
             }
         );
-        $events = $eventStorage->getEventsFor(EventSourcedUser::className(), $aggregateId, $events[1]->getStateHash());
+        $events = $eventStorage->getEventsFor($aggregateId, $events[1]->getStateHash());
         self::assertCount(0, $events);
 
-        $aggregateRoot = $eventStorage->loadSnapshot(EventSourcedUser::className(), $aggregateId);
+        $aggregateRoot = $eventStorage->loadSnapshot($aggregateId);
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE + 1, $aggregateRoot->value);
     }
 
@@ -167,15 +167,15 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
                 foreach ($this->getAndClearRaisedEvents() as $event) {
                     $eventStore->persist($event);
                 }
-                $eventStore->createSnapshot(EventSourcedUser::className(), $aggregateId);
+                $eventStore->createSnapshot($aggregateId);
             }
         );
 
-        $user = $eventStore->loadSnapshot(EventSourcedUser::className(), $aggregateId);
-        $events = $eventStore->getEventsFor(EventSourcedUser::className(), $aggregateId, $user->getStateHash());
+        $user = $eventStore->loadSnapshot($aggregateId);
+        $events = $eventStore->getEventsFor($aggregateId, $user->getStateHash());
         self::assertCount(1, $events);
 
-        $aggregateRoot = $eventStore->loadSnapshot(EventSourcedUser::className(), $aggregateId);
+        $aggregateRoot = $eventStore->loadSnapshot($aggregateId);
         self::assertEquals(EventSourcedUser::DEFAULT_VALUE + 1, $aggregateRoot->value);
     }
 
@@ -202,12 +202,11 @@ class DoctrineOrmEventStoreTest extends DomainTestCase
         self::assertEquals(2, count($raisedEvents));
         self::$entityManager->transactional(
             function () use ($aggregateId) {
-                $this->eventStore->createSnapshot(EventSourcedUser::className(), $aggregateId);
+                $this->eventStore->createSnapshot($aggregateId);
             }
         );
         self::assertEquals($raisedEvents[1]->getStateHash(), $user->getStateHash());
         $reducedEvents = $this->eventStore->getEventsFor(
-            EventSourcedUser::className(),
             $aggregateId,
             $raisedEvents[0]->getStateHash()
         );

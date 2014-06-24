@@ -35,11 +35,18 @@ class DefaultAggregateId extends Object implements AggregateId
     private $value;
 
     /**
-     * @param string $value
+     * @var string
      */
-    public function __construct($value)
+    private $aggregateClass;
+
+    /**
+     * @param string $value
+     * @param string $aggregateClass
+     */
+    public function __construct($value, $aggregateClass)
     {
         $this->value = $value;
+        $this->aggregateClass = $aggregateClass;
     }
 
     /**
@@ -50,16 +57,26 @@ class DefaultAggregateId extends Object implements AggregateId
         return $this->value;
     }
 
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return $this->aggregateClass;
+    }
+
     public function toString()
     {
         return Objects::toStringHelper($this)
             ->add('value', $this->value)
+            ->add('aggregateClass', $this->aggregateClass)
             ->toString();
     }
 
     public function equals(ObjectInterface $object = null)
     {
         return $object instanceof self
-            && $this->getValue() == $object->getValue();
+            && $this->getValue() == $object->getValue()
+            && $this->aggregateClass() == $object->aggregateClass();
     }
 }

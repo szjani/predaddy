@@ -43,7 +43,7 @@ interface Command extends Message, StateHashAware
     public function getCommandIdentifier();
 
     /**
-     * @return AggregateId|null null if it is a create command
+     * @return string|null null if it is a create command
      */
     public function getAggregateId();
 }

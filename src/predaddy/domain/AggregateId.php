@@ -29,4 +29,9 @@ interface AggregateId extends ValueObject
      * @return string
      */
     public function getValue();
+
+    /**
+     * @return string
+     */
+    public function aggregateClass();
 }

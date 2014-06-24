@@ -26,6 +26,7 @@ namespace predaddy\domain\impl\doctrine\entities;
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
 use predaddy\domain\AbstractAggregateRoot;
+use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\UUIDAggregateId;
 use predaddy\messagehandling\annotation\Subscribe;
 use Doctrine\ORM\Mapping as ORM;
@@ -62,14 +63,13 @@ class User extends AbstractAggregateRoot
 
     public function __construct()
     {
-        $id = new UUIDAggregateId(UUID::randomUUID());
-        $this->id = $id->getValue();
+        $this->id = UUID::randomUUID()->toString();
         $this->raise(new UserCreated());
     }
 
     public function getId()
     {
-        return new UUIDAggregateId(UUID::fromString($this->id));
+        return new DefaultAggregateId($this->id, self::className());
     }
 
     public function increment()

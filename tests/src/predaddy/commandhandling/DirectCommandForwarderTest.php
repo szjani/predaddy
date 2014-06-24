@@ -25,6 +25,7 @@ namespace predaddy\commandhandling;
 
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
+use precore\util\UUID;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\AbstractAggregateRoot;
@@ -120,10 +121,10 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
     {
         $aggregate = $this->getMock('\predaddy\domain\AggregateRoot');
         $aggregateClass = __NAMESPACE__ . '\TestAggregate';
-        $aggregateId = $this->getMock('\predaddy\domain\AggregateId');
+        $aggregateId = UUID::randomUUID()->toString();
         $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
         $command
-            ->expects(self::once())
+            ->expects(self::atLeastOnce())
             ->method('getAggregateClass')
             ->will(self::returnValue($aggregateClass));
         $command
@@ -135,8 +136,14 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
         $repository
             ->expects(self::once())
             ->method('load')
-            ->with($aggregateId)
-            ->will(self::returnValue($aggregate));
+            ->will(
+                self::returnCallback(
+                    function (AggregateId $aggregateIdObj) use ($aggregateId, $aggregate) {
+                        self::assertEquals($aggregateId, $aggregateIdObj->getValue());
+                        return $aggregate;
+                    }
+                )
+            );
 
         $this->repositoryRepository
             ->expects(self::once())

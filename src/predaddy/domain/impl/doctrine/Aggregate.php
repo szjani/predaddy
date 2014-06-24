@@ -70,22 +70,20 @@ class Aggregate extends Object
 
     /**
      * @param AggregateId $aggregateId
-     * @param string $type
      * @return array Can be used in querying database
      */
-    public static function createPrimaryIdArray(AggregateId $aggregateId, $type)
+    public static function createPrimaryIdArray(AggregateId $aggregateId)
     {
-        return array('aggregateId' => $aggregateId->getValue(), 'type' => $type);
+        return ['aggregateId' => $aggregateId->getValue(), 'type' => $aggregateId->aggregateClass()];
     }
 
     /**
      * @param AggregateId $aggregateId
-     * @param string $type
      */
-    public function __construct(AggregateId $aggregateId, $type)
+    public function __construct(AggregateId $aggregateId)
     {
         $this->aggregateId = $aggregateId->getValue();
-        $this->type = $type;
+        $this->type = $aggregateId->aggregateClass();
     }
 
     /**

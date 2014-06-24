@@ -27,8 +27,11 @@ use precore\util\UUID;
 
 class UUIDAggregateId extends DefaultAggregateId implements AggregateId
 {
-    public function __construct(UUID $uuid)
+    /**
+     * @param string $aggregateClass
+     */
+    public function __construct($aggregateClass)
     {
-        parent::__construct($uuid->toString());
+        parent::__construct(UUID::randomUUID()->toString(), $aggregateClass);
     }
 }

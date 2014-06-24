@@ -47,7 +47,7 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
      */
     protected function doCreateSnapshot(EventSourcedAggregateRoot $aggregateRoot)
     {
-        $this->snapshots[$this->createKey($aggregateRoot->getClassName(), $aggregateRoot->getId())] = $aggregateRoot;
+        $this->snapshots[$this->createKey($aggregateRoot->getId())] = $aggregateRoot;
     }
 
     /**
@@ -56,7 +56,7 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
      */
     protected function doPersist(DomainEvent $event)
     {
-        $key = $this->createKey($event->getAggregateClass(), $event->getAggregateId());
+        $key = $this->createKey($event->getAggregateId());
         $this->events[$key][] = $event;
         return count($this->events[$key]);
     }
@@ -67,17 +67,16 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
      *
      * If the $stateHash parameter is set, the result will contain only the newer DomainEvents.
      *
-     * @param string $aggregateRootClass FQCN
      * @param AggregateId $aggregateId
      * @param string $stateHash State hash
      * @return Iterator|Countable
      */
-    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId, $stateHash = null)
+    public function getEventsFor(AggregateId $aggregateId, $stateHash = null)
     {
         $result = [];
         $add = false;
         /* @var $event DomainEvent */
-        foreach ($this->events[$this->createKey($aggregateRootClass, $aggregateId)] as $event) {
+        foreach ($this->events[$this->createKey($aggregateId)] as $event) {
             if ($add || $stateHash === null) {
                 $result[] = $event;
             } elseif ($event->getStateHash() === $stateHash) {
@@ -88,13 +87,12 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
     }
 
     /**
-     * @param string $aggregateRootClass FQCN
      * @param AggregateId $aggregateId
      * @return EventSourcedAggregateRoot|null
      */
-    public function loadSnapshot($aggregateRootClass, AggregateId $aggregateId)
+    public function loadSnapshot(AggregateId $aggregateId)
     {
-        $key = $this->createKey($aggregateRootClass, $aggregateId);
+        $key = $this->createKey($aggregateId);
         return array_key_exists($key, $this->snapshots)
             ? $this->snapshots[$key]
             : null;
@@ -106,8 +104,8 @@ class InMemoryEventStore extends AbstractSnapshotEventStore
         $this->snapshots = [];
     }
 
-    private function createKey($aggregateRootClass, AggregateId $aggregateId)
+    private function createKey(AggregateId $aggregateId)
     {
-        return $aggregateRootClass . $aggregateId->getValue();
+        return $aggregateId->aggregateClass() . $aggregateId->getValue();
     }
 }

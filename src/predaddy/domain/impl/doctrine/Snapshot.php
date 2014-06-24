@@ -67,12 +67,11 @@ class Snapshot extends Object
 
     /**
      * @param AggregateId $aggregateId
-     * @param string $type
      * @return array Can be used in querying database
      */
-    public static function createPrimaryIdArray(AggregateId $aggregateId, $type)
+    public static function createPrimaryIdArray(AggregateId $aggregateId)
     {
-        return array('aggregateId' => $aggregateId->getValue(), 'type' => $type);
+        return ['aggregateId' => $aggregateId->getValue(), 'type' => $aggregateId->aggregateClass()];
     }
 
     /**

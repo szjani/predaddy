@@ -25,19 +25,11 @@ namespace predaddy\domain;
 
 class UserCreated extends AbstractDomainEvent
 {
-    private $userId;
-
-    public function __construct(AggregateId $userId)
-    {
-        parent::__construct($userId);
-        $this->userId = $userId;
-    }
-
     /**
      * @return AggregateId
      */
     public function getUserId()
     {
-        return $this->userId;
+        return $this->getAggregateId();
     }
 }

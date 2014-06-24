@@ -66,12 +66,11 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
     }
 
     /**
-     * @param string $aggregateRootClass
      * @param AggregateId $aggregateId
      * @param null $stateHash
      * @return ArrayIterator
      */
-    public function getEventsFor($aggregateRootClass, AggregateId $aggregateId, $stateHash = null)
+    public function getEventsFor(AggregateId $aggregateId, $stateHash = null)
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('e')
@@ -79,7 +78,7 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
             ->where('e.aggregateType = :type AND e.aggregateId = :aggregateId')
             ->setParameters(
                 [
-                    'type' => $aggregateRootClass,
+                    'type' => $aggregateId->aggregateClass(),
                     'aggregateId' => $aggregateId->getValue()
                 ]
             );
@@ -109,19 +108,18 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
     }
 
     /**
-     * @param $aggregateRootClass
      * @param AggregateId $aggregateId
      * @return EventSourcedAggregateRoot|null
      */
-    public function loadSnapshot($aggregateRootClass, AggregateId $aggregateId)
+    public function loadSnapshot(AggregateId $aggregateId)
     {
         $aggregateRoot = null;
         /* @var $snapshot Snapshot */
-        $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
+        $snapshot = $this->findSnapshot($aggregateId);
         if ($snapshot !== null) {
-            $reflectionClass = ObjectClass::forName($aggregateRootClass);
+            $reflectionClass = ObjectClass::forName($aggregateId->aggregateClass());
             $aggregateRoot = $this->serializer->deserialize($snapshot->getAggregateRoot(), $reflectionClass);
-            self::getLogger()->debug("Snapshot loaded [{}, {}]", [$aggregateRootClass, $aggregateId]);
+            self::getLogger()->debug("Snapshot loaded [{}]", [$aggregateId]);
         }
         return $aggregateRoot;
     }
@@ -134,15 +132,11 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
     {
         /* @var $event DomainEvent */
         $aggregateId = $event->getAggregateId();
-        $aggregateRootClass = $event->getAggregateClass();
-        $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
+        $aggregate = $this->findAggregate($aggregateId);
         if ($aggregate === null) {
-            $aggregate = new Aggregate($aggregateId, $aggregateRootClass);
+            $aggregate = new Aggregate($aggregateId);
             $this->entityManager->persist($aggregate);
-            self::getLogger()->debug(
-                "Aggregate has been persisted [{}, {}]",
-                [$aggregateRootClass, $aggregateId]
-            );
+            self::getLogger()->debug("Aggregate has been persisted [{}]", [$aggregateId]);
         }
         $metaEvent = $aggregate->createMetaEvent($event, $this->serializer->serialize($event));
         $this->entityManager->persist($metaEvent);
@@ -155,8 +149,8 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
         $aggregateRootClass = $aggregateRoot->getClassName();
         $aggregateId = $aggregateRoot->getId();
         /* @var $snapshot Snapshot */
-        $aggregate = $this->findAggregate($aggregateRootClass, $aggregateId);
-        $snapshot = $this->findSnapshot($aggregateRootClass, $aggregateId);
+        $aggregate = $this->findAggregate($aggregateId);
+        $snapshot = $this->findSnapshot($aggregateId);
         $serialized = $this->serializer->serialize($aggregateRoot);
         if ($snapshot === null) {
             $snapshot = $aggregate->createSnapshot($serialized);
@@ -171,28 +165,26 @@ class DoctrineOrmEventStore extends AbstractSnapshotEventStore implements Snapsh
     }
 
     /**
-     * @param string $aggregateRootClass
      * @param AggregateId $aggregateId
      * @return Aggregate|null
      */
-    protected function findAggregate($aggregateRootClass, AggregateId $aggregateId)
+    protected function findAggregate(AggregateId $aggregateId)
     {
         return $this->entityManager->find(
             Aggregate::className(),
-            Aggregate::createPrimaryIdArray($aggregateId, $aggregateRootClass)
+            Aggregate::createPrimaryIdArray($aggregateId)
         );
     }
 
     /**
-     * @param $aggregateRootClass
      * @param AggregateId $aggregateId
      * @return Snapshot|null
      */
-    protected function findSnapshot($aggregateRootClass, AggregateId $aggregateId)
+    protected function findSnapshot(AggregateId $aggregateId)
     {
         return $this->entityManager->find(
             Snapshot::className(),
-            Snapshot::createPrimaryIdArray($aggregateId, $aggregateRootClass)
+            Snapshot::createPrimaryIdArray($aggregateId)
         );
     }
 }
