@@ -58,11 +58,13 @@ class WrapInTransactionInterceptor extends Object implements DispatchInterceptor
     public function invoke($message, InterceptorChain $chain)
     {
         $this->transactionManager->beginTransaction();
+        self::getLogger()->debug('Transaction has been started');
         $this->inTransaction = true;
         $chain->proceed();
         if ($this->inTransaction) {
             try {
                 $this->transactionManager->commit();
+                self::getLogger()->debug('Transaction has been committed');
                 $this->inTransaction = false;
             } catch (Exception $e) {
                 $this->inTransaction = false;
