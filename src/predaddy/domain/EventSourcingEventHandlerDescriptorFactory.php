@@ -31,7 +31,7 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
+final class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
 {
     /**
      * @param string $handlerClassName

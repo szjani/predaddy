@@ -25,7 +25,7 @@ namespace predaddy\messagehandling\mf4php;
 
 use Serializable;
 
-class MessageWrapper implements Serializable
+final class MessageWrapper implements Serializable
 {
     /**
      * @var mixed

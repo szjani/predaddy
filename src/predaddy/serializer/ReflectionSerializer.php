@@ -34,7 +34,7 @@ use ReflectionProperty;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class ReflectionSerializer implements Serializer
+final class ReflectionSerializer implements Serializer
 {
     /**
      * @var array

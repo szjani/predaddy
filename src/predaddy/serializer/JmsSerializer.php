@@ -27,7 +27,7 @@ use JMS\Serializer\SerializerInterface;
 use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 
-class JmsSerializer implements Serializer
+final class JmsSerializer implements Serializer
 {
     /**
      * @var SerializerInterface

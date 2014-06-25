@@ -27,7 +27,7 @@ use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use ReflectionFunctionAbstract;
 
-class EventFunctionDescriptorFactory implements FunctionDescriptorFactory
+final class EventFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
      * @param ReflectionFunctionAbstract $function

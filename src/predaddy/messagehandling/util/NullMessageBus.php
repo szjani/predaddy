@@ -32,7 +32,7 @@ use predaddy\messagehandling\MessageCallback;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class NullMessageBus implements MessageBus
+final class NullMessageBus implements MessageBus
 {
     /**
      * Post a message on this bus. It is dispatched to all subscribed handlers.

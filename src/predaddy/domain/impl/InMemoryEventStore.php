@@ -36,7 +36,7 @@ use predaddy\domain\EventSourcedAggregateRoot;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class InMemoryEventStore extends AbstractSnapshotEventStore
+final class InMemoryEventStore extends AbstractSnapshotEventStore
 {
     private $events = [];
     private $snapshots = [];

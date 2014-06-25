@@ -31,7 +31,7 @@ use ReflectionMethod;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventSourcingEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
+final class EventSourcingEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
 {
     protected function methodVisibility()
     {

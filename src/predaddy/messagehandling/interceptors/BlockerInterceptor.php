@@ -32,7 +32,7 @@ use predaddy\messagehandling\InterceptorChain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class BlockerInterceptor extends Object implements DispatchInterceptor
+final class BlockerInterceptor extends Object implements DispatchInterceptor
 {
     private $blocking = false;
 

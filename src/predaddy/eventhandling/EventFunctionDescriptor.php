@@ -25,7 +25,7 @@ namespace predaddy\eventhandling;
 
 use predaddy\messagehandling\DefaultFunctionDescriptor;
 
-class EventFunctionDescriptor extends DefaultFunctionDescriptor
+final class EventFunctionDescriptor extends DefaultFunctionDescriptor
 {
     protected function getBaseMessageClassName()
     {

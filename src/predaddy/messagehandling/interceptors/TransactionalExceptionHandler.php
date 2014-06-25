@@ -33,7 +33,7 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler
+final class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler
 {
     /**
      * @var WrapInTransactionInterceptor

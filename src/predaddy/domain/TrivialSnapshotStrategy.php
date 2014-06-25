@@ -25,7 +25,7 @@ namespace predaddy\domain;
 
 use precore\lang\Enum;
 
-class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
+final class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
 {
     /**
      * @var TrivialSnapshotStrategy

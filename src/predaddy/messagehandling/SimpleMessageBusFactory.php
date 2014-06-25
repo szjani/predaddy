@@ -23,7 +23,7 @@
 
 namespace predaddy\messagehandling;
 
-class SimpleMessageBusFactory implements MessageBusFactory
+final class SimpleMessageBusFactory implements MessageBusFactory
 {
     private $handlerDescFactory;
 

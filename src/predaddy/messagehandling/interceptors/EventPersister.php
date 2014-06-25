@@ -33,7 +33,7 @@ use predaddy\messagehandling\InterceptorChain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class EventPersister implements DispatchInterceptor
+final class EventPersister implements DispatchInterceptor
 {
     /**
      * @var EventStore

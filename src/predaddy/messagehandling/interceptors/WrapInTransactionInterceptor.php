@@ -38,7 +38,7 @@ use trf4php\TransactionManager;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class WrapInTransactionInterceptor extends Object implements DispatchInterceptor, SubscriberExceptionHandler
+final class WrapInTransactionInterceptor extends Object implements DispatchInterceptor, SubscriberExceptionHandler
 {
     /**
      * @var TransactionManager

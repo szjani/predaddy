@@ -31,7 +31,7 @@ use precore\util\Objects;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class NullAggregateId extends Object implements AggregateId
+final class NullAggregateId extends Object implements AggregateId
 {
     /**
      * @return string

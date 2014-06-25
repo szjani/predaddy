@@ -30,7 +30,7 @@ use precore\lang\Enum;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class Direction extends Enum
+final class Direction extends Enum
 {
     public static $ASC;
     public static $DESC;

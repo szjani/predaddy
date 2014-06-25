@@ -26,7 +26,7 @@ namespace predaddy\serializer;
 use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 
-class PHPSerializer implements Serializer
+final class PHPSerializer implements Serializer
 {
     /**
      * @param ObjectInterface $object

@@ -26,7 +26,7 @@ namespace predaddy\commandhandling;
 use precore\lang\ObjectClass;
 use predaddy\messagehandling\DefaultFunctionDescriptor;
 
-class CommandFunctionDescriptor extends DefaultFunctionDescriptor
+final class CommandFunctionDescriptor extends DefaultFunctionDescriptor
 {
     protected function getBaseMessageClassName()
     {

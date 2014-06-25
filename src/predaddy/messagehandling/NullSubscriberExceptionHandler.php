@@ -30,7 +30,7 @@ use Exception;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class NullSubscriberExceptionHandler implements SubscriberExceptionHandler
+final class NullSubscriberExceptionHandler implements SubscriberExceptionHandler
 {
     public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
