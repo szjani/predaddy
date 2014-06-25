@@ -23,8 +23,6 @@
 
 namespace predaddy\commandhandling;
 
-use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultAggregateId;
 use predaddy\messagehandling\AbstractMessage;
 
 /**

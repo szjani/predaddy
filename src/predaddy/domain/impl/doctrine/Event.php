@@ -26,7 +26,6 @@ namespace predaddy\domain\impl\doctrine;
 use DateTime;
 use precore\lang\Object;
 use precore\util\Objects;
-use predaddy\domain\AggregateId;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\StateHashAware;

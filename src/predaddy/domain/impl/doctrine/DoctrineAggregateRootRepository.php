@@ -25,11 +25,9 @@ namespace predaddy\domain\impl\doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
-use precore\lang\ObjectClass;
 use predaddy\domain\AbstractRepository;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
-use predaddy\domain\ClassBasedAggregateRootRepository;
 
 /**
  * Generic repository class based on Doctrine ORM.

@@ -23,7 +23,6 @@
 
 namespace predaddy\commandhandling;
 
-use predaddy\domain\AggregateId;
 use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\Message;
 
