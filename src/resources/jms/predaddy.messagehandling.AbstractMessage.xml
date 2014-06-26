@@ -2,6 +2,6 @@
 <serializer>
     <class name="predaddy\messagehandling\AbstractMessage" exclusion-policy="ALL">
         <property name="id" type="string" expose="true" />
-        <property name="timestamp" type="DateTime" expose="true" />
+        <property name="created" type="DateTime" expose="true" />
     </class>
 </serializer>

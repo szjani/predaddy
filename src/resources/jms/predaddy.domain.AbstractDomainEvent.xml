@@ -2,6 +2,6 @@
 <serializer>
     <class name="predaddy\domain\AbstractDomainEvent" exclusion-policy="ALL">
         <property name="aggregateId" type="predaddy\domain\DefaultAggregateId" expose="true" />
-        <property name="version" type="integer" expose="true" />
+        <property name="stateHash" type="string" expose="true" />
     </class>
 </serializer>

@@ -24,6 +24,8 @@
 namespace predaddy\serializer;
 
 use PHPUnit_Framework_TestCase;
+use precore\lang\ObjectClass;
+use predaddy\fixture\article\ArticleId;
 
 class JmsSerializerTest extends PHPUnit_Framework_TestCase
 {
@@ -49,5 +51,16 @@ class JmsSerializerTest extends PHPUnit_Framework_TestCase
 
         self::assertEquals($serialized, $serializer->serialize($obj));
         $serializer->deserialize($serialized, TestClass::objectClass(), $format);
+    }
+
+    public function testIntegration()
+    {
+        $builder = \JMS\Serializer\SerializerBuilder::create();
+        $builder->addMetadataDir(__DIR__ . '/../../../../src/resources/jms');
+        $serializer = new \predaddy\serializer\JmsSerializer($builder->build(), 'xml');
+        $articleId = ArticleId::create();
+        $serialized = $serializer->serialize($articleId);
+        $res = $serializer->deserialize($serialized, ArticleId::objectClass());
+        self::assertTrue($articleId->equals($res));
     }
 }
