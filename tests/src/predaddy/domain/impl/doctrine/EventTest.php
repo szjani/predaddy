@@ -26,6 +26,7 @@ namespace predaddy\domain\impl\doctrine;
 use DateTime;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
+use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\UUIDAggregateId;
 
 class EventTest extends PHPUnit_Framework_TestCase
@@ -33,8 +34,7 @@ class EventTest extends PHPUnit_Framework_TestCase
     public function testGetters()
     {
         $type = __CLASS__;
-        $aggregateId = new UUIDAggregateId($type);
-        $version = 2;
+        $aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $type);
         $created = new DateTime();
         $serializedEvent = __METHOD__;
         $stateHash = UUID::randomUUID()->toString();
@@ -51,9 +51,12 @@ class EventTest extends PHPUnit_Framework_TestCase
             ->expects(self::once())
             ->method('stateHash')
             ->will(self::returnValue($stateHash));
+        $domainEvent
+            ->expects(self::once())
+            ->method('aggregateId')
+            ->will(self::returnValue($aggregateId));
 
-        $event = new Event($aggregateId->value(), $type, $domainEvent, $version, $serializedEvent);
-        self::assertEquals($version, $event->getVersion());
+        $event = new Event($domainEvent, $serializedEvent);
         self::assertEquals($type, $event->getAggregateType());
         self::assertEquals($aggregateId->value(), $event->getAggregateId());
         self::assertEquals($created, $event->getCreated());

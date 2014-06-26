@@ -25,6 +25,7 @@ namespace predaddy\domain\impl\doctrine;
 
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
+use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\UUIDAggregateId;
 
 class AggregateTest extends PHPUnit_Framework_TestCase
@@ -32,7 +33,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
     public function testGetters()
     {
         $type = __CLASS__;
-        $aggregateId = new UUIDAggregateId($type);
+        $aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $type);
         $aggregate = new Aggregate($aggregateId, $type);
         self::assertEquals($aggregateId->value(), $aggregate->getAggregateId());
         self::assertEquals($type, $aggregate->getType());

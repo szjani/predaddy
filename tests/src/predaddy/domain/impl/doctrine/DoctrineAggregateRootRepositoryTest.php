@@ -25,6 +25,7 @@ namespace predaddy\domain\impl\doctrine;
 
 use precore\lang\ObjectClass;
 use precore\util\UUID;
+use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
 use predaddy\domain\EventPublisher;
@@ -103,7 +104,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
 
     public function testLoad()
     {
-        $aggregateRootId = new UUIDAggregateId(self::AR_CLASS);
+        $aggregateRootId = new DefaultAggregateId(UUID::randomUUID()->toString(), self::AR_CLASS);
         $user = new User();
         $this->entityManager
             ->expects(self::once())
@@ -125,7 +126,7 @@ class DoctrineAggregateRootRepositoryTest extends DomainTestCase
             ->method('find')
             ->will(self::returnValue(null));
 
-        $this->repository->load(new UUIDAggregateId(__CLASS__));
+        $this->repository->load(new DefaultAggregateId(UUID::randomUUID()->toString(), __CLASS__));
     }
 
     /**
