@@ -27,54 +27,72 @@ use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use UnexpectedValueException;
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
  * Aggregate root class.
+ *
+ * If you want to use the state hash feature, you can follow two ways:
+ *  - you persist the stateHash member variable
+ *  - you define your own state hash field in your class. In this case you may need to override the following methods:
+ *    - calculateNextStateHash()
+ *    - setStateHash()
+ *    - stateHash()
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class AbstractAggregateRoot extends Object implements StateHashAwareAggregateRoot
 {
     /**
-     * Must be persisted.
      * @var string
      */
-    protected $stateHash;
-
-    public function toString()
-    {
-        return Objects::toStringHelper($this)
-            ->add('id', $this->getId())
-            ->add('stateHash', $this->stateHash)
-            ->toString();
-    }
-
-    public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof self
-            && Objects::equal($this->getId(), $object->getId());
-    }
-
-    protected function raise(DomainEvent $event)
-    {
-        if ($event instanceof AbstractDomainEvent) {
-            AbstractDomainEvent::initEvent($event, $this->getId());
-        }
-        $this->stateHash = $event->stateHash();
-        EventPublisher::instance()->post($event);
-    }
+    private $stateHash;
 
     /**
      * @param string $expectedHash
      * @throws UnexpectedValueException
      */
-    public function failWhenStateHashViolation($expectedHash)
+    final public function failWhenStateHashViolation($expectedHash)
     {
-        if ($expectedHash !== $this->stateHash) {
+        if ($expectedHash !== $this->stateHash()) {
             throw new UnexpectedValueException(
                 'Concurrency Violation: Stale data detected. Entity was already modified.'
             );
         }
+    }
+
+    /**
+     * @param DomainEvent $raisedEvent
+     * @return string
+     */
+    protected function calculateNextStateHash(DomainEvent $raisedEvent)
+    {
+        return $raisedEvent->identifier();
+    }
+
+    protected function setStateHash($stateHash)
+    {
+        $this->stateHash = $stateHash;
+    }
+
+    /**
+     * Updates stateHash field when replaying events. Should not called directly.
+     *
+     * @Subscribe
+     * @param DomainEvent $event
+     */
+    final protected function updateStateHash(DomainEvent $event)
+    {
+        $this->setStateHash($event->stateHash());
+    }
+
+    final protected function raise(DomainEvent $event)
+    {
+        $this->setStateHash($this->calculateNextStateHash($event));
+        if ($event instanceof AbstractDomainEvent) {
+            AbstractDomainEvent::initEvent($event, $this->getId(), $this->stateHash());
+        }
+        EventPublisher::instance()->post($event);
     }
 
     /**
@@ -83,5 +101,19 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
     public function stateHash()
     {
         return $this->stateHash;
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add('id', $this->getId())
+            ->add('stateHash', $this->stateHash())
+            ->toString();
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self
+        && Objects::equal($this->getId(), $object->getId());
     }
 }

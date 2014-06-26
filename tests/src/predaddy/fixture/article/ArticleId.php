@@ -21,56 +21,22 @@
  * SOFTWARE.
  */
 
-namespace predaddy\commandhandling;
+namespace predaddy\fixture\article;
 
-use precore\util\UUID;
-use predaddy\domain\AbstractAggregateRoot;
-use predaddy\domain\AggregateId;
 use predaddy\domain\UUIDAggregateId;
-use RuntimeException;
-use predaddy\messagehandling\annotation\Subscribe;
 
 /**
- * @package predaddy\commandhandling
+ * @package predaddy\fixture
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TestAggregate01 extends AbstractAggregateRoot
+final class ArticleId extends UUIDAggregateId
 {
-    const RESULT = 'Hello World';
-
-    private $id;
-
-    public function __construct()
-    {
-        $this->id = TestAggregate01Id::create();
-    }
-
     /**
-     * @Subscribe
-     * @param ThrowException $command
-     * @throws \RuntimeException
+     * @return string FQCN
      */
-    public function throwException(ThrowException $command)
+    public function aggregateClass()
     {
-        throw new RuntimeException('Expected exception');
-    }
-
-    /**
-     * @Subscribe
-     * @param ReturnResult $command
-     * @return string
-     */
-    public function returnResult(ReturnResult $command)
-    {
-        return self::RESULT;
-    }
-
-    /**
-     * @return AggregateId
-     */
-    public function getId()
-    {
-        return $this->id;
+        return IncrementedVersionedArticle::className();
     }
 }

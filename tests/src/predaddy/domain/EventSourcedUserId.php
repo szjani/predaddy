@@ -23,60 +23,18 @@
 
 namespace predaddy\domain;
 
-use precore\util\Objects;
-use precore\lang\Object;
-use precore\lang\ObjectInterface;
-use precore\util\UUID;
-
-abstract class UUIDAggregateId extends Object implements AggregateId
+/**
+ * @package predaddy\domain
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class EventSourcedUserId extends UUIDAggregateId
 {
     /**
-     * @var string
+     * @return string FQCN
      */
-    private $uuid;
-
-    final private function __construct($uuid)
+    public function aggregateClass()
     {
-        $this->uuid = $uuid;
-    }
-
-    /**
-     * @return static
-     */
-    final public static function create()
-    {
-        return new static(UUID::randomUUID()->toString());
-    }
-
-    /**
-     * @param string $value
-     * @return static
-     */
-    final public static function from($value)
-    {
-        return new static($value);
-    }
-
-    /**
-     * @return string
-     */
-    final public function value()
-    {
-        return $this->uuid;
-    }
-
-    final public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof static
-            && $this->value() === $object->value()
-            && $this->aggregateClass() === $object->aggregateClass();
-    }
-
-    final public function toString()
-    {
-        return Objects::toStringHelper($this)
-            ->add('uuid', $this->value())
-            ->add('aggregateClass', $this->aggregateClass())
-            ->toString();
+        return EventSourcedUser::className();
     }
 }

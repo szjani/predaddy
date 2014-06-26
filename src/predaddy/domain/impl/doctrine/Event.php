@@ -43,7 +43,6 @@ use predaddy\domain\StateHashAware;
  *   indexes={
  *     @ORM\Index(name="event_aggregate_id_type", columns={"aggregate_id", "aggregate_type"}),
  *     @ORM\Index(name="event_created", columns={"created"}),
- *     @ORM\Index(name="event_version", columns={"version"}),
  *     @ORM\Index(name="event_state_hash", columns={"state_hash"})
  *   }
  * )
@@ -83,12 +82,6 @@ class Event extends Object implements StateHashAware
     private $eventType;
 
     /**
-     * @ORM\Column(type="integer", name="version")
-     * @var int
-     */
-    private $version;
-
-    /**
      * @ORM\Column(type="text", nullable=false)
      * @var string
      */
@@ -103,23 +96,15 @@ class Event extends Object implements StateHashAware
     /**
      * Should only be called from Aggregate::createMetaEvent()
      *
-     * @param string $aggregateId
-     * @param string $aggregateType
      * @param \predaddy\domain\DomainEvent $event
-     * @param int $version
      * @param string $serializedEvent
      */
-    public function __construct(
-        $aggregateId,
-        $aggregateType,
-        DomainEvent $event,
-        $version,
-        $serializedEvent
-    ) {
-        $this->aggregateType = $aggregateType;
+    public function __construct(DomainEvent $event, $serializedEvent)
+    {
+        $aggregateId = $event->aggregateId();
+        $this->aggregateType = $aggregateId->aggregateClass();
+        $this->aggregateId = $aggregateId->value();
         $this->data = $serializedEvent;
-        $this->aggregateId = $aggregateId;
-        $this->version = $version;
         $this->created = clone $event->created();
         $this->eventType = $event->getClassName();
         $this->stateHash = $event->stateHash();
@@ -142,14 +127,6 @@ class Event extends Object implements StateHashAware
     }
 
     /**
-     * @return int
-     */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    /**
      * @return DateTime
      */
     public function getCreated()
@@ -162,7 +139,9 @@ class Event extends Object implements StateHashAware
         return Objects::toStringHelper($this)
             ->add('aggregateId', $this->aggregateId)
             ->add('aggregateType', $this->aggregateType)
-            ->add('version', $this->version)
+            ->add('eventType', $this->eventType)
+            ->add('sequenceNumber', $this->sequenceNumber)
+            ->add('stateHash', $this->stateHash)
             ->add('created', $this->created)
             ->add('data', $this->data)
             ->toString();

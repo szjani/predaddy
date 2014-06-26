@@ -48,6 +48,14 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $this->repository = new EventSourcingRepository($this->eventStore);
     }
 
+    /**
+     * @return AggregateId
+     */
+    protected function createRandomAggregateId()
+    {
+        return new DefaultAggregateId(UUID::randomUUID()->toString(), EventSourcedUser::className());
+    }
+
     public function testGetEventStorage()
     {
         self::assertSame($this->eventStore, $this->repository->getEventStore());
@@ -55,7 +63,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
 
     public function testLoad()
     {
-        $aggregateId = new UUIDAggregateId(EventSourcedUser::className());
+        $aggregateId = $this->createRandomAggregateId();
 
         $aggregate = new EventSourcedUser(new CreateEventSourcedUser());
 
@@ -109,7 +117,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
      */
     public function testInvalidId()
     {
-        $aggregateId = new UUIDAggregateId(EventSourcedUser::className());
+        $aggregateId = $this->createRandomAggregateId();
         $this->eventStore
             ->expects(self::once())
             ->method('getEventsFor')
@@ -123,7 +131,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
      */
     public function shouldBeLoadedFromSnapshot()
     {
-        $aggregateId = new UUIDAggregateId(EventSourcedUser::className());
+        $aggregateId = $this->createRandomAggregateId();
 
         $events = new ArrayIterator([new IncrementedEvent($aggregateId, 1)]);
         $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
@@ -146,7 +154,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
      */
     public function snapshotShouldBeCreated()
     {
-        $aggregateId = new UUIDAggregateId(EventSourcedUser::className());
+        $aggregateId = $this->createRandomAggregateId();
         $aggregateRoot = $this->getMock(
             EventSourcedUser::className(),
             ['getId'],

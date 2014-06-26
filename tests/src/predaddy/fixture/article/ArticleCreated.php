@@ -21,62 +21,62 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\fixture\article;
 
-use precore\util\Objects;
-use precore\lang\Object;
 use precore\lang\ObjectInterface;
-use precore\util\UUID;
+use precore\util\Objects;
+use predaddy\domain\AbstractDomainEvent;
 
-abstract class UUIDAggregateId extends Object implements AggregateId
+/**
+ * @package predaddy\fixture\article
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+class ArticleCreated extends AbstractDomainEvent
 {
-    /**
-     * @var string
-     */
-    private $uuid;
-
-    final private function __construct($uuid)
-    {
-        $this->uuid = $uuid;
-    }
+    private $author;
+    private $text;
 
     /**
-     * @return static
+     * @param ArticleId $articleId
+     * @param $author
+     * @param $text
      */
-    final public static function create()
+    public function __construct(ArticleId $articleId, $author, $text)
     {
-        return new static(UUID::randomUUID()->toString());
-    }
-
-    /**
-     * @param string $value
-     * @return static
-     */
-    final public static function from($value)
-    {
-        return new static($value);
+        parent::__construct($articleId);
+        $this->author = $author;
+        $this->text = $text;
     }
 
     /**
      * @return string
      */
-    final public function value()
+    public function getAuthor()
     {
-        return $this->uuid;
+        return $this->author;
     }
 
-    final public function equals(ObjectInterface $object = null)
+    /**
+     * @return string
+     */
+    public function getText()
     {
-        return $object instanceof static
-            && $this->value() === $object->value()
-            && $this->aggregateClass() === $object->aggregateClass();
+        return $this->text;
     }
 
-    final public function toString()
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self
+            && $this->author === $object->author
+            && $this->text === $object->text;
+    }
+
+    public function toString()
     {
         return Objects::toStringHelper($this)
-            ->add('uuid', $this->value())
-            ->add('aggregateClass', $this->aggregateClass())
+            ->add('author', $this->author)
+            ->add('text', $this->text)
             ->toString();
     }
 }

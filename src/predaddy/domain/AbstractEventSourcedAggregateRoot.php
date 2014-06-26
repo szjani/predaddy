@@ -28,7 +28,6 @@ use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\SimpleMessageBusFactory;
-use predaddy\messagehandling\annotation\Subscribe;
 
 /**
  * You can send an event which will be handled by all handler methods
@@ -73,7 +72,7 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      * @see EventSourcingRepository
      * @param Iterator $events DomainEvent iterator
      */
-    public function loadFromHistory(Iterator $events)
+    final public function loadFromHistory(Iterator $events)
     {
         $bus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
         $bus->register($this);
@@ -83,20 +82,11 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
     }
 
     /**
-     * @param DomainEvent $event
-     * @deprecated Use apply() instead
-     */
-    protected function raise(DomainEvent $event)
-    {
-        $this->apply($event);
-    }
-
-    /**
      * Fire a domain event from a handler method.
      *
      * @param DomainEvent $event
      */
-    protected function apply(DomainEvent $event)
+    final protected function apply(DomainEvent $event)
     {
         $this->handleEventInAggregate($event);
         parent::raise($event);
@@ -109,16 +99,5 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
             $innerBus->register($this);
         }
         $innerBus->post($event);
-    }
-
-    /**
-     * Updates stateHash field when replaying events.
-     *
-     * @Subscribe
-     * @param DomainEvent $event
-     */
-    protected function updateStateHash(DomainEvent $event)
-    {
-        $this->stateHash = $event->stateHash();
     }
 }

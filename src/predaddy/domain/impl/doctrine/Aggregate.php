@@ -28,6 +28,7 @@ use precore\lang\Object;
 use Doctrine\ORM\Mapping as ORM;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
+use UnexpectedValueException;
 
 /**
  * Meta entity to store aggregate roots. It supports snapshotting.
@@ -89,12 +90,22 @@ class Aggregate extends Object
     /**
      * @param DomainEvent $event
      * @param $serializedEvent
+     * @throws \UnexpectedValueException
      * @return Event
      */
     public function createMetaEvent(DomainEvent $event, $serializedEvent)
     {
         $this->updated = clone $event->created();
-        return new Event($this->aggregateId, $this->type, $event, $this->version + 1, $serializedEvent);
+        if ($this->type !== $event->aggregateId()->aggregateClass()) {
+            throw new UnexpectedValueException(
+                sprintf(
+                    "Event for class '%s' cannot be related to aggregate '%s'",
+                    $event->aggregateId()->aggregateClass(),
+                    $this->type
+                )
+            );
+        }
+        return new Event($event, $serializedEvent);
     }
 
     /**
