@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use precore\lang\Object;
+use precore\lang\ObjectInterface;
 use precore\util\Objects;
 
 /**
@@ -52,5 +53,10 @@ final class NullAggregateId extends Object implements AggregateId
     public function toString()
     {
         return Objects::toStringHelper($this)->toString();
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self;
     }
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <serializer>
     <class name="predaddy\domain\AbstractDomainEvent" exclusion-policy="ALL">
-        <property name="aggregateId" type="predaddy\domain\DefaultAggregateId" expose="true" />
+        <property name="aggregateClass" type="string" expose="true" />
+        <property name="aggregateValue" type="string" expose="true" />
         <property name="stateHash" type="string" expose="true" />
     </class>
 </serializer>

@@ -34,12 +34,14 @@ use predaddy\messagehandling\AbstractMessage;
  */
 abstract class AbstractDomainEvent extends AbstractMessage implements DomainEvent
 {
-    protected $aggregateId;
+    protected $aggregateClass;
+    protected $aggregateValue;
     protected $stateHash;
 
     public static function initEvent(AbstractDomainEvent $event, AggregateId $aggregateId, $stateHash)
     {
-        $event->aggregateId = $aggregateId;
+        $event->aggregateClass = $aggregateId->aggregateClass();
+        $event->aggregateValue = $aggregateId->value();
         $event->stateHash = $stateHash;
     }
 
@@ -49,15 +51,16 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
         if ($aggregateId === null) {
             $aggregateId = new NullAggregateId();
         }
-        $this->aggregateId = $aggregateId;
+        $this->aggregateClass = $aggregateId->aggregateClass();
+        $this->aggregateValue = $aggregateId->value();
     }
 
     /**
-     * @return AggregateId
+     * @return DefaultAggregateId
      */
     public function aggregateId()
     {
-        return $this->aggregateId;
+        return new DefaultAggregateId($this->aggregateValue, $this->aggregateClass);
     }
 
     /**
@@ -70,6 +73,8 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
 
     protected function toStringHelper()
     {
-        return parent::toStringHelper()->add('aggregateId', $this->aggregateId());
+        return parent::toStringHelper()
+            ->add('aggregateClass', $this->aggregateValue)
+            ->add('aggregateValue', $this->aggregateValue);
     }
 }

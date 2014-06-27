@@ -75,7 +75,7 @@ class DefaultAggregateId extends Object implements AggregateId
 
     public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self
+        return $object instanceof AggregateId
             && $this->value() == $object->value()
             && $this->aggregateClass() == $object->aggregateClass();
     }

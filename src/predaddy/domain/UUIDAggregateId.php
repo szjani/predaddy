@@ -67,7 +67,7 @@ abstract class UUIDAggregateId extends Object implements AggregateId
 
     final public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof static
+        return $object instanceof AggregateId
             && $this->value() === $object->value()
             && $this->aggregateClass() === $object->aggregateClass();
     }
