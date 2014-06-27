@@ -23,12 +23,25 @@
 
 namespace predaddy\serializer;
 
+use JMS\Serializer\SerializerBuilder;
 use PHPUnit_Framework_TestCase;
-use precore\lang\ObjectClass;
 use predaddy\fixture\article\ArticleId;
+use predaddy\fixture\BaseEvent;
 
 class JmsSerializerTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var JmsSerializer
+     */
+    private $serializer;
+
+    protected function setUp()
+    {
+        $builder = SerializerBuilder::create();
+        $builder->addMetadataDir(__DIR__ . '/../../../../src/resources/jms');
+        $this->serializer = new JmsSerializer($builder->build(), 'xml');
+    }
+
     public function testSerialize()
     {
         $jmsSerializer = $this->getMock('\JMS\Serializer\SerializerInterface');
@@ -55,12 +68,17 @@ class JmsSerializerTest extends PHPUnit_Framework_TestCase
 
     public function testIntegration()
     {
-        $builder = \JMS\Serializer\SerializerBuilder::create();
-        $builder->addMetadataDir(__DIR__ . '/../../../../src/resources/jms');
-        $serializer = new \predaddy\serializer\JmsSerializer($builder->build(), 'xml');
         $articleId = ArticleId::create();
-        $serialized = $serializer->serialize($articleId);
-        $res = $serializer->deserialize($serialized, ArticleId::objectClass());
+        $serialized = $this->serializer->serialize($articleId);
+        $res = $this->serializer->deserialize($serialized, ArticleId::objectClass());
         self::assertTrue($articleId->equals($res));
+    }
+
+    public function testEventSerialization()
+    {
+        $event = new BaseEvent(ArticleId::create());
+        $ser = $this->serializer->serialize($event);
+        $res = $this->serializer->deserialize($ser, BaseEvent::objectClass());
+        self::assertTrue($event->equals($res));
     }
 }
