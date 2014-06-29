@@ -36,8 +36,6 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  * It's highly recommended to use a CommandFunctionDescriptorFactory instance to automatically achieve
  * the second criteria. In that case Messages must implement the Command interface.
  *
- * If you use it with an EventBus, you should use the same TransactionManager instance.
- *
  * @package predaddy\commandhandling
  *
  * @author Szurovecz János <szjani@szjani.hu>

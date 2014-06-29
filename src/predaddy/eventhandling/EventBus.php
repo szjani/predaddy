@@ -28,9 +28,6 @@ use predaddy\messagehandling\SimpleMessageBus;
 use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
- * This kind of MessageBus synchronizes message dispatching with the given ObservableTransactionManager.
- * All posted messages will be buffered until the transaction is committed.
- *
  * It's highly recommended to use an EventFunctionDescriptorFactory instance.
  * In that case Messages must implement the Event interface.
  *

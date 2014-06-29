@@ -5,7 +5,7 @@ MessageBus provides a general interface for message handling. The basic concept 
 be registered to the bus which forwards each incoming messages to the appropriate handler. Message handlers
 can be either objects or closures.
 
-SimpleMessageBus is a basic implementation of the MessageBus interface. Currently, all other MessageBus implementations extend this class.
+`SimpleMessageBus` is a basic implementation of the `MessageBus` interface. Currently, all other `MessageBus` implementations extend this class.
 
 If you use CQRS, then I highly recommend to use the pre-configured `EventBus` and `CommandBus` classes.
 
@@ -25,7 +25,7 @@ $bus = new SimpleMessageBus(
 
 ### Message
 
-Message classes don't have to extend any classes or implement any interfaces, so a message must be an instance of any class. However a `Message` interface is available which provides some useful methods, and the `AbstractMessage` class implements this interface. You can put any data into the messages, but it's highly recommended to use simple types and you should consider to create immutable message objects.
+Message classes don't have to extend any classes or implement any interfaces, so a message can be an instance of any class. However a `Message` interface is available which provides some useful methods, and the `AbstractMessage` class implements this interface.
 
 ```php
 class SampleMessage1 extends AbstractMessage
@@ -85,6 +85,24 @@ $bus->register(new SampleMessageHandler());
 $bus->registerClosure($closure);
 ```
 
+### Dynamic handlers
+
+Predaddy 3 supports dynamic handlers. In a typical application the PHP interpreter stops after the response has been sent out, therefore
+it may be unnecessary to create and register in all handlers. Rather than, you can register handler factory closures which act as handler closures:
+theirs parameter's typehint defines which type of object can be handled and if an object is compatible with that, the message bus
+calls the factory function and passes the message to the return value just like it was registered as a handler.
+
+This behavior is defined in `HandlerFactoryRegisterableMessageBus` which is implemented by `SimpleMessageBus`.
+
+```php
+$factory = function (Message $message) {
+    return new SimpleMessageHandler();
+};
+$this->bus->registerHandlerFactory($factory);
+```
+
+If a message's type is compatible with the factory's typehint, the factory will be called and the handler will be constructed even if the handler will not be able to handle the message.
+
 ### Sending messages
 
 ```php
@@ -108,6 +126,13 @@ $messageCallback = MessageCallbackClosures::builder()
     ->failureClosure($callback2)
     ->build();
 ```
+
+### Exception handling
+
+All `MessageBus` implementation catches all exceptions thrown by handlers, so the messages are being forwarded
+to all handlers, even if some of them throw exception.
+
+If you need to handle exceptions, you can implement `SubscriberExceptionHandler` interface and pass the object to the `SimpleMessageBus`'s constructor.
 
 ### Handler prioritization
 
@@ -176,20 +201,18 @@ use predaddy\messagehandling\annotation\Subscribe;
 
 ### Interceptors
 
-It's possible to extend bus behaviour when messages are being dispatched to message handlers. `DispatchInterceptor` objects wrap
-the concrete dispatch process and are able to modify that. It is usable for logging, transactions, etc.
+It's possible to extend bus behaviour when messages are being dispatched. `DispatchInterceptor` objects wrap
+the concrete dispatch process and are able to modify that. It is usable for logging, transaction handling, etc.
 
-There are three builtin interceptors:
+The following interceptors are shipped with predaddy:
 
- - `WrapInTransactionInterceptor`: All message dispatch processes will be wrapped in a new transaction.
- - `TransactionSynchronizedBuffererInterceptor`: Message dispatching is synchronized to transactions which means that if there is an already started transaction
- then messages are being buffered until the transaction is being committed. If the transaction is not successful then buffer is being cleared after rollback without sending out any messages.
- Without an already started transaction buffering is disabled.
- - `MonitoringInterceptor`: Catches all exceptions thrown by the message handlers and sends an `ErrorMessage` to the given `MessageBus` which contains both the exception and the original message.
- You can create a monitoring tool if you persist these errors and you have the chance to easily re-post the messages after you have fixed a bug in your application.
+ - `WrapInTransactionInterceptor`: The message dispatch processes will be wrapped in a new transaction. Needs [trf4php](https://github.com/szjani/trf4php).
+ - `BlockerInterceptor`: Message dispatching can be blocked by this interceptor and all collected messages can be flushed or cleared.
+ - `BlockerInterceptorManager`: It manages the given `BlockerInterceptor`. Should be used with another message bus object. Currently it is being used
+ by `CommandBus`: blocks all outgoing events until the command handler execution ends.
+ - `EventPersister`: Persists all messages into an `EventStore` which is going through the message bus.
 
-
-Both interceptors above use [trf4php](https://github.com/szjani/trf4php). If you want to use them, you will need a trf4php implementation (eg. [tf4php-doctrine](https://github.com/szjani/trf4php-doctrine)).
+In predaddy 3 interceptors are called only once regardless how much handlers will be called.
 
 ### Unhandled messages
 
@@ -202,18 +225,16 @@ There is a default implementation of `MessageBus` interface called `SimpleMessag
 
 #### CommandBus
 
-`WrapInTransactionInterceptor` is registered which indicates that all command handlers are wrapped in a unique transaction.
-`Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type.
+`Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type. If more than one
+handler can the command passed to, `LogicException` will be thrown.
 
 #### DirectCommandBus
 
-`DirectCommandBus` extends `CommandBus` and automatically registers a `DirectCommandForwarder` object as a handler which handles all unhandled commands. This bus should be used if business method parameters in the aggregates are `Command` objects.
+`DirectCommandBus` extends `CommandBus` and automatically registers a `DirectCommandForwarder` object as a handler which handles all unhandled commands. This bus should be used if business method parameters in the aggregates are mostly `Command` objects.
 
 #### EventBus
 
-`TransactionSynchronizedBuffererInterceptor` is registered which means that event handlers are being called only after a the transaction has been successfully committed (messages are buffered).
-This message bus implementation uses the default typehint handling (subclass handling, etc.). Message objects
-must implement `Event` interface.
+Does not modify the behavior of `SimpleMessageBus`, it just clarifies its purpose.
 
 #### Mf4phpMessageBus
 
@@ -240,14 +261,14 @@ protected function toStringHelper()
 {
     return parent::toStringHelper()
         ->add('aggregateId', $this->aggregateId)
-        ->add('version', $this->version);
+        ->add('stateHash', $this->stateHash);
 }
 ```
 
 ### Immutability
 
 Although any objects can be send to a message bus, using immutable objects are usually recommended. It can be achieved
-if all necessary dependencies are passed due the constructor and inner objects can be read only.
+if all necessary dependencies are passed to the constructor and inner objects are read only.
 
 ### Performance
 
