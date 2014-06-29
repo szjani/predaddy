@@ -27,7 +27,7 @@ use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 
-class DefaultAggregateId extends Object implements AggregateId
+final class DefaultAggregateId extends Object implements AggregateId
 {
     /**
      * @var string
