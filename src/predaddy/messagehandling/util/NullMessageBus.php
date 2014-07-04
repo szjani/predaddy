@@ -31,6 +31,7 @@ use predaddy\messagehandling\MessageCallback;
  * @package predaddy\messagehandling\util
  *
  * @author Szurovecz János <szjani@szjani.hu>
+ * @codeCoverageIgnore
  */
 final class NullMessageBus implements MessageBus
 {
@@ -47,7 +48,6 @@ final class NullMessageBus implements MessageBus
      */
     public function post($message, MessageCallback $callback = null)
     {
-        // TODO: Implement post() method.
     }
 
     /**
@@ -58,7 +58,6 @@ final class NullMessageBus implements MessageBus
      */
     public function register($handler)
     {
-        // TODO: Implement register() method.
     }
 
     /**
@@ -70,7 +69,6 @@ final class NullMessageBus implements MessageBus
      */
     public function unregister($handler)
     {
-        // TODO: Implement unregister() method.
     }
 
     /**
@@ -80,7 +78,6 @@ final class NullMessageBus implements MessageBus
      */
     public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
-        // TODO: Implement registerClosure() method.
     }
 
     /**
@@ -89,6 +86,5 @@ final class NullMessageBus implements MessageBus
      */
     public function unregisterClosure(Closure $closure)
     {
-        // TODO: Implement unregisterClosure() method.
     }
 }
