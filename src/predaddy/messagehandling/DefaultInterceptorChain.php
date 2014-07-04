@@ -39,7 +39,7 @@ final class DefaultInterceptorChain implements InterceptorChain
     private $handlerInterceptors;
 
     /**
-     * @var Closure
+     * @var callable
      */
     private $dispatcher;
 

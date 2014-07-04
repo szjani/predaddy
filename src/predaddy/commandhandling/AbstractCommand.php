@@ -38,7 +38,7 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     protected $aggregateId;
 
     /**
-     * @var int|null
+     * @var string|null
      */
     protected $stateHash;
 
