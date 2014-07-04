@@ -23,20 +23,17 @@
 
 namespace predaddy\fixture\article;
 
-use predaddy\domain\UUIDAggregateId;
+use predaddy\domain\AbstractDomainEvent;
 
 /**
- * @package predaddy\fixture
+ * @package predaddy\fixture\article
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class ArticleId extends UUIDAggregateId
+class TextChanged extends AbstractDomainEvent
 {
-    /**
-     * @return string FQCN
-     */
-    public function aggregateClass()
+    public function __construct(ArticleId $articleId)
     {
-        return IncrementedVersionedArticle::className();
+        parent::__construct($articleId);
     }
 }

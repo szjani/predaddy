@@ -24,9 +24,16 @@
 namespace predaddy\domain\impl;
 
 use predaddy\domain\CreateEventSourcedUser;
+use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
 use predaddy\domain\EventSourcedUser;
 use predaddy\domain\Increment;
+use predaddy\fixture\article\ArticleCreated;
+use predaddy\fixture\article\ArticleId;
+use predaddy\fixture\article\EventSourcedArticle;
+use predaddy\fixture\article\EventSourcedArticleId;
+use predaddy\fixture\article\IncrementedVersionedArticle;
+use predaddy\fixture\article\TextChanged;
 
 /**
  * @package predaddy\domain\impl
@@ -90,5 +97,29 @@ class InMemoryEventStoreTest extends DomainTestCase
         $this->eventStore->clean();
         self::assertCount(0, $this->eventStore->getEventsFor($user->getId()));
         self::assertNull($this->eventStore->loadSnapshot($user->getId()));
+    }
+
+    public function testAutoSnapshotting()
+    {
+        $strategy = $this->getMock('\predaddy\domain\SnapshotStrategy');
+        $strategy
+            ->expects(self::exactly(3))
+            ->method('snapshotRequired')
+            ->will(
+                self::returnCallback(
+                    function (DomainEvent $event, $version) {
+                        return $version % 3 === 0;
+                    }
+                )
+            );
+        $eventStore = new InMemoryEventStore($strategy);
+
+        $aggregateId = EventSourcedArticleId::create();
+        $eventStore->persist(new ArticleCreated($aggregateId, 'author', 'text'));
+        self::assertNull($eventStore->loadSnapshot($aggregateId));
+        $eventStore->persist(new TextChanged($aggregateId));
+        self::assertNull($eventStore->loadSnapshot($aggregateId));
+        $eventStore->persist(new TextChanged($aggregateId));
+        self::assertInstanceOf(EventSourcedArticle::className(), $eventStore->loadSnapshot($aggregateId));
     }
 }

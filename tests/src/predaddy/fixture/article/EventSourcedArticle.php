@@ -23,20 +23,57 @@
 
 namespace predaddy\fixture\article;
 
-use predaddy\domain\UUIDAggregateId;
+use predaddy\domain\AbstractEventSourcedAggregateRoot;
+use predaddy\domain\AggregateId;
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
- * @package predaddy\fixture
+ * @package predaddy\fixture\article
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class ArticleId extends UUIDAggregateId
+class EventSourcedArticle extends AbstractEventSourcedAggregateRoot
 {
     /**
-     * @return string FQCN
+     * @var ArticleId
      */
-    public function aggregateClass()
+    private $articleId;
+
+    /**
+     * @var string
+     */
+    private $author;
+
+    /**
+     * @var string
+     */
+    private $text;
+
+    /**
+     * @param $author
+     * @param $text
+     */
+    public function __construct($author, $text)
     {
-        return IncrementedVersionedArticle::className();
+        $this->raise(new ArticleCreated(ArticleId::create(), $author, $text));
+    }
+
+    /**
+     * @return AggregateId
+     */
+    public function getId()
+    {
+        return $this->articleId;
+    }
+
+    /**
+     * @Subscribe
+     * @param ArticleCreated $event
+     */
+    private function handleArticleCreated(ArticleCreated $event)
+    {
+        $this->articleId = $event->aggregateId();
+        $this->author = $event->getAuthor();
+        $this->text = $event->getText();
     }
 }
