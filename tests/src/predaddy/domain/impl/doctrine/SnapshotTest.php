@@ -42,4 +42,18 @@ class SnapshotTest extends PHPUnit_Framework_TestCase
         self::assertEquals($type, $snapshot->getType());
         self::assertEquals($aggregateRoot, $snapshot->getAggregateRoot());
     }
+
+    public function testUpdate()
+    {
+        $aggregateRoot = __METHOD__;
+        $type = __CLASS__;
+        $aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $type);
+        $version = 2;
+        $snapshot = new Snapshot($aggregateId->value(), $aggregateRoot, $type, $version);
+        $newData = 'data';
+        $version = 3;
+        $snapshot->update($newData, $version);
+        self::assertEquals($newData, $snapshot->getAggregateRoot());
+        self::assertEquals($version, $snapshot->getVersion());
+    }
 }
