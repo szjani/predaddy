@@ -50,7 +50,7 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
     {
         parent::__construct();
         if ($aggregateId === null) {
-            $aggregateId = new NullAggregateId();
+            $aggregateId = NullAggregateId::instance();
         }
         $this->aggregateClass = $aggregateId->aggregateClass();
         $this->aggregateValue = $aggregateId->value();

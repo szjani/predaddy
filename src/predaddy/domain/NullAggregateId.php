@@ -34,6 +34,23 @@ use precore\util\Objects;
  */
 final class NullAggregateId extends Object implements AggregateId
 {
+    private static $instance;
+
+    private function __construct()
+    {
+    }
+
+    /**
+     * @return NullAggregateId
+     */
+    public static function instance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new NullAggregateId();
+        }
+        return self::$instance;
+    }
+
     /**
      * @return string
      */
