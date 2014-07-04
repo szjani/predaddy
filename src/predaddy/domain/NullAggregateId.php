@@ -66,14 +66,4 @@ final class NullAggregateId extends Object implements AggregateId
     {
         return '';
     }
-
-    public function toString()
-    {
-        return Objects::toStringHelper($this)->toString();
-    }
-
-    public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof self;
-    }
 }
