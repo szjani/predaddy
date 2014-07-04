@@ -26,6 +26,7 @@ namespace predaddy\domain\impl\doctrine;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
 use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\impl\doctrine\entities\UserCreated;
 use predaddy\domain\UUIDAggregateId;
 
 class AggregateTest extends PHPUnit_Framework_TestCase
@@ -37,5 +38,30 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $aggregate = new Aggregate($aggregateId, $type);
         self::assertEquals($aggregateId->value(), $aggregate->getAggregateId());
         self::assertEquals($type, $aggregate->getType());
+    }
+
+    /**
+     * @test
+     * @expectedException \UnexpectedValueException
+     */
+    public function otherAggregateRelatedEventCannotBeAdded()
+    {
+        $type = __CLASS__;
+        $aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $type);
+        $aggregate = new Aggregate($aggregateId);
+        $otherAggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $type);
+        $aggregate->createMetaEvent(new UserCreated($otherAggregateId), null);
+    }
+
+    /**
+     * @test
+     * @expectedException \UnexpectedValueException
+     */
+    public function otherAggregateTypeRelatedEventCannotBeAdded()
+    {
+        $aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), __CLASS__);
+        $aggregate = new Aggregate($aggregateId);
+        $otherAggregateId = new DefaultAggregateId($aggregateId->value(), DefaultAggregateId::className());
+        $aggregate->createMetaEvent(new UserCreated($otherAggregateId), null);
     }
 }
