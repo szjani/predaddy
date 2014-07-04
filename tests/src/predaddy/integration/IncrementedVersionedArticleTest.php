@@ -29,6 +29,7 @@ use Doctrine\ORM\Tools\Setup;
 use PHPUnit_Framework_TestCase;
 use predaddy\domain\EventPublisher;
 use predaddy\domain\impl\doctrine\DoctrineOrmEventStore;
+use predaddy\domain\TrivialSnapshotStrategy;
 use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\fixture\article\ArticleCreated;
@@ -84,7 +85,7 @@ class IncrementedVersionedArticleTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $eventStore = new DoctrineOrmEventStore(self::$entityManager);
+        $eventStore = new DoctrineOrmEventStore(self::$entityManager, TrivialSnapshotStrategy::$ALWAYS);
         $this->eventBus = new EventBus(
             new AnnotatedMessageHandlerDescriptorFactory(
                 new EventFunctionDescriptorFactory()
@@ -125,6 +126,7 @@ class IncrementedVersionedArticleTest extends PHPUnit_Framework_TestCase
                 /* @var $res IncrementedVersionedArticle */
                 self::assertEquals(1, $res->stateHash());
                 self::assertTrue($articleId->equals($res->getId()));
+                $res->changeText('newText');
             }
         );
     }

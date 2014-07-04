@@ -64,8 +64,10 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
      */
     public function persist(DomainEvent $event)
     {
-        if ($this->snapshotStrategy->snapshotRequired($event, $this->doPersist($event))) {
-            $this->createSnapshot($event->aggregateId());
+        $version = $this->doPersist($event);
+        $aggregateId = $event->aggregateId();
+        if ($this->eventSourced($aggregateId) && $this->snapshotStrategy->snapshotRequired($event, $version)) {
+            $this->createSnapshot($aggregateId);
         }
     }
 
@@ -77,6 +79,9 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
      */
     public function createSnapshot(AggregateId $aggregateId)
     {
+        if (!$this->eventSourced($aggregateId)) {
+            return;
+        }
         /* @var $aggregateRoot EventSourcedAggregateRoot */
         $aggregateRoot = $this->loadSnapshot($aggregateId);
         $stateHash = $aggregateRoot === null ? null : $aggregateRoot->stateHash();
@@ -89,5 +94,11 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
         }
         $aggregateRoot->loadFromHistory($events);
         $this->doCreateSnapshot($aggregateRoot);
+    }
+
+    private function eventSourced(AggregateId $aggregateId)
+    {
+        $class = ObjectClass::forName($aggregateId->aggregateClass());
+        return $class->isSubclassOf('predaddy\domain\EventSourcedAggregateRoot');
     }
 }

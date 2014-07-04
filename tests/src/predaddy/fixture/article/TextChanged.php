@@ -32,8 +32,4 @@ use predaddy\domain\AbstractDomainEvent;
  */
 class TextChanged extends AbstractDomainEvent
 {
-    public function __construct(ArticleId $articleId)
-    {
-        parent::__construct($articleId);
-    }
 }
