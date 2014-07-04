@@ -75,4 +75,20 @@ class InMemoryEventStoreTest extends DomainTestCase
         self::assertCount(1, $returnedEvents);
         self::assertSame($events[0], $returnedEvents[0]);
     }
+
+    public function testClean()
+    {
+        $user = new EventSourcedUser(new CreateEventSourcedUser());
+        $events = $this->getAndClearRaisedEvents();
+        foreach ($events as $event) {
+            $this->eventStore->persist($event);
+        }
+        $this->eventStore->createSnapshot($user->getId());
+
+        self::assertCount(1, $this->eventStore->getEventsFor($user->getId()));
+        self::assertNotNull($this->eventStore->loadSnapshot($user->getId()));
+        $this->eventStore->clean();
+        self::assertCount(0, $this->eventStore->getEventsFor($user->getId()));
+        self::assertNull($this->eventStore->loadSnapshot($user->getId()));
+    }
 }

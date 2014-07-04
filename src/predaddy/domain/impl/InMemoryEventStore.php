@@ -75,8 +75,10 @@ final class InMemoryEventStore extends AbstractSnapshotEventStore
     {
         $result = [];
         $add = false;
+        $key = $this->createKey($aggregateId);
+        $events = array_key_exists($key, $this->events) ? $this->events[$key] : [];
         /* @var $event DomainEvent */
-        foreach ($this->events[$this->createKey($aggregateId)] as $event) {
+        foreach ($events as $event) {
             if ($add || $stateHash === null) {
                 $result[] = $event;
             } elseif ($event->stateHash() === $stateHash) {
