@@ -24,8 +24,6 @@
 namespace predaddy\domain;
 
 use precore\lang\Object;
-use precore\lang\ObjectInterface;
-use precore\util\Objects;
 
 /**
  * @package predaddy\domain

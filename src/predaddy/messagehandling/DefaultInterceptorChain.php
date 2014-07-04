@@ -23,7 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use Closure;
 use Iterator;
 
 final class DefaultInterceptorChain implements InterceptorChain
