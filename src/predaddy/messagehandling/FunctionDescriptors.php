@@ -30,7 +30,7 @@ use precore\util\Arrays;
 use Traversable;
 
 /**
- * It sorts the FunctionDescriptor objects all the time you add a new one.
+ * It stores and sorts the FunctionDescriptor objects.
  *
  * @package predaddy\messagehandling
  *
@@ -46,7 +46,6 @@ final class FunctionDescriptors extends Object implements IteratorAggregate
     public function add(FunctionDescriptor $descriptor)
     {
         $this->descriptors[] = $descriptor;
-        Arrays::sort($this->descriptors);
     }
 
     public function remove(FunctionDescriptor $descriptor)
@@ -68,6 +67,7 @@ final class FunctionDescriptors extends Object implements IteratorAggregate
      */
     public function getIterator()
     {
+        Arrays::sort($this->descriptors);
         return new ArrayIterator($this->descriptors);
     }
 }
