@@ -34,13 +34,13 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 final class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
 {
     /**
-     * @param string $handlerClassName
+     * @param object $handler
      * @return EventSourcingEventHandlerDescriptor
      */
-    protected function innerCreate($handlerClassName)
+    protected function innerCreate($handler)
     {
         return new EventSourcingEventHandlerDescriptor(
-            ObjectClass::forName($handlerClassName),
+            $handler,
             $this->getReader(),
             $this->getFunctionDescriptorFactory()
         );

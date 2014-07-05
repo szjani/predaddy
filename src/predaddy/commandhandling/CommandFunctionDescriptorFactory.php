@@ -22,19 +22,19 @@
  */
 namespace predaddy\commandhandling;
 
+use predaddy\messagehandling\CallableWrapper;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
-use ReflectionFunctionAbstract;
 
 final class CommandFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
-     * @param ReflectionFunctionAbstract $function
+     * @param CallableWrapper $callableWrapper
      * @param int $priority
      * @return FunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function, $priority)
+    public function create(CallableWrapper $callableWrapper, $priority)
     {
-        return new CommandFunctionDescriptor($function, $priority);
+        return new CommandFunctionDescriptor($callableWrapper, $priority);
     }
 }

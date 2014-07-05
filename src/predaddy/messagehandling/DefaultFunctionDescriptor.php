@@ -23,7 +23,12 @@
 
 namespace predaddy\messagehandling;
 
+use InvalidArgumentException;
+use precore\lang\ClassCastException;
+use precore\lang\Object;
 use precore\lang\ObjectClass;
+use precore\lang\ObjectInterface;
+use precore\util\Objects;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -38,7 +43,7 @@ use ReflectionFunctionAbstract;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DefaultFunctionDescriptor implements FunctionDescriptor
+class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
 {
     /**
      * @var ObjectClass
@@ -48,19 +53,19 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
     private $valid = false;
 
     /**
-     * @var ReflectionFunction
+     * @var CallableWrapper
      */
-    private $function;
+    private $callableWrapper;
 
     /**
      * @var int
      */
     private $priority;
 
-    public function __construct(ReflectionFunctionAbstract $function, $priority)
+    public function __construct(CallableWrapper $callableWrapper, $priority)
     {
-        $this->function = $function;
         $this->priority = (int) $priority;
+        $this->callableWrapper = $callableWrapper;
         $this->valid = $this->check();
     }
 
@@ -93,7 +98,7 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
     protected function check()
     {
         $baseClassName = $this->getBaseMessageClassName();
-        $params = $this->function->getParameters();
+        $params = $this->callableWrapper->reflectionFunction()->getParameters();
         if (count($params) !== 1) {
             return false;
         }
@@ -128,18 +133,43 @@ class DefaultFunctionDescriptor implements FunctionDescriptor
     }
 
     /**
-     * @return ReflectionFunctionAbstract
-     */
-    public function getReflectionFunction()
-    {
-        return $this->function;
-    }
-
-    /**
      * @return int
      */
     public function getPriority()
     {
         return $this->priority;
+    }
+
+    /**
+     * @param $object
+     * @return int a negative integer, zero, or a positive integer
+     *         as this object is less than, equal to, or greater than the specified object.
+     * @throws ClassCastException - if the specified object's type prevents it from being compared to this object.
+     * @throws InvalidArgumentException if the specified object is null
+     */
+    public function compareTo($object)
+    {
+        if ($object === null) {
+            throw new InvalidArgumentException('Compared object cannot be null');
+        }
+        if (!($object instanceof self)) {
+            throw new ClassCastException(sprintf('Compared object must be an instance of %s', __CLASS__));
+        }
+        return $object->priority - $this->priority;
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self
+            && Objects::equal($this->callableWrapper, $object->callableWrapper)
+            && Objects::equal($this->priority, $object->priority);
+    }
+
+    /**
+     * @return CallableWrapper
+     */
+    public function getCallableWrapper()
+    {
+        return $this->callableWrapper;
     }
 }

@@ -71,7 +71,8 @@ interface MessageBus
 
     /**
      * @param Closure $closure
+     * @param int $priority
      * @return void
      */
-    public function unregisterClosure(Closure $closure);
+    public function unregisterClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY);
 }

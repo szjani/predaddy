@@ -23,13 +23,13 @@
 
 namespace predaddy\messagehandling;
 
+use ArrayObject;
 use Closure;
 use Exception;
 use precore\lang\ObjectClass;
 use precore\util\Objects;
 use ReflectionFunction;
 use SplObjectStorage;
-use SplPriorityQueue;
 
 /**
  * MessageBus which find handler methods in the registered message handlers.
@@ -54,29 +54,19 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     private $handlerDescriptorFactory;
 
     /**
-     * @var FunctionDescriptorFactory
-     */
-    private $closureDescriptorFactory;
-
-    /**
-     * @var SplObjectStorage
-     */
-    private $handlers;
-
-    /**
      * @var SplObjectStorage
      */
     private $factories;
 
     /**
-     * @var SplObjectStorage
-     */
-    private $closures;
-
-    /**
      * @var SubscriberExceptionHandler
      */
     private $exceptionHandler;
+
+    /**
+     * @var FunctionDescriptors
+     */
+    private $functionDescriptors;
 
     /**
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
@@ -91,8 +81,6 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         $identifier = self::DEFAULT_NAME
     ) {
         parent::__construct($interceptors);
-        $this->handlers = new SplObjectStorage();
-        $this->closures = new SplObjectStorage();
         $this->factories = new SplObjectStorage();
         $this->identifier = (string) $identifier;
         $this->handlerDescriptorFactory = $handlerDescFactory;
@@ -101,11 +89,12 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
             $exceptionHandler = new NullSubscriberExceptionHandler();
         }
         $this->exceptionHandler = $exceptionHandler;
+        $this->functionDescriptors = new FunctionDescriptors();
     }
 
     public function registerHandlerFactory(Closure $factory)
     {
-        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($factory), self::DEFAULT_PRIORITY);
+        $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($factory), self::DEFAULT_PRIORITY);
         $this->factories->attach($factory, $descriptor);
     }
 
@@ -120,7 +109,9 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     public function register($handler)
     {
         $descriptor = $this->handlerDescriptorFactory->create($handler);
-        $this->handlers->attach($handler, $descriptor);
+        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptors) {
+            $this->functionDescriptors->add($functionDescriptors);
+        }
     }
 
     /**
@@ -128,7 +119,10 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      */
     public function unregister($handler)
     {
-        $this->handlers->detach($handler);
+        $descriptor = $this->handlerDescriptorFactory->create($handler);
+        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptors) {
+            $this->functionDescriptors->remove($functionDescriptors);
+        }
     }
 
     /**
@@ -137,16 +131,18 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      */
     public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
-        $descriptor = $this->closureDescriptorFactory->create(new ReflectionFunction($closure), $priority);
-        $this->closures->attach($closure, $descriptor);
+        $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($closure), $priority);
+        $this->functionDescriptors->add($descriptor);
     }
 
     /**
      * @param Closure $closure
+     * @param int $priority
      */
-    public function unregisterClosure(Closure $closure)
+    public function unregisterClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
-        $this->closures->detach($closure);
+        $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($closure), $priority);
+        $this->functionDescriptors->remove($descriptor);
     }
 
     /**
@@ -207,76 +203,34 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
 
     /**
      * @param $message
-     * @return \Iterator|\Countable
+     * @return \Traversable|\Countable
      */
     protected function callableWrappersFor($message)
     {
         $objectClass = ObjectClass::forName(get_class($message));
-        $callbackQueue = new SplPriorityQueue();
-        foreach ($this->handlers as $handler) {
-            $this->addAllWrappers(
-                $callbackQueue,
-                $this->handlers[$handler],
-                $objectClass,
-                $handler
-            );
-        }
+        /* @var $functionDescriptors FunctionDescriptors */
+        $functionDescriptors = clone $this->functionDescriptors;
 
         foreach ($this->factories as $factory) {
             /* @var $factoryDescriptor FunctionDescriptor */
             $factoryDescriptor = $this->factories[$factory];
             if ($factoryDescriptor->isHandlerFor($objectClass)) {
                 $handler = call_user_func($factory, $message);
-                $this->addAllWrappers(
-                    $callbackQueue,
-                    $this->handlerDescriptorFactory->create($handler),
-                    $objectClass,
-                    $handler
-                );
+                $descriptor = $this->handlerDescriptorFactory->create($handler);
+                foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
+                    $functionDescriptors->add($functionDescriptor);
+                }
             }
         }
 
+        $res = new ArrayObject();
         /* @var $functionDescriptor FunctionDescriptor */
-        foreach ($this->closures as $closure) {
-            $this->addCallableWrapperIfNecessary(
-                $callbackQueue,
-                $this->closures[$closure],
-                $objectClass,
-                function () use ($closure) {
-                    return new ClosureWrapper($closure);
-                }
-            );
+        foreach ($functionDescriptors as $functionDescriptor) {
+            if ($functionDescriptor->isHandlerFor($objectClass)) {
+                $res->append($functionDescriptor->getCallableWrapper());
+            }
         }
-        return $callbackQueue;
-    }
-
-    private function addAllWrappers(
-        SplPriorityQueue $queue,
-        MessageHandlerDescriptor $descriptor,
-        ObjectClass $objectClass,
-        $handler
-    ) {
-        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
-            $this->addCallableWrapperIfNecessary(
-                $queue,
-                $functionDescriptor,
-                $objectClass,
-                function () use ($handler, $functionDescriptor) {
-                    return new MethodWrapper($handler, $functionDescriptor->getReflectionFunction());
-                }
-            );
-        }
-    }
-
-    private function addCallableWrapperIfNecessary(
-        SplPriorityQueue $queue,
-        FunctionDescriptor $descriptor,
-        ObjectClass $objectClass,
-        Closure $callableWrapperFactory
-    ) {
-        if ($descriptor->isHandlerFor($objectClass)) {
-            $queue->insert(call_user_func($callableWrapperFactory), $descriptor->getPriority());
-        }
+        return $res;
     }
 
     public function toString()

@@ -72,13 +72,13 @@ class AnnotatedMessageHandlerDescriptorFactory extends CachedMessageHandlerDescr
     }
 
     /**
-     * @param string $handlerClassName
+     * @param object $handler
      * @return AnnotatedMessageHandlerDescriptor
      */
-    protected function innerCreate($handlerClassName)
+    protected function innerCreate($handler)
     {
         return new AnnotatedMessageHandlerDescriptor(
-            ObjectClass::forName($handlerClassName),
+            $handler,
             $this->reader,
             $this->getFunctionDescriptorFactory()
         );

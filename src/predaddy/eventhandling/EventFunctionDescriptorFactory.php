@@ -23,19 +23,19 @@
 
 namespace predaddy\eventhandling;
 
+use predaddy\messagehandling\CallableWrapper;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
-use ReflectionFunctionAbstract;
 
 final class EventFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
-     * @param ReflectionFunctionAbstract $function
+     * @param CallableWrapper $callableWrapper
      * @param int $priority
      * @return FunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function, $priority)
+    public function create(CallableWrapper $callableWrapper, $priority)
     {
-        return new EventFunctionDescriptor($function, $priority);
+        return new EventFunctionDescriptor($callableWrapper, $priority);
     }
 }

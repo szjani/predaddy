@@ -32,7 +32,7 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
     public function testIsHandlerFor()
     {
         $function = function (Message $message) {};
-        $descriptor = new DefaultFunctionDescriptor(new ReflectionFunction($function), 1);
+        $descriptor = new DefaultFunctionDescriptor(new ClosureWrapper($function), 1);
         self::assertTrue($descriptor->isHandlerFor(SimpleMessage::objectClass()));
         self::assertTrue($descriptor->isHandlerFor(DeadMessage::objectClass()));
     }
@@ -40,7 +40,16 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
     public function testInvalidHandlerFunction()
     {
         $function = function ($message) {};
-        $descriptor = new DefaultFunctionDescriptor(new ReflectionFunction($function), 1);
+        $descriptor = new DefaultFunctionDescriptor(new ClosureWrapper($function), 1);
         self::assertFalse($descriptor->isHandlerFor(SimpleMessage::objectClass()));
+    }
+
+    public function testComparison()
+    {
+        $function1 = function ($message) {};
+        $descriptor1 = new DefaultFunctionDescriptor(new ClosureWrapper($function1), 1);
+        $function2 = function ($message) {};
+        $descriptor2 = new DefaultFunctionDescriptor(new ClosureWrapper($function2), 2);
+        self::assertGreaterThan(0, $descriptor1->compareTo($descriptor2));
     }
 }

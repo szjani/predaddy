@@ -23,14 +23,12 @@
 
 namespace predaddy\messagehandling;
 
-use ReflectionFunctionAbstract;
-
 interface FunctionDescriptorFactory
 {
     /**
-     * @param ReflectionFunctionAbstract $function
+     * @param CallableWrapper $callableWrapper
      * @param int $priority
      * @return FunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function, $priority);
+    public function create(CallableWrapper $callableWrapper, $priority);
 }

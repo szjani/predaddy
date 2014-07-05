@@ -25,7 +25,7 @@ namespace predaddy\commandhandling;
 
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
-use ReflectionFunction;
+use predaddy\messagehandling\ClosureWrapper;
 
 /**
  * @package predaddy\commandhandling
@@ -40,7 +40,7 @@ class CommandFunctionDescriptorTest extends PHPUnit_Framework_TestCase
     public function invalidParamType()
     {
         $function = function (UUID $uuid) {};
-        $descriptor = new CommandFunctionDescriptor(new ReflectionFunction($function), 1);
+        $descriptor = new CommandFunctionDescriptor(new ClosureWrapper($function), 1);
         self::assertFalse($descriptor->isValid());
     }
 }

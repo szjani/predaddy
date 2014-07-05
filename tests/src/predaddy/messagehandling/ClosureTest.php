@@ -70,4 +70,4 @@ class ClosureTest extends PHPUnit_Framework_TestCase
         $bus->post(new SimpleMessage());
         self::assertTrue($called);
     }
-} 
+}

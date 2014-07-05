@@ -23,13 +23,14 @@
 
 namespace predaddy\messagehandling;
 
+use precore\lang\Comparable;
 use precore\lang\ObjectClass;
-use ReflectionFunctionAbstract;
+use precore\lang\ObjectInterface;
 
 /**
  * @package predaddy\messagehandling
  */
-interface FunctionDescriptor
+interface FunctionDescriptor extends Comparable, ObjectInterface
 {
     /**
      * @return boolean
@@ -43,9 +44,9 @@ interface FunctionDescriptor
     public function isHandlerFor(ObjectClass $messageClass);
 
     /**
-     * @return ReflectionFunctionAbstract
+     * @return CallableWrapper
      */
-    public function getReflectionFunction();
+    public function getCallableWrapper();
 
     /**
      * @return string

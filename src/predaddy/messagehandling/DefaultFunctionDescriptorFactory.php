@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use ReflectionFunctionAbstract;
-
 /**
  * Factory for creating FunctionDescriptor instances.
  *
@@ -35,12 +33,12 @@ use ReflectionFunctionAbstract;
 class DefaultFunctionDescriptorFactory implements FunctionDescriptorFactory
 {
     /**
-     * @param ReflectionFunctionAbstract $function
+     * @param CallableWrapper $callableWrapper
      * @param int $priority
      * @return DefaultFunctionDescriptor
      */
-    public function create(ReflectionFunctionAbstract $function, $priority)
+    public function create(CallableWrapper $callableWrapper, $priority)
     {
-        return new DefaultFunctionDescriptor($function, $priority);
+        return new DefaultFunctionDescriptor($callableWrapper, $priority);
     }
 }

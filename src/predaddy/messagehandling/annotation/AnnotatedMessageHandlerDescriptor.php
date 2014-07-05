@@ -24,9 +24,11 @@
 namespace predaddy\messagehandling\annotation;
 
 use Doctrine\Common\Annotations\Reader;
+use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptor;
+use predaddy\messagehandling\MethodWrapper;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -40,6 +42,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     private $handlerClass;
     private $reader;
     private $descriptors = null;
+    private $handler;
 
     /**
      * @var FunctionDescriptorFactory
@@ -47,16 +50,17 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
     private $functionDescriptorFactory;
 
     /**
-     * @param ReflectionClass $handlerClass
+     * @param object $handler
      * @param Reader $reader
      * @param FunctionDescriptorFactory $functionDescFactory
      */
     public function __construct(
-        ReflectionClass $handlerClass,
+        $handler,
         Reader $reader,
         FunctionDescriptorFactory $functionDescFactory
     ) {
-        $this->handlerClass = $handlerClass;
+        $this->handlerClass = ObjectClass::forName(get_class($handler));
+        $this->handler = $handler;
         $this->reader = $reader;
         $this->functionDescriptorFactory = $functionDescFactory;
     }
@@ -84,7 +88,10 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
             if ($methodAnnotation === null) {
                 continue;
             }
-            $funcDescriptor = $this->functionDescriptorFactory->create($reflMethod, $methodAnnotation->priority);
+            $funcDescriptor = $this->functionDescriptorFactory->create(
+                new MethodWrapper($this->handler, $reflMethod),
+                $methodAnnotation->priority
+            );
             if (!$funcDescriptor->isValid()) {
                 continue;
             }

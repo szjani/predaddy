@@ -24,13 +24,14 @@
 namespace predaddy\messagehandling;
 
 use precore\lang\Object;
+use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use ReflectionMethod;
 
 final class MethodWrapper extends Object implements CallableWrapper
 {
     /**
-     * @var
+     * @var object
      */
     private $object;
 
@@ -56,5 +57,20 @@ final class MethodWrapper extends Object implements CallableWrapper
             ->add('objectClass', get_class($this->object))
             ->add('methodName', $this->method->getName())
             ->toString();
+    }
+
+    public function equals(ObjectInterface $object = null)
+    {
+        return $object instanceof self
+            && Objects::equal($this->object, $object->object)
+            && Objects::equal($this->method, $object->method);
+    }
+
+    /**
+     * @return \ReflectionFunctionAbstract
+     */
+    public function reflectionFunction()
+    {
+        return $this->method;
     }
 }

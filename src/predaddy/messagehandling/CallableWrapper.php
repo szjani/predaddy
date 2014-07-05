@@ -32,4 +32,9 @@ interface CallableWrapper extends ObjectInterface
      * @return mixed
      */
     public function invoke($message);
+
+    /**
+     * @return \ReflectionFunctionAbstract
+     */
+    public function reflectionFunction();
 }

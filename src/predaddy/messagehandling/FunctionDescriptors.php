@@ -23,59 +23,51 @@
 
 namespace predaddy\messagehandling;
 
-use SplObjectStorage;
+use ArrayIterator;
+use IteratorAggregate;
+use precore\lang\Object;
+use precore\util\Arrays;
+use Traversable;
 
 /**
- * Caches the MessageHandlerDescriptor instances by the class of handlers.
+ * It sorts the FunctionDescriptor objects all the time you add a new one.
  *
  * @package predaddy\messagehandling
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class CachedMessageHandlerDescriptorFactory implements MessageHandlerDescriptorFactory
+final class FunctionDescriptors extends Object implements IteratorAggregate
 {
     /**
-     * @var FunctionDescriptorFactory
+     * @var FunctionDescriptor[]
      */
-    private $functionDescFactory;
+    private $descriptors = [];
 
-    /**
-     * @var SplObjectStorage
-     */
-    private $descriptorMap;
-
-    /**
-     * @param FunctionDescriptorFactory $functionDescFactory
-     */
-    public function __construct(FunctionDescriptorFactory $functionDescFactory)
+    public function add(FunctionDescriptor $descriptor)
     {
-        $this->functionDescFactory = $functionDescFactory;
-        $this->descriptorMap = new SplObjectStorage();
+        $this->descriptors[] = $descriptor;
+        Arrays::sort($this->descriptors);
     }
 
-    /**
-     * @param object $handler
-     * @return MessageHandlerDescriptor
-     */
-    abstract protected function innerCreate($handler);
-
-    /**
-     * @param object $handler
-     * @return MessageHandlerDescriptor
-     */
-    public function create($handler)
+    public function remove(FunctionDescriptor $descriptor)
     {
-        if (!$this->descriptorMap->contains($handler)) {
-            $this->descriptorMap->attach($handler, $this->innerCreate($handler));
+        foreach ($this->descriptors as $key => $value) {
+            if ($value->equals($descriptor)) {
+                unset($this->descriptors[$key]);
+            }
         }
-        return $this->descriptorMap->offsetGet($handler);
     }
 
     /**
-     * @return FunctionDescriptorFactory
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Retrieve an external iterator
+     *
+     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
      */
-    public function getFunctionDescriptorFactory()
+    public function getIterator()
     {
-        return $this->functionDescFactory;
+        return new ArrayIterator($this->descriptors);
     }
 }
