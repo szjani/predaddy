@@ -79,13 +79,4 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
             ->add('aggregateValue', $this->aggregateValue)
             ->add('stateHash', $this->stateHash);
     }
-
-    public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof self
-            && parent::equals($object)
-            && $this->aggregateClass === $object->aggregateClass
-            && $this->aggregateValue === $object->aggregateValue
-            && $this->stateHash === $object->stateHash;
-    }
 }
