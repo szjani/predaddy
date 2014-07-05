@@ -29,30 +29,19 @@ The following example uses annotation based configuration.
 // you can use any ObservableTransactionManager implementation, see trf4php
 $transactionManager = new DoctrineTransactionManager($entityManager);
 
-/* Event bus is synchronized to transactions, so you should use it
-with the same TransactionManager which is used by the command bus.
-The following setup provide you an annotation based configuration. */
-
-// configure event bus
-$eventHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
-    new EventFunctionDescriptorFactory()
-);
-$domainEventBus = new EventBus($eventHandlerDescFactory, $transactionManager);
-
 // configure the repository to save and load aggregates
-$userRepository = new UserRepository($domainEventBus);
+$repository = new InMemoryRepository();
 
-// configure command bus
-$commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
-    new CommandFunctionDescriptorFactory()
-);
-$commandBus = new CommandBus($commandHandlerDescFactory, $transactionManager);
+$trBuses = TransactionalBuses::create($transactionManager, $repository);
+
+$eventBus = $trBuses->eventBus();
+$commandBus = $trBuses->commandBus();
 
 // register the command handlers
-$commandBus->register(new UserCommandHandler($userRepository));
+$commandBus->register(new UserCommandHandler($repository));
 
 // register the event handlers
-$domainEventBus->register(new UserEventHandler());
+$eventBus->register(new UserEventHandler());
 ```
 
 #### The domain model
@@ -63,11 +52,6 @@ class User extends AbstractAggregateRoot
     private $id;
     private $email;
 
-    /**
-     * @var int Should be used for locking
-     */
-    private $version;
-
     // some missing methods
 
     public function modifyEmailAddress($email)
@@ -75,7 +59,7 @@ class User extends AbstractAggregateRoot
         // validate parameters, throw exception if necessary
         Assert::email($email);
         $this->email = $email;
-        $this->raise(new UserEmailModified($this->getId(), $email, $this->version));
+        $this->raise(new UserEmailModified($email));
     }
 }
 ```
@@ -108,32 +92,9 @@ class UserCommandHandler
     public function handleCommand(ModifyEmail $command)
     {
         // somehow obtain the persistent aggregate root
-        $user = $this->userRepository->load($command->aggregateId());
+        $user = $this->repository->load($command->aggregateId());
         $user->modifyEmailAddress($command->getEmail());
-        $this->userRepository->save($user, $command->getVersion());
-    }
-}
-```
-
-#### The repository
-
-You need to create repository implementations for all of your aggregates. Extending `AggregateRootRepository` provides
-you the feature that all events raised in the given aggregate are being forwarded to the event bus when you are saving it.
-
-```php
-class UserRepository extends AggregateRootRepository
-{
-    public function __construct(EventBus $eventBus)
-    {
-        parent::__construct($eventBus);
-    }
-
-    protected function innerSave(AggregateRoot $aggregateRoot, Iterator $events, $version)
-    {
-    }
-
-    public function load(AggregateId $aggregateId)
-    {
+        $this->repository->save($user);
     }
 }
 ```
@@ -141,7 +102,7 @@ class UserRepository extends AggregateRootRepository
 #### Sending a command
 
 ```php
-$commandBus->post(new ModifyEmail($userId, $email, $version));
+$commandBus->post(new ModifyEmail($userId, $email));
 ```
 
 ### Event Sourcing
@@ -155,21 +116,15 @@ Even if you use `DirectCommandBus`, you can register explicit command handlers s
 #### Configuration
 
 ```php
-// $transactionManager can be any implementation of ObservableTransactionManager
-$transactionManager = new DoctrineTransactionManager($entityManager);
-$eventBus = new EventBus(
-    new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
-    $transactionManager
-);
-// you can use any EventStore implementation, DoctrineOrmEventStore is a builtin class
 $eventStore = new DoctrineOrmEventStore($entityManager);
-$commandHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
-$commandBus = new DirectCommandBus(
-    $commandHandlerDescFactory,
-    $transactionManager,
-    new LazyEventSourcedRepositoryRepository($eventBus, $eventStore, TrivialSnapshotStrategy::$NEVER),
-    new SimpleMessageBusFactory($commandHandlerDescFactory)
+$trBuses = TransactionalBuses::create(
+    new DoctrineTransactionManager($entityManager),
+    new EventSourcingRepository($eventStore),
+    [],
+    [new EventPersister($eventStore)]
 );
+$eventBus = $trBuses->eventBus();
+$commandBus = $trBuses->commandBus();
 ```
 
 #### Model
@@ -188,7 +143,8 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     public function __construct(CreateEventSourcedUser $command)
     {
-        $this->apply(new UserCreated(new UUIDAggregateId(UUID::randomUUID()), $command->getVersion()));
+        // UserId extends UUIDAggregateId
+        $this->apply(new UserCreated(UserId::create()));
     }
 
     /**
@@ -205,7 +161,7 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     public function increment(Increment $command)
     {
-        $this->apply(new IncrementedEvent($this->id, $command->getVersion()));
+        $this->apply(new IncrementedEvent());
     }
 
     /**
@@ -233,13 +189,13 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
 $aggregateId = null;
 $eventBus->registerClosure(
     function (UserCreated $event) use (&$aggregateId) {
-        $aggregateId = $event->getAggregateIdentifier();
+        $aggregateId = $event->aggregateId();
     }
 );
 
 $commandBus->post(new CreateEventSourcedUser());
-$commandBus->post(new Increment($aggregateId->value(), 1));
-$commandBus->post(new Increment($aggregateId->value(), 2));
+$commandBus->post(new Increment($aggregateId->value()));
+$commandBus->post(new Increment($aggregateId->value()));
 ```
 
 ### EventStore
