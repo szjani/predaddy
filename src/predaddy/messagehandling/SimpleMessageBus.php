@@ -54,6 +54,11 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     private $handlerDescriptorFactory;
 
     /**
+     * @var FunctionDescriptorFactory
+     */
+    private $closureDescriptorFactory;
+
+    /**
      * @var SplObjectStorage
      */
     private $factories;
