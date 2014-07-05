@@ -28,7 +28,6 @@ use Closure;
 use Exception;
 use precore\lang\ObjectClass;
 use precore\util\Objects;
-use ReflectionFunction;
 use SplObjectStorage;
 
 /**
