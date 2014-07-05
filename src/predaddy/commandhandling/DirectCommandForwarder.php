@@ -28,7 +28,6 @@ use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\Repository;
-use predaddy\domain\StateHashAwareAggregateRoot;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageBusFactory;
@@ -95,7 +94,7 @@ class DirectCommandForwarder extends Object
             $aggregate = ObjectClass::forName($aggregateClass)->newInstanceWithoutConstructor();
         } else {
             $aggregate = $this->repository->load(new DefaultAggregateId($aggregateId, $aggregateClass));
-            if ($aggregate instanceof StateHashAwareAggregateRoot && $command->stateHash() !== null) {
+            if ($command->stateHash() !== null) {
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }

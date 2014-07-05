@@ -41,7 +41,7 @@ use predaddy\messagehandling\annotation\Subscribe;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-abstract class AbstractAggregateRoot extends Object implements StateHashAwareAggregateRoot
+abstract class AbstractAggregateRoot extends Object implements AggregateRoot
 {
     /**
      * @var string
@@ -114,6 +114,6 @@ abstract class AbstractAggregateRoot extends Object implements StateHashAwareAgg
     public function equals(ObjectInterface $object = null)
     {
         return $object instanceof self
-        && Objects::equal($this->getId(), $object->getId());
+            && Objects::equal($this->getId(), $object->getId());
     }
 }

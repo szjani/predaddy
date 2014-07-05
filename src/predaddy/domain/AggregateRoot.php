@@ -28,10 +28,22 @@ namespace predaddy\domain;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-interface AggregateRoot extends Entity
+interface AggregateRoot extends Entity, StateHashAware
 {
     /**
      * @return AggregateId
      */
     public function getId();
+
+    /**
+     * Validates the state of the aggregate. Should be called from command handlers
+     * if the expected state in the command is not null.
+     *
+     * Helps to detect lost update problem.
+     *
+     * @see http://www.w3.org/1999/04/Editing
+     * @param string $expectedHash
+     * @throws \UnexpectedValueException
+     */
+    public function failWhenStateHashViolation($expectedHash);
 }
