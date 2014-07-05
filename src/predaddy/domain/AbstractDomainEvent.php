@@ -23,7 +23,6 @@
 
 namespace predaddy\domain;
 
-use precore\lang\ObjectInterface;
 use predaddy\messagehandling\AbstractMessage;
 
 /**
