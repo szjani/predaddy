@@ -30,7 +30,11 @@ use UnexpectedValueException;
 use predaddy\messagehandling\annotation\Subscribe;
 
 /**
- * Aggregate root class.
+ * AggregateRoot implementation which provides features for handling
+ * state hash and sending DomainEvents.
+ *
+ * All Events which extends AbstractDomainEvent will be filled
+ * with the proper AggregateId and state hash when they are being raised.
  *
  * If you want to use the state hash feature, you can follow two ways:
  *  - you persist the stateHash member variable
@@ -76,7 +80,7 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
     }
 
     /**
-     * Updates stateHash field when replaying events. Should not called directly.
+     * Updates stateHash field when replaying events. Should not be called directly.
      *
      * @Subscribe
      * @param DomainEvent $event
