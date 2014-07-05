@@ -65,6 +65,9 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
     }
 
     /**
+     * The basic behavior that the state hash of the AggregateRoot
+     * is the ID of the last event.
+     *
      * @param DomainEvent $raisedEvent
      * @return string
      */
@@ -78,6 +81,12 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
         $this->stateHash = $stateHash;
     }
 
+    /**
+     * Updates the state hash and sends the DomainEvent to the EventPublisher.
+     * It also automatically fills the raised event if it extends AbstractDomainEvent.
+     *
+     * @param DomainEvent $event
+     */
     final protected function raise(DomainEvent $event)
     {
         $this->setStateHash($this->calculateNextStateHash($event));
