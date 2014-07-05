@@ -53,8 +53,8 @@ class SampleMessageHandler
     {
         printf(
             "handleOne: Incoming message %s sent %s\n",
-            $message->getMessageIdentifier(),
-            $message->getTimestamp()->format('Y-m-d H:i:s')
+            $message->identifier(),
+            $message->created()->format('Y-m-d H:i:s')
         );
     }
 
@@ -65,8 +65,8 @@ class SampleMessageHandler
     {
         printf(
             "handleTwo: Incoming message %s sent %s\n",
-            $message->getMessageIdentifier(),
-            $message->getTimestamp()->format('Y-m-d H:i:s')
+            $message->identifier(),
+            $message->created()->format('Y-m-d H:i:s')
         );
     }
 }
