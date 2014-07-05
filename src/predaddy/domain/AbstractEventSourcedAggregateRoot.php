@@ -28,6 +28,7 @@ use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\SimpleMessageBusFactory;
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
  * You can send an event which will be handled by all handler methods
@@ -90,6 +91,17 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
     {
         $this->handleEventInAggregate($event);
         parent::raise($event);
+    }
+
+    /**
+     * Updates stateHash field when replaying events. Should not be called directly.
+     *
+     * @Subscribe
+     * @param DomainEvent $event
+     */
+    final protected function updateStateHash(DomainEvent $event)
+    {
+        $this->setStateHash($event->stateHash());
     }
 
     private function handleEventInAggregate(DomainEvent $event, MessageBus $innerBus = null)

@@ -27,7 +27,6 @@ use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use UnexpectedValueException;
-use predaddy\messagehandling\annotation\Subscribe;
 
 /**
  * AggregateRoot implementation which provides features for handling
@@ -77,17 +76,6 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
     protected function setStateHash($stateHash)
     {
         $this->stateHash = $stateHash;
-    }
-
-    /**
-     * Updates stateHash field when replaying events. Should not be called directly.
-     *
-     * @Subscribe
-     * @param DomainEvent $event
-     */
-    final protected function updateStateHash(DomainEvent $event)
-    {
-        $this->setStateHash($event->stateHash());
     }
 
     final protected function raise(DomainEvent $event)
