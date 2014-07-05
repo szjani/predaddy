@@ -30,8 +30,6 @@ use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use ReflectionClass;
-use ReflectionFunction;
-use ReflectionFunctionAbstract;
 
 /**
  * Validates a function or a method whether it is a valid message handler or not.

@@ -29,7 +29,6 @@ use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptor;
 use predaddy\messagehandling\MethodWrapper;
-use ReflectionClass;
 use ReflectionMethod;
 
 /**

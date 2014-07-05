@@ -23,7 +23,6 @@
 
 namespace predaddy\domain;
 
-use precore\lang\ObjectClass;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 
 /**
