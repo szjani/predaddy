@@ -42,10 +42,12 @@ final class FunctionDescriptors extends Object implements IteratorAggregate
      * @var FunctionDescriptor[]
      */
     private $descriptors = [];
+    private $sorted = true;
 
     public function add(FunctionDescriptor $descriptor)
     {
         $this->descriptors[] = $descriptor;
+        $this->sorted = false;
     }
 
     public function remove(FunctionDescriptor $descriptor)
@@ -53,6 +55,7 @@ final class FunctionDescriptors extends Object implements IteratorAggregate
         foreach ($this->descriptors as $key => $value) {
             if ($value->equals($descriptor)) {
                 unset($this->descriptors[$key]);
+                $this->sorted = false;
             }
         }
     }
@@ -67,7 +70,18 @@ final class FunctionDescriptors extends Object implements IteratorAggregate
      */
     public function getIterator()
     {
-        Arrays::sort($this->descriptors);
-        return new ArrayIterator($this->descriptors);
+        return new ArrayIterator($this->sortedDescriptors());
+    }
+
+    /**
+     * @return FunctionDescriptor[]
+     */
+    private function sortedDescriptors()
+    {
+        if (!$this->sorted) {
+            Arrays::sort($this->descriptors);
+            $this->sorted = true;
+        }
+        return $this->descriptors;
     }
 }
