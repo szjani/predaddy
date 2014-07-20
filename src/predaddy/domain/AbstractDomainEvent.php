@@ -38,11 +38,18 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
     protected $aggregateValue;
     protected $stateHash;
 
+    /**
+     * @param AbstractDomainEvent $event
+     * @param AggregateId $aggregateId
+     * @param $stateHash
+     * @return AbstractDomainEvent
+     */
     public static function initEvent(AbstractDomainEvent $event, AggregateId $aggregateId, $stateHash)
     {
         $event->aggregateClass = $aggregateId->aggregateClass();
         $event->aggregateValue = $aggregateId->value();
         $event->stateHash = $stateHash;
+        return $event;
     }
 
     public function __construct(AggregateId $aggregateId = null)
