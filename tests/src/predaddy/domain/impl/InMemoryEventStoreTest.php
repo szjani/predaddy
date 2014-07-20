@@ -23,6 +23,7 @@
 
 namespace predaddy\domain\impl;
 
+use predaddy\domain\AbstractDomainEvent;
 use predaddy\domain\CreateEventSourcedUser;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
@@ -117,9 +118,9 @@ class InMemoryEventStoreTest extends DomainTestCase
         $aggregateId = EventSourcedArticleId::create();
         $eventStore->persist(new ArticleCreated($aggregateId, 'author', 'text'));
         self::assertNull($eventStore->loadSnapshot($aggregateId));
-        $eventStore->persist(new TextChanged($aggregateId));
+        $eventStore->persist(AbstractDomainEvent::initEvent(new TextChanged('newText1'), $aggregateId, null));
         self::assertNull($eventStore->loadSnapshot($aggregateId));
-        $eventStore->persist(new TextChanged($aggregateId));
+        $eventStore->persist(AbstractDomainEvent::initEvent(new TextChanged('newText2'), $aggregateId, null));
         self::assertInstanceOf(EventSourcedArticle::className(), $eventStore->loadSnapshot($aggregateId));
     }
 }

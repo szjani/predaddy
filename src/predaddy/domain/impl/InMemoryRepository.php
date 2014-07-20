@@ -37,13 +37,13 @@ use UnexpectedValueException;
 final class InMemoryRepository extends AbstractRepository
 {
     /**
-     * @var SplObjectStorage
+     * @var array
      */
     private $aggregates;
 
     public function __construct()
     {
-        $this->aggregates = new SplObjectStorage();
+        $this->aggregates = [];
     }
 
     /**
@@ -55,11 +55,11 @@ final class InMemoryRepository extends AbstractRepository
      */
     public function load(AggregateId $aggregateId)
     {
-        try {
-            return $this->aggregates->offsetGet($aggregateId);
-        } catch (UnexpectedValueException $e) {
+        $key = $this->createKey($aggregateId);
+        if (!array_key_exists($key, $this->aggregates)) {
             $this->throwInvalidAggregateIdException($aggregateId);
         }
+        return $this->aggregates[$this->createKey($aggregateId)];
     }
 
     /**
@@ -69,6 +69,11 @@ final class InMemoryRepository extends AbstractRepository
      */
     public function save(AggregateRoot $aggregateRoot)
     {
-        $this->aggregates->attach($aggregateRoot->getId(), $aggregateRoot);
+        $this->aggregates[$this->createKey($aggregateRoot->getId())] = $aggregateRoot;
+    }
+
+    private function createKey(AggregateId $aggregateId)
+    {
+        return $aggregateId->getClassName() . $aggregateId->value();
     }
 }
