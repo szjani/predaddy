@@ -26,8 +26,6 @@ namespace predaddy\domain\impl;
 use predaddy\domain\AbstractRepository;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
-use SplObjectStorage;
-use UnexpectedValueException;
 
 /**
  * @package predaddy\domain\impl
