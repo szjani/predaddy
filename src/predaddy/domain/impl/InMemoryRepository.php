@@ -37,12 +37,7 @@ final class InMemoryRepository extends AbstractRepository
     /**
      * @var array
      */
-    private $aggregates;
-
-    public function __construct()
-    {
-        $this->aggregates = [];
-    }
+    private $aggregates = [];
 
     /**
      * Load the aggregate identified by $aggregateId from the persistent storage.
