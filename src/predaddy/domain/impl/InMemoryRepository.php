@@ -34,7 +34,7 @@ use UnexpectedValueException;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class InMemoryRepository extends AbstractRepository
+final class InMemoryRepository extends AbstractRepository
 {
     /**
      * @var SplObjectStorage
