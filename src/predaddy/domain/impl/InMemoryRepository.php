@@ -74,6 +74,6 @@ final class InMemoryRepository extends AbstractRepository
 
     private function createKey(AggregateId $aggregateId)
     {
-        return $aggregateId->getClassName() . $aggregateId->value();
+        return $aggregateId->aggregateClass() . $aggregateId->value();
     }
 }
