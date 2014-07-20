@@ -26,6 +26,7 @@ namespace predaddy\fixture\article;
 use predaddy\domain\AbstractEventSourcedAggregateRoot;
 use predaddy\domain\AggregateId;
 use predaddy\messagehandling\annotation\Subscribe;
+use src\predaddy\fixture\ChangeText;
 
 /**
  * @package predaddy\fixture\article
@@ -55,7 +56,16 @@ class EventSourcedArticle extends AbstractEventSourcedAggregateRoot
      */
     public function __construct($author, $text)
     {
-        $this->raise(new ArticleCreated(ArticleId::create(), $author, $text));
+        $this->apply(new ArticleCreated(ArticleId::create(), $author, $text));
+    }
+
+    /**
+     * @Subscribe
+     * @param ChangeText $command
+     */
+    public function changeText(ChangeText $command)
+    {
+        $this->apply(new TextChanged($command->getNewText()));
     }
 
     /**
@@ -64,6 +74,15 @@ class EventSourcedArticle extends AbstractEventSourcedAggregateRoot
     public function getId()
     {
         return $this->articleId;
+    }
+
+    /**
+     * @Subscribe
+     * @param TextChanged $event
+     */
+    private function handleTextChanged(TextChanged $event)
+    {
+        $this->text = $event->getNewText();
     }
 
     /**

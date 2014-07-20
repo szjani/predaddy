@@ -29,10 +29,19 @@ use ReflectionFunction;
 
 class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
 {
+    private static $anyWrapper;
+    private static $anyPriority;
+
+    public static function setUpBeforeClass()
+    {
+        self::$anyWrapper = new ClosureWrapper(function ($message) {});
+        self::$anyPriority = 1;
+    }
+
     public function testIsHandlerFor()
     {
         $function = function (Message $message) {};
-        $descriptor = new DefaultFunctionDescriptor(new ClosureWrapper($function), 1);
+        $descriptor = new DefaultFunctionDescriptor(new ClosureWrapper($function), self::$anyPriority);
         self::assertTrue($descriptor->isHandlerFor(SimpleMessage::objectClass()));
         self::assertTrue($descriptor->isHandlerFor(DeadMessage::objectClass()));
     }
@@ -40,7 +49,7 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
     public function testInvalidHandlerFunction()
     {
         $function = function ($message) {};
-        $descriptor = new DefaultFunctionDescriptor(new ClosureWrapper($function), 1);
+        $descriptor = new DefaultFunctionDescriptor(new ClosureWrapper($function), self::$anyPriority);
         self::assertFalse($descriptor->isHandlerFor(SimpleMessage::objectClass()));
     }
 
@@ -51,5 +60,35 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
         $function2 = function ($message) {};
         $descriptor2 = new DefaultFunctionDescriptor(new ClosureWrapper($function2), 2);
         self::assertGreaterThan(0, $descriptor1->compareTo($descriptor2));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldReturnTheGivenPriority()
+    {
+        $priority = 2;
+        $descriptor = new DefaultFunctionDescriptor(self::$anyWrapper, $priority);
+        self::assertEquals($priority, $descriptor->getPriority());
+    }
+
+    /**
+     * @test
+     * @expectedException \precore\lang\ClassCastException
+     */
+    public function shouldNotBeComparableWithOtherType()
+    {
+        $descriptor = new DefaultFunctionDescriptor(self::$anyWrapper, self::$anyPriority);
+        $descriptor->compareTo($this);
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     */
+    public function shouldNotBeComparableWithNull()
+    {
+        $descriptor = new DefaultFunctionDescriptor(self::$anyWrapper, self::$anyPriority);
+        $descriptor->compareTo(null);
     }
 }

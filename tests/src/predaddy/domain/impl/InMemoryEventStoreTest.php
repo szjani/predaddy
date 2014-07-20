@@ -33,7 +33,6 @@ use predaddy\fixture\article\ArticleCreated;
 use predaddy\fixture\article\ArticleId;
 use predaddy\fixture\article\EventSourcedArticle;
 use predaddy\fixture\article\EventSourcedArticleId;
-use predaddy\fixture\article\IncrementedVersionedArticle;
 use predaddy\fixture\article\TextChanged;
 
 /**
@@ -122,5 +121,25 @@ class InMemoryEventStoreTest extends DomainTestCase
         self::assertNull($eventStore->loadSnapshot($aggregateId));
         $eventStore->persist(AbstractDomainEvent::initEvent(new TextChanged('newText2'), $aggregateId, null));
         self::assertInstanceOf(EventSourcedArticle::className(), $eventStore->loadSnapshot($aggregateId));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldIgnoreNonEventSourcedAggregateIdInSnapshotting()
+    {
+        $aggregateId = ArticleId::create();
+        $this->eventStore->createSnapshot($aggregateId);
+        self::assertNull($this->eventStore->loadSnapshot($aggregateId));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotCreateSnapshotIfThereAreNoEvents()
+    {
+        $aggregateId = EventSourcedArticleId::create();
+        $this->eventStore->createSnapshot($aggregateId);
+        self::assertNull($this->eventStore->loadSnapshot($aggregateId));
     }
 }

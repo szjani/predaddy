@@ -23,15 +23,18 @@
 
 namespace predaddy\commandhandling;
 
-use PHPUnit_Framework_TestCase;
-use precore\lang\ObjectClass;
 use precore\util\UUID;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\AbstractAggregateRoot;
+use predaddy\domain\DomainTestCase;
+use predaddy\domain\impl\InMemoryRepository;
+use predaddy\fixture\article\ArticleCreated;
+use predaddy\fixture\article\EventSourcedArticle;
 use predaddy\messagehandling\DeadMessage;
+use predaddy\fixture\ChangeText;
 
-class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
+class DirectCommandForwarderTest extends DomainTestCase
 {
     private $repository;
     private $messageBusFactory;
@@ -43,6 +46,7 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        parent::setUp();
         $this->messageBusFactory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
         $this->repository = $this->getMock('\predaddy\domain\Repository');
         $this->directCommandForwarder = new DirectCommandForwarder(
@@ -149,6 +153,25 @@ class DirectCommandForwarderTest extends PHPUnit_Framework_TestCase
             ->with($aggregate);
 
         $this->directCommandForwarder->catchDeadCommand(new DeadMessage($command));
+    }
+
+    /**
+     * @test
+     * @expectedException \UnexpectedValueException
+     */
+    public function shouldFailStateHashCheck()
+    {
+        $repository = new InMemoryRepository();
+        $article = new EventSourcedArticle('author', 'text');
+        $repository->save($article);
+
+        $commandForwarder = new DirectCommandForwarder(
+            $repository,
+            $this->messageBusFactory
+        );
+
+        $command = new ChangeText($article->getId()->value(), 'invalid', 'newText');
+        $commandForwarder->catchDeadCommand(new DeadMessage($command));
     }
 }
 

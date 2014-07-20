@@ -21,30 +21,39 @@
  * SOFTWARE.
  */
 
-namespace predaddy\fixture\article;
+namespace predaddy\fixture;
 
-use predaddy\domain\AbstractDomainEvent;
+use predaddy\commandhandling\AbstractDirectCommand;
+use predaddy\fixture\article\EventSourcedArticle;
 
 /**
- * @package predaddy\fixture\article
+ * @package src\predaddy\fixture
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class TextChanged extends AbstractDomainEvent
+class ChangeText extends AbstractDirectCommand
 {
     private $newText;
 
-    public function __construct($newText)
+    public function __construct($aggregateId, $stateHash, $newText)
     {
-        parent::__construct();
+        parent::__construct($aggregateId, $stateHash);
         $this->newText = $newText;
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
     public function getNewText()
     {
         return $this->newText;
+    }
+
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return EventSourcedArticle::className();
     }
 }
