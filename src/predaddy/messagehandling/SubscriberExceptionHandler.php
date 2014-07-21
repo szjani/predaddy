@@ -26,8 +26,6 @@ namespace predaddy\messagehandling;
 use Exception;
 
 /**
- * @package predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 interface SubscriberExceptionHandler

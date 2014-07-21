@@ -37,8 +37,6 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  * In this case the command is not being dispatched to the registered DirectCommandForwarder object
  * but you have to manage that aggregate instead.
  *
- * @package predaddy\commandhandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class DirectCommandBus extends CommandBus

@@ -37,8 +37,6 @@ use ReflectionClass;
  *  - exactly one parameter
  *  - the parameter has typehint
  *
- * @package predaddy\messagehandling\functiondescriptor
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class DefaultFunctionDescriptor extends Object implements FunctionDescriptor

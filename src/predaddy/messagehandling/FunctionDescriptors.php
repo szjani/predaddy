@@ -32,8 +32,6 @@ use Traversable;
 /**
  * It stores and sorts the FunctionDescriptor objects.
  *
- * @package predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class FunctionDescriptors extends Object implements IteratorAggregate

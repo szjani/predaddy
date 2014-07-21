@@ -29,8 +29,6 @@ use predaddy\messagehandling\SubscriberExceptionContext;
 use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
- * @package predaddy\support
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class TransactionalExceptionHandler extends Object implements SubscriberExceptionHandler

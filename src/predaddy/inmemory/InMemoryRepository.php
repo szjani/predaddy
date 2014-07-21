@@ -28,8 +28,6 @@ use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 
 /**
- * @package predaddy\domain\impl
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class InMemoryRepository extends AbstractRepository

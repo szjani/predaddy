@@ -30,8 +30,6 @@ use predaddy\domain\EventStore;
  * Interface SnapshotEventStore
  *
  * SnapshotEventStore.getEventsFor() method must returns all events raised since the last snapshot has been created.
- *
- * @package predaddy\domain
  */
 interface SnapshotEventStore extends EventStore
 {

@@ -32,8 +32,6 @@ use predaddy\domain\eventsourcing\AbstractSnapshotEventStore;
 use predaddy\domain\eventsourcing\EventSourcedAggregateRoot;
 
 /**
- * @package predaddy\domain\impl
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class InMemoryEventStore extends AbstractSnapshotEventStore

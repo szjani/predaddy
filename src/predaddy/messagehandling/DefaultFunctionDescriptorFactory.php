@@ -26,8 +26,6 @@ namespace predaddy\messagehandling;
 /**
  * Factory for creating FunctionDescriptor instances.
  *
- * @package predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class DefaultFunctionDescriptorFactory implements FunctionDescriptorFactory

@@ -29,8 +29,6 @@ use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 
 /**
- * @package predaddy\messagehandling\interceptors
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class EventPersister implements DispatchInterceptor

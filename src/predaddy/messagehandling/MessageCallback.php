@@ -32,7 +32,7 @@ use Exception;
  * If a message handler has a return value, that will be passed to the onSuccess() method.
  * When a message handler throws any Exception, onFailure() method will be called with that.
  *
- * @package predaddy\messagehandling
+ * @author Szurovecz János <szjani@szjani.hu>
  */
 interface MessageCallback
 {

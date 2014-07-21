@@ -24,8 +24,6 @@
 namespace predaddy\domain;
 
 /**
- * @package predaddy\domain
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 interface StateHashAware

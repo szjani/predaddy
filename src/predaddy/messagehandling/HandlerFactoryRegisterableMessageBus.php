@@ -28,8 +28,6 @@ use Closure;
 /**
  * Handler factories can be registered in order to create handlers only when it is required.
  *
- * @package predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 interface HandlerFactoryRegisterableMessageBus extends MessageBus

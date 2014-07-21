@@ -25,8 +25,6 @@ namespace predaddy\domain;
 
 /**
  * Repository interface for loading and persisting aggregates.
- *
- * @package predaddy\domain
  */
 interface Repository
 {

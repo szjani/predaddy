@@ -27,8 +27,6 @@ use precore\lang\Object;
 use precore\util\Objects;
 
 /**
- * @package src\predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class SubscriberExceptionContext extends Object

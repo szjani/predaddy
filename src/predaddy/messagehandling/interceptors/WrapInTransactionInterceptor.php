@@ -34,8 +34,6 @@ use trf4php\TransactionManager;
 /**
  * Wraps the command dispatch process in transaction.
  *
- * @package predaddy\messagehandling\interceptors
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class WrapInTransactionInterceptor extends Object implements DispatchInterceptor, SubscriberExceptionHandler

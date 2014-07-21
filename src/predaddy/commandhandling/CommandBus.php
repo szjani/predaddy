@@ -36,8 +36,6 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  * It's highly recommended to use a CommandFunctionDescriptorFactory instance to automatically achieve
  * the second criteria. In that case Messages must implement the Command interface.
  *
- * @package predaddy\commandhandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class CommandBus extends SimpleMessageBus

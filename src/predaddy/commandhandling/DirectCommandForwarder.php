@@ -41,8 +41,6 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
  *
  * It catches only unhandled commands.
  *
- * @package predaddy\commandhandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class DirectCommandForwarder extends Object

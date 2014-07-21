@@ -26,8 +26,6 @@ namespace predaddy\commandhandling;
 /**
  * Can be used for any DirectCommand. These objects are being passed directly to the proper aggregate.
  *
- * @package predaddy\commandhandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class AbstractDirectCommand extends AbstractCommand implements DirectCommand

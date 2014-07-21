@@ -31,8 +31,6 @@ use predaddy\messagehandling\SubscriberExceptionContext;
 use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
- * @package predaddy\messagehandling\interceptors
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class BlockerInterceptorManager extends Object implements DispatchInterceptor, SubscriberExceptionHandler

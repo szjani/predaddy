@@ -26,8 +26,6 @@ namespace predaddy\messagehandling\util;
 use Closure;
 
 /**
- * @package predaddy\messagehandling\util
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class MessageCallbackClosuresBuilder

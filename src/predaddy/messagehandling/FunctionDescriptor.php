@@ -27,9 +27,6 @@ use precore\lang\Comparable;
 use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 
-/**
- * @package predaddy\messagehandling
- */
 interface FunctionDescriptor extends Comparable, ObjectInterface
 {
     /**

@@ -33,8 +33,6 @@ use predaddy\domain\EventStore;
 /**
  * Should be used for event sourcing.
  *
- * @package predaddy\domain
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class EventSourcingRepository extends AbstractRepository

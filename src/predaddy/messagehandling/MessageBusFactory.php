@@ -26,7 +26,7 @@ namespace predaddy\messagehandling;
 /**
  * Factory for creating MessageBus instances.
  *
- * @package predaddy\messagehandling
+ * @author Szurovecz János <szjani@szjani.hu>
  */
 interface MessageBusFactory
 {

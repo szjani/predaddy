@@ -31,8 +31,6 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  * It's highly recommended to use an EventFunctionDescriptorFactory instance.
  * In that case Messages must implement the Event interface.
  *
- * @package predaddy\messagehandling\event
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class EventBus extends SimpleMessageBus

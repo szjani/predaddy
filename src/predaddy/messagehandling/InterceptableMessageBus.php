@@ -31,8 +31,6 @@ use precore\lang\Object;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 
 /**
- * @package predaddy
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class InterceptableMessageBus extends Object implements MessageBus

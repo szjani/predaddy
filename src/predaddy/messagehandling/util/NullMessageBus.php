@@ -28,8 +28,6 @@ use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageCallback;
 
 /**
- * @package predaddy\messagehandling\util
- *
  * @author Szurovecz János <szjani@szjani.hu>
  * @codeCoverageIgnore
  */

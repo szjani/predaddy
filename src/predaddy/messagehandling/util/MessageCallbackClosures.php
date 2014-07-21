@@ -40,8 +40,6 @@ use predaddy\messagehandling\MessageCallback;
  *     ->failureClosure($callback2)
  *     ->build();
  *
- * @package predaddy\messagehandling\util
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class MessageCallbackClosures extends Object implements MessageCallback

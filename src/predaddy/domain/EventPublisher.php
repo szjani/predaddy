@@ -28,8 +28,6 @@ use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\util\NullMessageBus;
 
 /**
- * @package predaddy\domain
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class EventPublisher

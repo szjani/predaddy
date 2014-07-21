@@ -30,7 +30,6 @@ use predaddy\domain\DomainEvent;
  * should be persisted or not. The result actually is being a rolling snapshot.
  *
  * @see TrivialSnapshotStrategy
- * @package predaddy\domain
  */
 interface SnapshotStrategy
 {

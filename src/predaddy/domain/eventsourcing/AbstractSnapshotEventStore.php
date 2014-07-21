@@ -29,8 +29,6 @@ use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
 
 /**
- * @package predaddy\domain
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class AbstractSnapshotEventStore extends Object implements SnapshotEventStore

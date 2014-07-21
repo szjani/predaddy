@@ -26,8 +26,6 @@ namespace predaddy\messagehandling;
 use Exception;
 
 /**
- * @package src\predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class NullSubscriberExceptionHandler implements SubscriberExceptionHandler

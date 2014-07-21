@@ -27,8 +27,6 @@ use InvalidArgumentException;
 use precore\lang\Object;
 
 /**
- * @package predaddy\domain
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class AbstractRepository extends Object implements Repository

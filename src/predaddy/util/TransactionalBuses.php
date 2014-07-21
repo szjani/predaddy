@@ -40,8 +40,6 @@ use trf4php\TransactionManager;
 /**
  * Utility class which simplifies the EventBus and CommandBus creation process.
  *
- * @package predaddy\messagehandling\util
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class TransactionalBuses

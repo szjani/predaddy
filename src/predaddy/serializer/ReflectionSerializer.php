@@ -30,8 +30,6 @@ use ReflectionProperty;
 /**
  * Uses reflection. Private variables in super classes are ignored!
  *
- * @package predaddy\serializer
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class ReflectionSerializer implements Serializer

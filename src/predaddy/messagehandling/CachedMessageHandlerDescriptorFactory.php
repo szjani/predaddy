@@ -28,8 +28,6 @@ use SplObjectStorage;
 /**
  * Caches the MessageHandlerDescriptor instances by the class of handlers.
  *
- * @package predaddy\messagehandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class CachedMessageHandlerDescriptorFactory implements MessageHandlerDescriptorFactory

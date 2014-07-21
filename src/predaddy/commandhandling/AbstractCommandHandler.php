@@ -30,8 +30,6 @@ use predaddy\domain\Repository;
  * Basic command handler which provides you the ability to use the proper repository.
  * Should be used if explicit command handlers are used on a CommandBus.
  *
- * @package predaddy\commandhandling
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 abstract class AbstractCommandHandler extends Object
