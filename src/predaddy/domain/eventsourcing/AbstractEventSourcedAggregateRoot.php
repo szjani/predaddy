@@ -21,9 +21,11 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
 use Iterator;
+use predaddy\domain\AbstractAggregateRoot;
+use predaddy\domain\DomainEvent;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageBusFactory;

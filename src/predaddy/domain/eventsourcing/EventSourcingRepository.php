@@ -21,10 +21,14 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
 use InvalidArgumentException;
 use precore\lang\ObjectClass;
+use predaddy\domain\AbstractRepository;
+use predaddy\domain\AggregateId;
+use predaddy\domain\AggregateRoot;
+use predaddy\domain\EventStore;
 
 /**
  * Should be used for event sourcing.

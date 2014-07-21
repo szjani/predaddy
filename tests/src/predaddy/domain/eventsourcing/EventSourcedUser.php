@@ -21,9 +21,13 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
 use precore\util\UUID;
+use predaddy\domain\AggregateId;
+use predaddy\domain\DecrementedEvent;
+use predaddy\domain\IncrementedEvent;
+use predaddy\domain\UserCreated;
 use predaddy\messagehandling\annotation\Subscribe;
 
 /**

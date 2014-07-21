@@ -21,22 +21,23 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
-use Iterator;
+use predaddy\domain\DomainEvent;
 
 /**
- * Interface for aggregate roots in an event sourcing architecture.
+ * Can be used in EventStore to decide whether the current version of the aggregate
+ * should be persisted or not. The result actually is being a rolling snapshot.
  *
- * @author Szurovecz János <szjani@szjani.hu>
+ * @see TrivialSnapshotStrategy
+ * @package predaddy\domain
  */
-interface EventSourcedAggregateRoot extends AggregateRoot
+interface SnapshotStrategy
 {
     /**
-     * Initialize the aggregate from the given events.
-     *
-     * @see EventSourcingRepository
-     * @param Iterator $events DomainEvent iterator
+     * @param DomainEvent $event
+     * @param int|null $originalVersion
+     * @return boolean
      */
-    public function loadFromHistory(Iterator $events);
+    public function snapshotRequired(DomainEvent $event, $originalVersion);
 }

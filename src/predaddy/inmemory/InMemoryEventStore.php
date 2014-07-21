@@ -21,15 +21,15 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain\impl;
+namespace predaddy\inmemory;
 
 use ArrayIterator;
 use Countable;
 use Iterator;
-use predaddy\domain\AbstractSnapshotEventStore;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
-use predaddy\domain\EventSourcedAggregateRoot;
+use predaddy\domain\eventsourcing\AbstractSnapshotEventStore;
+use predaddy\domain\eventsourcing\EventSourcedAggregateRoot;
 
 /**
  * @package predaddy\domain\impl

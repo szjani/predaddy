@@ -21,10 +21,12 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
 use precore\lang\Object;
 use precore\lang\ObjectClass;
+use predaddy\domain\AggregateId;
+use predaddy\domain\DomainEvent;
 
 /**
  * @package predaddy\domain
@@ -99,6 +101,6 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
     private function eventSourced(AggregateId $aggregateId)
     {
         $class = ObjectClass::forName($aggregateId->aggregateClass());
-        return $class->isSubclassOf('predaddy\domain\EventSourcedAggregateRoot');
+        return $class->isSubclassOf('predaddy\domain\eventsourcing\EventSourcedAggregateRoot');
     }
 }

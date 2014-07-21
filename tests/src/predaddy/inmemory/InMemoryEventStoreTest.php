@@ -21,14 +21,14 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain\impl;
+namespace predaddy\inmemory;
 
 use predaddy\domain\AbstractDomainEvent;
-use predaddy\domain\CreateEventSourcedUser;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
-use predaddy\domain\EventSourcedUser;
-use predaddy\domain\Increment;
+use predaddy\domain\eventsourcing\CreateEventSourcedUser;
+use predaddy\domain\eventsourcing\EventSourcedUser;
+use predaddy\domain\eventsourcing\Increment;
 use predaddy\fixture\article\ArticleCreated;
 use predaddy\fixture\article\ArticleId;
 use predaddy\fixture\article\EventSourcedArticle;
@@ -101,7 +101,7 @@ class InMemoryEventStoreTest extends DomainTestCase
 
     public function testAutoSnapshotting()
     {
-        $strategy = $this->getMock('\predaddy\domain\SnapshotStrategy');
+        $strategy = $this->getMock('\predaddy\domain\eventsourcing\SnapshotStrategy');
         $strategy
             ->expects(self::exactly(3))
             ->method('snapshotRequired')

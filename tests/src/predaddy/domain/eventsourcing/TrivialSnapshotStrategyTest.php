@@ -21,45 +21,16 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
-use precore\lang\Enum;
+use PHPUnit_Framework_TestCase;
 
-final class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
+class TrivialSnapshotStrategyTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var TrivialSnapshotStrategy
-     */
-    public static $ALWAYS;
-
-    /**
-     * @var TrivialSnapshotStrategy
-     */
-    public static $NEVER;
-
-    private $snapshotRequired;
-
-    protected static function constructorArgs()
+    public function testSnapshotRequired()
     {
-        return [
-            'ALWAYS' => [true],
-            'NEVER' => [false]
-        ];
-    }
-
-    protected function __construct($snapshotRequired)
-    {
-        $this->snapshotRequired = $snapshotRequired;
-    }
-
-    /**
-     * @param DomainEvent $event
-     * @param int|null $originalVersion
-     * @return boolean
-     */
-    public function snapshotRequired(DomainEvent $event, $originalVersion)
-    {
-        return $this->snapshotRequired;
+        $event = $this->getMock('predaddy\domain\DomainEvent');
+        self::assertTrue(TrivialSnapshotStrategy::$ALWAYS->snapshotRequired($event, 1));
+        self::assertFalse(TrivialSnapshotStrategy::$NEVER->snapshotRequired($event, 1));
     }
 }
-TrivialSnapshotStrategy::init();

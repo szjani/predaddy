@@ -21,20 +21,46 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
-/**
- * @package predaddy\domain
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class EventSourcedUserId extends UUIDAggregateId
+use precore\lang\Enum;
+use predaddy\domain\DomainEvent;
+
+final class TrivialSnapshotStrategy extends Enum implements SnapshotStrategy
 {
     /**
-     * @return string FQCN
+     * @var TrivialSnapshotStrategy
      */
-    public function aggregateClass()
+    public static $ALWAYS;
+
+    /**
+     * @var TrivialSnapshotStrategy
+     */
+    public static $NEVER;
+
+    private $snapshotRequired;
+
+    protected static function constructorArgs()
     {
-        return EventSourcedUser::className();
+        return [
+            'ALWAYS' => [true],
+            'NEVER' => [false]
+        ];
+    }
+
+    protected function __construct($snapshotRequired)
+    {
+        $this->snapshotRequired = $snapshotRequired;
+    }
+
+    /**
+     * @param DomainEvent $event
+     * @param int|null $originalVersion
+     * @return boolean
+     */
+    public function snapshotRequired(DomainEvent $event, $originalVersion)
+    {
+        return $this->snapshotRequired;
     }
 }
+TrivialSnapshotStrategy::init();

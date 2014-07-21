@@ -21,7 +21,10 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
+
+use predaddy\domain\DomainTestCase;
+use predaddy\domain\UserCreated;
 
 class DefaultEventSourcedAggregateRootTest extends DomainTestCase
 {

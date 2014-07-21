@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Szurovecz János
+ * Copyright (c) 2012-2014 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,20 +21,46 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\inmemory;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptor;
-use ReflectionMethod;
+use PHPUnit_Framework_TestCase;
+use predaddy\domain\DefaultAggregateId;
 
 /**
- * Handler methods must be private or protected in event sourced aggregate roots.
+ * @package predaddy\domain\impl
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-final class EventSourcingEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
+class InMemoryRepositoryTest extends PHPUnit_Framework_TestCase
 {
-    protected function methodVisibility()
+    /**
+     * @var InMemoryRepository
+     */
+    private $repository;
+
+    public function setUp()
     {
-        return ReflectionMethod::IS_PRIVATE | ReflectionMethod::IS_PROTECTED;
+        $this->repository = new InMemoryRepository();
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testLoadInvalidId()
+    {
+        $this->repository->load(new DefaultAggregateId(1, __CLASS__));
+    }
+
+    public function testAddAndRemove()
+    {
+        $aggregateId = new DefaultAggregateId(1, __CLASS__);
+        $aggregate = $this->getMockForAbstractClass('\predaddy\domain\AbstractAggregateRoot');
+        $aggregate
+            ->expects(self::once())
+            ->method('getId')
+            ->will(self::returnValue($aggregateId));
+        $this->repository->save($aggregate);
+        $res = $this->repository->load($aggregateId);
+        self::assertSame($aggregate, $res);
     }
 }

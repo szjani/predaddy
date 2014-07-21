@@ -21,16 +21,17 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
-use PHPUnit_Framework_TestCase;
+use predaddy\commandhandling\AbstractDirectCommand;
 
-class TrivialSnapshotStrategyTest extends PHPUnit_Framework_TestCase
+class Increment extends AbstractDirectCommand
 {
-    public function testSnapshotRequired()
+    /**
+     * @return string
+     */
+    public function aggregateClass()
     {
-        $event = $this->getMock(__NAMESPACE__ . '\DomainEvent');
-        self::assertTrue(TrivialSnapshotStrategy::$ALWAYS->snapshotRequired($event, 1));
-        self::assertFalse(TrivialSnapshotStrategy::$NEVER->snapshotRequired($event, 1));
+        return EventSourcedUser::className();
     }
 }

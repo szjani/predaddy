@@ -21,46 +21,52 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain\impl;
+namespace predaddy\inmemory;
 
-use PHPUnit_Framework_TestCase;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\AbstractRepository;
+use predaddy\domain\AggregateId;
+use predaddy\domain\AggregateRoot;
 
 /**
  * @package predaddy\domain\impl
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class InMemoryRepositoryTest extends PHPUnit_Framework_TestCase
+final class InMemoryRepository extends AbstractRepository
 {
     /**
-     * @var InMemoryRepository
+     * @var array
      */
-    private $repository;
+    private $aggregates = [];
 
-    public function setUp()
+    /**
+     * Load the aggregate identified by $aggregateId from the persistent storage.
+     *
+     * @param AggregateId $aggregateId
+     * @return AggregateRoot
+     * @throws \InvalidArgumentException If the $aggregateId is invalid
+     */
+    public function load(AggregateId $aggregateId)
     {
-        $this->repository = new InMemoryRepository();
+        $key = $this->createKey($aggregateId);
+        if (!array_key_exists($key, $this->aggregates)) {
+            $this->throwInvalidAggregateIdException($aggregateId);
+        }
+        return $this->aggregates[$this->createKey($aggregateId)];
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * Persisting the given $aggregateRoot.
+     *
+     * @param AggregateRoot $aggregateRoot
      */
-    public function testLoadInvalidId()
+    public function save(AggregateRoot $aggregateRoot)
     {
-        $this->repository->load(new DefaultAggregateId(1, __CLASS__));
+        $this->aggregates[$this->createKey($aggregateRoot->getId())] = $aggregateRoot;
     }
 
-    public function testAddAndRemove()
+    private function createKey(AggregateId $aggregateId)
     {
-        $aggregateId = new DefaultAggregateId(1, __CLASS__);
-        $aggregate = $this->getMockForAbstractClass('\predaddy\domain\AbstractAggregateRoot');
-        $aggregate
-            ->expects(self::once())
-            ->method('getId')
-            ->will(self::returnValue($aggregateId));
-        $this->repository->save($aggregate);
-        $res = $this->repository->load($aggregateId);
-        self::assertSame($aggregate, $res);
+        return $aggregateId->aggregateClass() . $aggregateId->value();
     }
 }

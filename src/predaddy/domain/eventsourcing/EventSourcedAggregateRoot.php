@@ -21,52 +21,23 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain\impl;
+namespace predaddy\domain\eventsourcing;
 
-use predaddy\domain\AbstractRepository;
-use predaddy\domain\AggregateId;
+use Iterator;
 use predaddy\domain\AggregateRoot;
 
 /**
- * @package predaddy\domain\impl
+ * Interface for aggregate roots in an event sourcing architecture.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-final class InMemoryRepository extends AbstractRepository
+interface EventSourcedAggregateRoot extends AggregateRoot
 {
     /**
-     * @var array
-     */
-    private $aggregates = [];
-
-    /**
-     * Load the aggregate identified by $aggregateId from the persistent storage.
+     * Initialize the aggregate from the given events.
      *
-     * @param AggregateId $aggregateId
-     * @return AggregateRoot
-     * @throws \InvalidArgumentException If the $aggregateId is invalid
+     * @see EventSourcingRepository
+     * @param Iterator $events DomainEvent iterator
      */
-    public function load(AggregateId $aggregateId)
-    {
-        $key = $this->createKey($aggregateId);
-        if (!array_key_exists($key, $this->aggregates)) {
-            $this->throwInvalidAggregateIdException($aggregateId);
-        }
-        return $this->aggregates[$this->createKey($aggregateId)];
-    }
-
-    /**
-     * Persisting the given $aggregateRoot.
-     *
-     * @param AggregateRoot $aggregateRoot
-     */
-    public function save(AggregateRoot $aggregateRoot)
-    {
-        $this->aggregates[$this->createKey($aggregateRoot->getId())] = $aggregateRoot;
-    }
-
-    private function createKey(AggregateId $aggregateId)
-    {
-        return $aggregateId->aggregateClass() . $aggregateId->value();
-    }
+    public function loadFromHistory(Iterator $events);
 }

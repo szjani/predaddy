@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012-2014 Szurovecz János
+ * Copyright (c) 2013 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,21 +21,20 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
+
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptor;
+use ReflectionMethod;
 
 /**
- * Can be used in EventStore to decide whether the current version of the aggregate
- * should be persisted or not. The result actually is being a rolling snapshot.
+ * Handler methods must be private or protected in event sourced aggregate roots.
  *
- * @see TrivialSnapshotStrategy
- * @package predaddy\domain
+ * @author Szurovecz János <szjani@szjani.hu>
  */
-interface SnapshotStrategy
+final class EventSourcingEventHandlerDescriptor extends AnnotatedMessageHandlerDescriptor
 {
-    /**
-     * @param DomainEvent $event
-     * @param int|null $originalVersion
-     * @return boolean
-     */
-    public function snapshotRequired(DomainEvent $event, $originalVersion);
+    protected function methodVisibility()
+    {
+        return ReflectionMethod::IS_PRIVATE | ReflectionMethod::IS_PROTECTED;
+    }
 }

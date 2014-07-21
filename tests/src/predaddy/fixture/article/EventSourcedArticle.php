@@ -23,7 +23,7 @@
 
 namespace predaddy\fixture\article;
 
-use predaddy\domain\AbstractEventSourcedAggregateRoot;
+use predaddy\domain\eventsourcing\AbstractEventSourcedAggregateRoot;
 use predaddy\fixture\ChangeText;
 use predaddy\messagehandling\annotation\Subscribe;
 

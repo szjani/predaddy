@@ -96,7 +96,7 @@ class IncrementedVersionedArticle extends AbstractAggregateRoot
     public function changeText($newText)
     {
         $this->text = $newText;
-        $this->raise(new TextChanged());
+        $this->raise(new TextChanged($newText));
     }
 
     protected function calculateNextStateHash(DomainEvent $raisedEvent)

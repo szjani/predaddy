@@ -21,13 +21,19 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
 use ArrayIterator;
-use Iterator;
-use precore\lang\ObjectClass;
 use precore\util\UUID;
-use predaddy\domain\impl\InMemoryEventStore;
+use predaddy\domain\AggregateId;
+use predaddy\domain\DecrementedEvent;
+use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\DomainEvent;
+use predaddy\domain\DomainTestCase;
+use predaddy\domain\EventStore;
+use predaddy\domain\IncrementedEvent;
+use predaddy\domain\UserCreated;
+use predaddy\inmemory\InMemoryEventStore;
 
 class EventSourcingRepositoryTest extends DomainTestCase
 {
@@ -134,7 +140,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $aggregateId = $this->createRandomAggregateId();
 
         $events = new ArrayIterator([new IncrementedEvent($aggregateId, 1)]);
-        $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
+        $eventStore = $this->getMock('\predaddy\domain\eventsourcing\SnapshotEventStore');
         $eventStore
             ->expects(self::once())
             ->method('getEventsFor')
@@ -174,7 +180,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
 //            ->method('getAndClearRaisedEvents')
 //            ->will(self::returnValue($events));
 
-        $eventStore = $this->getMock('\predaddy\domain\SnapshotEventStore');
+        $eventStore = $this->getMock('\predaddy\domain\eventsourcing\SnapshotEventStore');
 //        $eventStore
 //            ->expects(self::once())
 //            ->method('saveChanges');

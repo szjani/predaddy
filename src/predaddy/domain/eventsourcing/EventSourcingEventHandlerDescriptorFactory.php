@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012-2014 Szurovecz János
+ * Copyright (c) 2013 Szurovecz János
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,17 +21,27 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
-use predaddy\commandhandling\AbstractDirectCommand;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 
-class Increment extends AbstractDirectCommand
+/**
+ * Description of EventSourcingEventHandlerDescriptorFactory
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
+final class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageHandlerDescriptorFactory
 {
     /**
-     * @return string
+     * @param object $handler
+     * @return EventSourcingEventHandlerDescriptor
      */
-    public function aggregateClass()
+    protected function innerCreate($handler)
     {
-        return EventSourcedUser::className();
+        return new EventSourcingEventHandlerDescriptor(
+            $handler,
+            $this->getReader(),
+            $this->getFunctionDescriptorFactory()
+        );
     }
 }

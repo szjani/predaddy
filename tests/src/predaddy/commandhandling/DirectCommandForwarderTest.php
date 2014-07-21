@@ -28,9 +28,9 @@ use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\AbstractAggregateRoot;
 use predaddy\domain\DomainTestCase;
-use predaddy\domain\impl\InMemoryRepository;
 use predaddy\fixture\article\ArticleCreated;
 use predaddy\fixture\article\EventSourcedArticle;
+use predaddy\inmemory\InMemoryRepository;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\fixture\ChangeText;
 

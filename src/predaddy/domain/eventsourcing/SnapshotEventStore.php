@@ -21,17 +21,29 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
-use predaddy\commandhandling\AbstractDirectCommand;
+use predaddy\domain\AggregateId;
+use predaddy\domain\EventStore;
 
-class CreateEventSourcedUser extends AbstractDirectCommand
+/**
+ * Interface SnapshotEventStore
+ *
+ * SnapshotEventStore.getEventsFor() method must returns all events raised since the last snapshot has been created.
+ *
+ * @package predaddy\domain
+ */
+interface SnapshotEventStore extends EventStore
 {
     /**
-     * @return string
+     * @param AggregateId $aggregateId
+     * @return void
      */
-    public function aggregateClass()
-    {
-        return EventSourcedUser::className();
-    }
+    public function createSnapshot(AggregateId $aggregateId);
+
+    /**
+     * @param AggregateId $aggregateId
+     * @return EventSourcedAggregateRoot|null
+     */
+    public function loadSnapshot(AggregateId $aggregateId);
 }

@@ -21,26 +21,22 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
+
+use predaddy\domain\UUIDAggregateId;
 
 /**
- * Interface SnapshotEventStore
- *
- * SnapshotEventStore.getEventsFor() method must returns all events raised since the last snapshot has been created.
- *
  * @package predaddy\domain
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
  */
-interface SnapshotEventStore extends EventStore
+class EventSourcedUserId extends UUIDAggregateId
 {
     /**
-     * @param AggregateId $aggregateId
-     * @return void
+     * @return string FQCN
      */
-    public function createSnapshot(AggregateId $aggregateId);
-
-    /**
-     * @param AggregateId $aggregateId
-     * @return EventSourcedAggregateRoot|null
-     */
-    public function loadSnapshot(AggregateId $aggregateId);
+    public function aggregateClass()
+    {
+        return EventSourcedUser::className();
+    }
 }

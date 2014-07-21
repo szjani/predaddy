@@ -21,16 +21,11 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\domain\eventsourcing;
 
 use predaddy\commandhandling\AbstractDirectCommand;
 
-/**
- * @package predaddy\domain
- *
- * @author Szurovecz János <szjani@szjani.hu>
- */
-class Decrement extends AbstractDirectCommand
+class CreateEventSourcedUser extends AbstractDirectCommand
 {
     /**
      * @return string
