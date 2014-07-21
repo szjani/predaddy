@@ -26,7 +26,7 @@ namespace predaddy\domain;
 use precore\lang\ObjectInterface;
 
 /**
- * Must be immutable.
+ * Marker interface for Value Objects.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */

@@ -25,6 +25,8 @@ namespace predaddy\domain;
 
 /**
  * Repository interface for loading and persisting aggregates.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
  */
 interface Repository
 {

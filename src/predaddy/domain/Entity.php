@@ -26,7 +26,7 @@ namespace predaddy\domain;
 use precore\lang\ObjectInterface;
 
 /**
- * DDD enity. The following rules should be applied:
+ * DDD entity. The following rules should be applied:
  *  - Each aggregate has a root entity.
  *  - Each entity has identity field.
  *  - Only the root is accessible from outside the boundary.

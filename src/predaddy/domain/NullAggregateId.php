@@ -26,6 +26,9 @@ namespace predaddy\domain;
 use precore\lang\Object;
 
 /**
+ * It probably does not need to be used in application level.
+ *
+ * @see predaddy\domain\AbstractDomainEvent
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class NullAggregateId extends Object implements AggregateId

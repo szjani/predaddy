@@ -30,6 +30,14 @@ use predaddy\messagehandling\Message;
  * Base interface for all commands in the application.
  * All classes that represent a command should implement this interface.
  *
+ * The aggregate id is intended to store the identifier of the aggregate
+ * which need to be loaded from a persistent store. If aggregate id is null,
+ * a new aggregate instance need to be created.
+ *
+ * The state hash can solve the lost update problem. If the state hash is null,
+ * there will not be state hash check.
+ *
+ * @see http://www.w3.org/1999/04/Editing/
  * @author Szurovecz János <szjani@szjani.hu>
  */
 interface Command extends Message, StateHashAware

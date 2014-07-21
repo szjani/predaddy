@@ -23,6 +23,12 @@
 
 namespace predaddy\domain;
 
+/**
+ * Represents the identifier and the type of an aggregate.
+ * The aggregate id and type is defined by its aggregate root.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
 interface AggregateId extends ValueObject
 {
     /**

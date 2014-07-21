@@ -27,6 +27,11 @@ use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 
+/**
+ * Basic implementation of AggregateId. Intended for internal use.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
 final class DefaultAggregateId extends Object implements AggregateId
 {
     /**

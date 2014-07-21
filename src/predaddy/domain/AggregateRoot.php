@@ -24,7 +24,8 @@
 namespace predaddy\domain;
 
 /**
- * Aggregate root class.
+ * Aggregate root class which provides the AggregateId
+ * and the ability to validate its state.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */

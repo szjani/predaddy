@@ -28,6 +28,11 @@ use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\util\NullMessageBus;
 
 /**
+ * Intended to get all DomainEvents and forward them to the given bus.
+ * AggregateRoots should send events directly to it in order to preserve events' order.
+ *
+ * Should be initialized with a properly constructed bus in your application setup.
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class EventPublisher

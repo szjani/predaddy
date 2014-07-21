@@ -26,7 +26,7 @@ namespace predaddy\commandhandling;
 use predaddy\messagehandling\AbstractMessage;
 
 /**
- * Base class for all types of commands. Contains the command identifier and timestamp.
+ * Base class for all types of commands.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */

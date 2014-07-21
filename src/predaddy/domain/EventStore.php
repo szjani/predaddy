@@ -26,6 +26,11 @@ namespace predaddy\domain;
 use Countable;
 use Iterator;
 
+/**
+ * Responsible for managing event persistence.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
 interface EventStore
 {
     /**
@@ -37,7 +42,7 @@ interface EventStore
     public function persist(DomainEvent $event);
 
     /**
-     * Must be return all events stored to aggregate identified by $aggregateId and $type.
+     * Must return all events stored to the aggregate identified by $aggregateId.
      * Events must be ordered by theirs persistent time.
      *
      * If the $stateHash parameter is set, the result will contain only the newer DomainEvents.

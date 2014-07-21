@@ -26,9 +26,8 @@ namespace predaddy\domain;
 use predaddy\eventhandling\Event;
 
 /**
- * Base class for all Domain Events.
- * This class contains the basic behavior expected from any event
- * to be processed by event sourcing engines and aggregates.
+ * Interface for domain events. It must know the identifier of the aggregate
+ * which belongs to and can hold the state hash of the aggregate.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */

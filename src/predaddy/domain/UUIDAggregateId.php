@@ -28,6 +28,13 @@ use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
 
+/**
+ * Provides an easy way to generate unique IDs.
+ *
+ * It can be extended and only the aggregateClass() method must be implemented.
+ *
+ * @author Szurovecz János <szjani@szjani.hu>
+ */
 abstract class UUIDAggregateId extends Object implements AggregateId
 {
     /**
