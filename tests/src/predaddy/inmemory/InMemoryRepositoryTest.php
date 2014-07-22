@@ -24,6 +24,7 @@
 namespace predaddy\inmemory;
 
 use PHPUnit_Framework_TestCase;
+use predaddy\domain\AggregateId;
 use predaddy\domain\DefaultAggregateId;
 
 /**
@@ -33,6 +34,8 @@ use predaddy\domain\DefaultAggregateId;
  */
 class InMemoryRepositoryTest extends PHPUnit_Framework_TestCase
 {
+    private static $AN_AGGREGATE_ID;
+
     /**
      * @var InMemoryRepository
      */
@@ -41,26 +44,36 @@ class InMemoryRepositoryTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->repository = new InMemoryRepository();
+        self::$AN_AGGREGATE_ID = new DefaultAggregateId(1, __CLASS__);
     }
 
     /**
+     * @test
      * @expectedException \InvalidArgumentException
      */
-    public function testLoadInvalidId()
+    public function shouldThrowExceptionIfNoPersistedAggregate()
     {
-        $this->repository->load(new DefaultAggregateId(1, __CLASS__));
+        $this->repository->load(self::$AN_AGGREGATE_ID);
     }
 
-    public function testAddAndRemove()
+    /**
+     * @test
+     */
+    public function shouldReturnPersistedAggregate()
     {
-        $aggregateId = new DefaultAggregateId(1, __CLASS__);
+        $aggregateId = self::$AN_AGGREGATE_ID;
+        $aggregate = $this->anyAggregateWithId($aggregateId);
+        $this->repository->save($aggregate);
+        self::assertSame($aggregate, $this->repository->load($aggregateId));
+    }
+
+    private function anyAggregateWithId(AggregateId $aggregateId)
+    {
         $aggregate = $this->getMockForAbstractClass('\predaddy\domain\AbstractAggregateRoot');
         $aggregate
             ->expects(self::once())
             ->method('getId')
             ->will(self::returnValue($aggregateId));
-        $this->repository->save($aggregate);
-        $res = $this->repository->load($aggregateId);
-        self::assertSame($aggregate, $res);
+        return $aggregate;
     }
 }

@@ -34,13 +34,15 @@ use predaddy\messagehandling\ClosureWrapper;
  */
 class CommandFunctionDescriptorTest extends PHPUnit_Framework_TestCase
 {
+    const ANY_PRIORITY = 0;
+
     /**
      * @test
      */
-    public function invalidParamType()
+    public function shouldInvalidIfParamTypeIsNotCommand()
     {
         $function = function (UUID $uuid) {};
-        $descriptor = new CommandFunctionDescriptor(new ClosureWrapper($function), 1);
+        $descriptor = new CommandFunctionDescriptor(new ClosureWrapper($function), self::ANY_PRIORITY);
         self::assertFalse($descriptor->isValid());
     }
 }

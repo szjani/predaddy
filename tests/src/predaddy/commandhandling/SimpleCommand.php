@@ -23,7 +23,8 @@
 
 namespace predaddy\commandhandling;
 
-use predaddy\fixture\article\IncrementedVersionedArticle;
+
+use predaddy\fixture\article\EventSourcedArticle;
 
 class SimpleCommand extends AbstractDirectCommand
 {
@@ -34,6 +35,6 @@ class SimpleCommand extends AbstractDirectCommand
      */
     public function aggregateClass()
     {
-        return IncrementedVersionedArticle::className();
+        return EventSourcedArticle::className();
     }
 }

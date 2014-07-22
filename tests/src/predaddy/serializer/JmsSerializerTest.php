@@ -26,6 +26,7 @@ namespace predaddy\serializer;
 use JMS\Serializer\SerializerBuilder;
 use PHPUnit_Framework_TestCase;
 use predaddy\fixture\article\ArticleId;
+use predaddy\fixture\article\EventSourcedArticleId;
 use predaddy\fixture\BaseEvent;
 
 class JmsSerializerTest extends PHPUnit_Framework_TestCase
@@ -68,15 +69,15 @@ class JmsSerializerTest extends PHPUnit_Framework_TestCase
 
     public function testIntegration()
     {
-        $articleId = ArticleId::create();
+        $articleId = EventSourcedArticleId::create();
         $serialized = $this->serializer->serialize($articleId);
-        $res = $this->serializer->deserialize($serialized, ArticleId::objectClass());
+        $res = $this->serializer->deserialize($serialized, EventSourcedArticleId::objectClass());
         self::assertTrue($articleId->equals($res));
     }
 
     public function testEventSerialization()
     {
-        $event = new BaseEvent(ArticleId::create());
+        $event = new BaseEvent(EventSourcedArticleId::create());
         $ser = $this->serializer->serialize($event);
         $res = $this->serializer->deserialize($ser, BaseEvent::objectClass());
         self::assertTrue($event->equals($res));

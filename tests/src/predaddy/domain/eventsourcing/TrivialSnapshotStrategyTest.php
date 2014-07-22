@@ -27,10 +27,12 @@ use PHPUnit_Framework_TestCase;
 
 class TrivialSnapshotStrategyTest extends PHPUnit_Framework_TestCase
 {
+    const ANY_VERSION = 1;
+
     public function testSnapshotRequired()
     {
-        $event = $this->getMock('predaddy\domain\DomainEvent');
-        self::assertTrue(TrivialSnapshotStrategy::$ALWAYS->snapshotRequired($event, 1));
-        self::assertFalse(TrivialSnapshotStrategy::$NEVER->snapshotRequired($event, 1));
+        $anyEvent = $this->getMock('predaddy\domain\DomainEvent');
+        self::assertTrue(TrivialSnapshotStrategy::$ALWAYS->snapshotRequired($anyEvent, self::ANY_VERSION));
+        self::assertFalse(TrivialSnapshotStrategy::$NEVER->snapshotRequired($anyEvent, self::ANY_VERSION));
     }
 }

@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace predaddy\fixture;
+namespace predaddy\fixture\article;
 
 use predaddy\commandhandling\AbstractDirectCommand;
 use predaddy\fixture\article\EventSourcedArticle;

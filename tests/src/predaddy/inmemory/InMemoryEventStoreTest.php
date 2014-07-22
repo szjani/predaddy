@@ -24,13 +24,14 @@
 namespace predaddy\inmemory;
 
 use predaddy\domain\AbstractDomainEvent;
+use predaddy\domain\AggregateId;
+use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
 use predaddy\domain\eventsourcing\CreateEventSourcedUser;
 use predaddy\domain\eventsourcing\EventSourcedUser;
 use predaddy\domain\eventsourcing\Increment;
 use predaddy\fixture\article\ArticleCreated;
-use predaddy\fixture\article\ArticleId;
 use predaddy\fixture\article\EventSourcedArticle;
 use predaddy\fixture\article\EventSourcedArticleId;
 use predaddy\fixture\article\TextChanged;
@@ -63,8 +64,7 @@ class InMemoryEventStoreTest extends DomainTestCase
         }
         $returnedEvents = $this->eventStore->getEventsFor($user->getId());
         self::assertCount(2, $returnedEvents);
-        self::assertSame($events[0], $returnedEvents[0]);
-        self::assertSame($events[1], $returnedEvents[1]);
+        self::assertEquals($events, $returnedEvents);
 
         $this->eventStore->createSnapshot($user->getId());
         $returnedSnapshot = $this->eventStore->loadSnapshot($user->getId());
@@ -117,10 +117,15 @@ class InMemoryEventStoreTest extends DomainTestCase
         $aggregateId = EventSourcedArticleId::create();
         $eventStore->persist(new ArticleCreated($aggregateId, 'author', 'text'));
         self::assertNull($eventStore->loadSnapshot($aggregateId));
-        $eventStore->persist(AbstractDomainEvent::initEvent(new TextChanged('newText1'), $aggregateId, null));
+        $eventStore->persist(self::anyArticleEvent($aggregateId));
         self::assertNull($eventStore->loadSnapshot($aggregateId));
-        $eventStore->persist(AbstractDomainEvent::initEvent(new TextChanged('newText2'), $aggregateId, null));
+        $eventStore->persist(self::anyArticleEvent($aggregateId));
         self::assertInstanceOf(EventSourcedArticle::className(), $eventStore->loadSnapshot($aggregateId));
+    }
+
+    private static function anyArticleEvent(AggregateId $aggregateId)
+    {
+        return AbstractDomainEvent::initEvent(new TextChanged('newText1'), $aggregateId, null);
     }
 
     /**
@@ -128,7 +133,7 @@ class InMemoryEventStoreTest extends DomainTestCase
      */
     public function shouldIgnoreNonEventSourcedAggregateIdInSnapshotting()
     {
-        $aggregateId = ArticleId::create();
+        $aggregateId = new DefaultAggregateId('value', __CLASS__);
         $this->eventStore->createSnapshot($aggregateId);
         self::assertNull($this->eventStore->loadSnapshot($aggregateId));
     }

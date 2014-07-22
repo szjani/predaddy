@@ -23,19 +23,13 @@
 
 namespace predaddy\commandhandling;
 
-use ArrayIterator;
 use Exception;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
-use RuntimeException;
 
 class CommandBusTest extends PHPUnit_Framework_TestCase
 {
-    private $tm;
-
     private $functionDescriptorFactory;
-
     private $handlerDescriptorFactory;
 
     /**
@@ -45,77 +39,11 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->tm = $this->getMock('trf4php\TransactionManager');
         $this->functionDescriptorFactory = new CommandFunctionDescriptorFactory();
         $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
             $this->functionDescriptorFactory
         );
-        $trInterceptor = new WrapInTransactionInterceptor($this->tm);
-        $this->commandBus = new CommandBus(
-            $this->handlerDescriptorFactory,
-            [$trInterceptor],
-            $trInterceptor
-        );
-    }
-
-    public function testNoHandler()
-    {
-        $this->tm
-            ->expects(self::once())
-            ->method('beginTransaction');
-        $this->tm
-            ->expects(self::once())
-            ->method('commit');
-        $this->tm
-            ->expects(self::never())
-            ->method('rollback');
-
-        $this->commandBus->post(new SimpleCommand(1, 1));
-    }
-
-    public function testTransactionWrapping()
-    {
-        $called = false;
-        $this->commandBus->registerClosure(
-            function (SimpleCommand $command) use (&$called) {
-                $called = true;
-            }
-        );
-        $this->tm
-            ->expects(self::once())
-            ->method('beginTransaction');
-        $this->tm
-            ->expects(self::once())
-            ->method('commit');
-        $this->tm
-            ->expects(self::never())
-            ->method('rollback');
-
-        $this->commandBus->post(new SimpleCommand(1, 1));
-        self::assertTrue($called);
-    }
-
-    public function testRollback()
-    {
-        $called = false;
-        $this->commandBus->registerClosure(
-            function (SimpleCommand $command) use (&$called) {
-                $called = true;
-                throw new RuntimeException("Oops");
-            }
-        );
-        $this->tm
-            ->expects(self::once())
-            ->method('beginTransaction');
-        $this->tm
-            ->expects(self::never())
-            ->method('commit');
-        $this->tm
-            ->expects(self::once())
-            ->method('rollback');
-
-        $this->commandBus->post(new SimpleCommand(1, 1));
-        self::assertTrue($called);
+        $this->commandBus = new CommandBus($this->handlerDescriptorFactory);
     }
 
     public function testExactCommandType()
@@ -126,17 +54,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
                 $called = true;
             }
         );
-        $this->tm
-            ->expects(self::once())
-            ->method('beginTransaction');
-        $this->tm
-            ->expects(self::once())
-            ->method('commit');
-        $this->tm
-            ->expects(self::never())
-            ->method('rollback');
-
-        $this->commandBus->post(new SimpleCommand(1, 1));
+        $this->commandBus->post(new SimpleCommand());
         self::assertFalse($called);
     }
 

@@ -24,7 +24,7 @@
 namespace src\predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
-use predaddy\fixture\article\ArticleId;
+use predaddy\fixture\article\EventSourcedArticleId;
 
 /**
  * @package src\predaddy\domain
@@ -39,8 +39,8 @@ class UUIDAggregateIdTest extends PHPUnit_Framework_TestCase
     public function shouldCreatedFromValue()
     {
         $value = 'value';
-        $articleId = ArticleId::from($value);
-        self::assertInstanceOf(ArticleId::className(), $articleId);
+        $articleId = EventSourcedArticleId::from($value);
+        self::assertInstanceOf(EventSourcedArticleId::className(), $articleId);
         self::assertEquals($value, $articleId->value());
     }
 }

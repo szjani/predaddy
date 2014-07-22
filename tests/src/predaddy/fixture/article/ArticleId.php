@@ -23,20 +23,11 @@
 
 namespace predaddy\fixture\article;
 
-use predaddy\domain\UUIDAggregateId;
+use predaddy\domain\AggregateId;
 
 /**
- * @package predaddy\fixture
- *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class ArticleId extends UUIDAggregateId
+interface ArticleId extends AggregateId
 {
-    /**
-     * @return string FQCN
-     */
-    public function aggregateClass()
-    {
-        return IncrementedVersionedArticle::className();
-    }
 }

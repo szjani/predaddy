@@ -37,6 +37,8 @@ use predaddy\inmemory\InMemoryEventStore;
 
 class EventSourcingRepositoryTest extends DomainTestCase
 {
+    private static $ANY_EVENTS;
+
     /**
      * @var EventStore
      */
@@ -52,6 +54,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
         parent::setUp();
         $this->eventStore = $this->getMock('\predaddy\domain\EventStore');
         $this->repository = new EventSourcingRepository($this->eventStore);
+        self::$ANY_EVENTS = new ArrayIterator();
     }
 
     /**
@@ -72,12 +75,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $aggregateId = $this->createRandomAggregateId();
 
         $aggregate = new EventSourcedUser(new CreateEventSourcedUser());
-
-        $this->eventStore
-            ->expects(self::once())
-            ->method('getEventsFor')
-            ->with($aggregateId)
-            ->will(self::returnValue($this->getAndClearRaisedEvents()));
+        $this->expectedEvents($aggregateId, $this->getAndClearRaisedEvents());
 
         $replayedAggregate = $this->repository->load($aggregateId);
         self::assertEquals($aggregate->getId(), $replayedAggregate->getId());
@@ -119,16 +117,13 @@ class EventSourcingRepositoryTest extends DomainTestCase
     }
 
     /**
+     * @test
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidId()
+    public function shouldThrowExceptionIfNoEventsForThatAggregate()
     {
         $aggregateId = $this->createRandomAggregateId();
-        $this->eventStore
-            ->expects(self::once())
-            ->method('getEventsFor')
-            ->with($aggregateId)
-            ->will(self::returnValue(new ArrayIterator([])));
+        $this->expectedEvents($aggregateId, self::$ANY_EVENTS);
         $this->repository->load($aggregateId);
     }
 
@@ -138,59 +133,14 @@ class EventSourcingRepositoryTest extends DomainTestCase
     public function shouldBeLoadedFromSnapshot()
     {
         $aggregateId = $this->createRandomAggregateId();
-
-        $events = new ArrayIterator([new IncrementedEvent($aggregateId, 1)]);
         $eventStore = $this->getMock('\predaddy\domain\eventsourcing\SnapshotEventStore');
-        $eventStore
-            ->expects(self::once())
-            ->method('getEventsFor')
-            ->with($aggregateId)
-            ->will(self::returnValue($events));
-
+        $this->expectedEvents($aggregateId, new ArrayIterator([new IncrementedEvent($aggregateId)]), $eventStore);
         $repository = new EventSourcingRepository($eventStore);
         $eventStore
             ->expects(self::once())
             ->method('loadSnapshot')
             ->with($aggregateId);
         $repository->load($aggregateId);
-    }
-
-    /**
-     * @test
-     */
-    public function snapshotShouldBeCreated()
-    {
-        $aggregateId = $this->createRandomAggregateId();
-        $aggregateRoot = $this->getMock(
-            EventSourcedUser::className(),
-            ['getId'],
-            [],
-            '',
-            false
-        );
-        $aggregateRoot
-            ->expects(self::any())
-            ->method('getId')
-            ->will(self::returnValue($aggregateId));
-
-//        $events = new ArrayIterator([new IncrementedEvent($aggregateId, 1)]);
-//
-//        $aggregateRoot
-//            ->expects(self::once())
-//            ->method('getAndClearRaisedEvents')
-//            ->will(self::returnValue($events));
-
-        $eventStore = $this->getMock('\predaddy\domain\eventsourcing\SnapshotEventStore');
-//        $eventStore
-//            ->expects(self::once())
-//            ->method('saveChanges');
-
-        $repository = new EventSourcingRepository($eventStore);
-//        $eventStore
-//            ->expects(self::once())
-//            ->method('createSnapshot')
-//            ->with(EventSourcedUser::className(), $aggregateId);
-        $repository->save($aggregateRoot, 1);
     }
 
     public function testSetVersionAndAggregateIdFields()
@@ -238,5 +188,17 @@ class EventSourcingRepositoryTest extends DomainTestCase
         $user->increment(new Increment());
         $loadedUser = $this->repository->load($user->getId());
         self::assertEquals($user, $loadedUser);
+    }
+
+    private function expectedEvents(AggregateId $aggregateId, \Iterator $events, EventStore $eventStore = null)
+    {
+        if ($eventStore === null) {
+            $eventStore = $this->eventStore;
+        }
+        $eventStore
+            ->expects(self::once())
+            ->method('getEventsFor')
+            ->with($aggregateId)
+            ->will(self::returnValue($events));
     }
 }

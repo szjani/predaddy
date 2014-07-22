@@ -25,17 +25,20 @@ namespace predaddy\commandhandling;
 
 use precore\util\UUID;
 use predaddy\domain\AggregateId;
-use predaddy\domain\AggregateRoot;
 use predaddy\domain\AbstractAggregateRoot;
 use predaddy\domain\DomainTestCase;
-use predaddy\fixture\article\ArticleCreated;
+use predaddy\fixture\article\ChangeText;
 use predaddy\fixture\article\EventSourcedArticle;
 use predaddy\inmemory\InMemoryRepository;
 use predaddy\messagehandling\DeadMessage;
-use predaddy\fixture\ChangeText;
 
 class DirectCommandForwarderTest extends DomainTestCase
 {
+    private static $ANY_DIRECT_COMMAND;
+
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject
+     */
     private $repository;
     private $messageBusFactory;
 
@@ -53,6 +56,7 @@ class DirectCommandForwarderTest extends DomainTestCase
             $this->repository,
             $this->messageBusFactory
         );
+        self::$ANY_DIRECT_COMMAND = $this->getMock(__NAMESPACE__ . '\DirectCommand');
     }
 
     /**
@@ -71,35 +75,15 @@ class DirectCommandForwarderTest extends DomainTestCase
      */
     public function createNewAggregate()
     {
-        $aggregateClass = __NAMESPACE__ . '\TestAggregate';
-        $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
-        $command
-            ->expects(self::once())
-            ->method('aggregateClass')
-            ->will(self::returnValue($aggregateClass));
-        $command
-            ->expects(self::once())
-            ->method('aggregateId')
-            ->will(self::returnValue(null));
+        $aggregateClass = TestAggregate::className();
+        $command = $this->aDirectCommand($aggregateClass, null);
 
         $this->repository
             ->expects(self::once())
             ->method('save')
-            ->will(
-                self::returnCallback(
-                    function (AggregateRoot $aggregate) use ($aggregateClass) {
-                        DirectCommandForwarderTest::assertInstanceOf($aggregateClass, $aggregate);
-                    }
-                )
-            );
+            ->with($this->isInstanceOf($aggregateClass));
 
-        $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
-        $this->messageBusFactory
-            ->expects(self::once())
-            ->method('createBus')
-            ->with($aggregateClass)
-            ->will(self::returnValue($bus));
-
+        $bus = $this->expectToCreateBus($aggregateClass);
         $bus
             ->expects(self::once())
             ->method('register');
@@ -117,17 +101,9 @@ class DirectCommandForwarderTest extends DomainTestCase
     public function loadAggregateIfIdNotNull()
     {
         $aggregate = $this->getMock('\predaddy\domain\AggregateRoot');
-        $aggregateClass = __NAMESPACE__ . '\TestAggregate';
+        $aggregateClass = TestAggregate::className();
         $aggregateId = UUID::randomUUID()->toString();
-        $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
-        $command
-            ->expects(self::atLeastOnce())
-            ->method('aggregateClass')
-            ->will(self::returnValue($aggregateClass));
-        $command
-            ->expects(self::once())
-            ->method('aggregateId')
-            ->will(self::returnValue($aggregateId));
+        $command = $this->aDirectCommand($aggregateClass, $aggregateId);
 
         $this->repository
             ->expects(self::once())
@@ -141,12 +117,7 @@ class DirectCommandForwarderTest extends DomainTestCase
                 )
             );
 
-        $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
-        $this->messageBusFactory
-            ->expects(self::once())
-            ->method('createBus')
-            ->with($aggregateClass)
-            ->will(self::returnValue($bus));
+        $bus = $this->expectToCreateBus($aggregateClass);
         $bus
             ->expects(self::once())
             ->method('register')
@@ -172,6 +143,40 @@ class DirectCommandForwarderTest extends DomainTestCase
 
         $command = new ChangeText($article->getId()->value(), 'invalid', 'newText');
         $commandForwarder->catchDeadCommand(new DeadMessage($command));
+    }
+
+    /**
+     * @param $aggregateClass
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    private function expectToCreateBus($aggregateClass)
+    {
+        $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
+        $this->messageBusFactory
+            ->expects(self::once())
+            ->method('createBus')
+            ->with($aggregateClass)
+            ->will(self::returnValue($bus));
+        return $bus;
+    }
+
+    /**
+     * @param $aggregateClass
+     * @param $aggregateId
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    private function aDirectCommand($aggregateClass, $aggregateId)
+    {
+        $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
+        $command
+            ->expects(self::once())
+            ->method('aggregateClass')
+            ->will(self::returnValue($aggregateClass));
+        $command
+            ->expects(self::once())
+            ->method('aggregateId')
+            ->will(self::returnValue($aggregateId));
+        return $command;
     }
 }
 

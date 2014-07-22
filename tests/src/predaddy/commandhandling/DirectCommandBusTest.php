@@ -25,9 +25,7 @@ namespace predaddy\commandhandling;
 
 use Exception;
 use PHPUnit_Framework_TestCase;
-use precore\lang\Object;
-use precore\lang\ObjectClass;
-use predaddy\domain\EventSourcedUser;
+use predaddy\domain\AggregateRoot;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\SimpleMessageBusFactory;
@@ -37,6 +35,8 @@ use trf4php\NOPTransactionManager;
 
 class DirectCommandBusTest extends PHPUnit_Framework_TestCase
 {
+    private static $ANY_SIMPLE_COMMAND;
+
     private $handlerDescFact;
     private $transactionManager;
     private $repo;
@@ -46,6 +46,12 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
      * @var DirectCommandBus
      */
     private $bus;
+
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        self::$ANY_SIMPLE_COMMAND = new SimpleCommand();
+    }
 
     protected function setUp()
     {
@@ -74,8 +80,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
                 $called = true;
             }
         );
-
-        $this->bus->post(new SimpleCommand());
+        $this->bus->post(self::$ANY_SIMPLE_COMMAND);
         self::assertTrue($called);
     }
 
@@ -87,7 +92,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->repo
             ->expects(self::once())
             ->method('save');
-        $this->bus->post(new SimpleCommand());
+        $this->bus->post(self::$ANY_SIMPLE_COMMAND);
     }
 
     /**
@@ -102,7 +107,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
             function (SimpleCommand $cmd) {
             }
         );
-        $this->bus->post(new SimpleCommand());
+        $this->bus->post(self::$ANY_SIMPLE_COMMAND);
     }
 
     /**
@@ -118,7 +123,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
                 throw new RuntimeException('Expected exception');
             }
         );
-        $this->bus->post(new SimpleCommand());
+        $this->bus->post(self::$ANY_SIMPLE_COMMAND);
     }
 
     /**
@@ -128,10 +133,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     {
         $aggRoot = new TestAggregate01();
         $command = new ThrowException($aggRoot->getId()->value());
-        $this->repo
-            ->expects(self::once())
-            ->method('load')
-            ->will(self::returnValue($aggRoot));
+        $this->expectedToBeLoaded($aggRoot);
 
         $exceptionThrown = false;
         $callback = MessageCallbackClosures::builder()
@@ -152,10 +154,7 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     {
         $aggRoot = new TestAggregate01();
         $command = new ReturnResult($aggRoot->getId()->value());
-        $this->repo
-            ->expects(self::once())
-            ->method('load')
-            ->will(self::returnValue($aggRoot));
+        $this->expectedToBeLoaded($aggRoot);
 
         $resultPassed = false;
         $callback = MessageCallbackClosures::builder()
@@ -167,5 +166,13 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
             ->build();
         $this->bus->post($command, $callback);
         self::assertTrue($resultPassed);
+    }
+
+    private function expectedToBeLoaded(AggregateRoot $aggregateRoot)
+    {
+        $this->repo
+            ->expects(self::once())
+            ->method('load')
+            ->will(self::returnValue($aggregateRoot));
     }
 }
