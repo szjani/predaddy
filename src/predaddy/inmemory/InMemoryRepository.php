@@ -50,7 +50,7 @@ final class InMemoryRepository extends AbstractRepository
         if (!array_key_exists($key, $this->aggregates)) {
             $this->throwInvalidAggregateIdException($aggregateId);
         }
-        return $this->aggregates[$this->createKey($aggregateId)];
+        return $this->aggregates[$key];
     }
 
     /**
