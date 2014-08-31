@@ -24,18 +24,7 @@
 namespace predaddy\util;
 
 use predaddy\commandhandling\CommandBus;
-use predaddy\commandhandling\CommandFunctionDescriptorFactory;
-use predaddy\commandhandling\DirectCommandBus;
-use predaddy\domain\EventPublisher;
-use predaddy\domain\Repository;
 use predaddy\eventhandling\EventBus;
-use predaddy\eventhandling\EventFunctionDescriptorFactory;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\interceptors\BlockerInterceptor;
-use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
-use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
-use predaddy\messagehandling\SimpleMessageBusFactory;
-use trf4php\TransactionManager;
 
 /**
  * Utility class which simplifies the EventBus and CommandBus creation process.
@@ -47,52 +36,20 @@ final class TransactionalBuses
     private $commandBus;
     private $eventBus;
 
-    final private function __construct()
-    {
-    }
-
     /**
-     * @param TransactionManager $tmManager
-     * @param Repository $repository
-     * @param array $commandInterceptors
-     * @param array $eventInterceptors
-     * @return TransactionalBuses
+     * @param CommandBus $commandBus
+     * @param EventBus $eventBus
      */
-    public static function create(
-        TransactionManager $tmManager,
-        Repository $repository,
-        array $commandInterceptors = [],
-        array $eventInterceptors = []
-    ) {
-        $result = new static();
-        /* @var $result TransactionalBuses */
-        $blockerInterceptor = new BlockerInterceptor();
-        $blockerIntManager = $blockerInterceptor->manager();
-        $trInterceptor = new WrapInTransactionInterceptor($tmManager);
-        $exceptionHandler = new TransactionalExceptionHandler($trInterceptor, $blockerIntManager);
-
-        $cmdHandlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(
-            new CommandFunctionDescriptorFactory()
-        );
-        $result->commandBus = new DirectCommandBus(
-            $repository,
-            new SimpleMessageBusFactory($cmdHandlerDescFact),
-            $cmdHandlerDescFact,
-            array_merge([$blockerIntManager, $trInterceptor], $commandInterceptors),
-            $exceptionHandler
-        );
-        $result->eventBus = new EventBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
-            array_merge($eventInterceptors, [$blockerInterceptor])
-        );
-        EventPublisher::instance()->setEventBus($result->eventBus);
-        return $result;
+    public function __construct(CommandBus $commandBus, EventBus $eventBus)
+    {
+        $this->commandBus = $commandBus;
+        $this->eventBus = $eventBus;
     }
 
     /**
      * @return CommandBus
      */
-    final public function commandBus()
+    public function commandBus()
     {
         return $this->commandBus;
     }
@@ -100,7 +57,7 @@ final class TransactionalBuses
     /**
      * @return EventBus
      */
-    final public function eventBus()
+    public function eventBus()
     {
         return $this->eventBus;
     }
