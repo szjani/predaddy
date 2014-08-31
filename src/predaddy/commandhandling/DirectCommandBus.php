@@ -37,6 +37,8 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
  * In this case the command is not being dispatched to the registered DirectCommandForwarder object
  * but you have to manage that aggregate instead.
  *
+ * If you have specialized repositories for your aggregates, it is recommended to use RepositoryDelegate.
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 class DirectCommandBus extends CommandBus
