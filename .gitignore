@@ -8,3 +8,4 @@ nbproject/
 vendor/*
 cache.properties
 composer.lock
+.idea
