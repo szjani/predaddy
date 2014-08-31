@@ -29,10 +29,7 @@ The following example uses annotation based configuration.
 // you can use any ObservableTransactionManager implementation, see trf4php
 $transactionManager = new DoctrineTransactionManager($entityManager);
 
-// configure the repository to save and load aggregates
-$repository = new InMemoryRepository();
-
-$trBuses = TransactionalBuses::create($transactionManager, $repository);
+$trBuses = TransactionalBusesBuilder::create($transactionManager)->build();
 
 $eventBus = $trBuses->eventBus();
 $commandBus = $trBuses->commandBus();
@@ -117,12 +114,11 @@ Even if you use `DirectCommandBus`, you can register explicit command handlers s
 
 ```php
 $eventStore = new DoctrineOrmEventStore($entityManager);
-$trBuses = TransactionalBuses::create(
-    new DoctrineTransactionManager($entityManager),
-    new EventSourcingRepository($eventStore),
-    [],
-    [new EventPersister($eventStore)]
-);
+$trBuses = TransactionalBusesBuilder::create(new DoctrineTransactionManager($entityManager))
+    ->withEventInterceptors([new EventPersister($eventStore)])
+    ->withRepository(new EventSourcingRepository($eventStore))
+    ->useDirectCommandBus()
+    ->build();
 $eventBus = $trBuses->eventBus();
 $commandBus = $trBuses->commandBus();
 ```
