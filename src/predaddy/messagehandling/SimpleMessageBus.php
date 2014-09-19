@@ -183,7 +183,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
                         $context
                     );
                 } catch (Exception $e) {
-                    self::getLogger()->error(
+                    self::getLogger()->warn(
                         "An error occurred in the exception handler with context '{}'",
                         [$context],
                         $e
@@ -192,7 +192,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
                 try {
                     $callback->onFailure($exp);
                 } catch (Exception $e) {
-                    self::getLogger()->error("An error occurred in message callback on bus '{}'", [$this], $e);
+                    self::getLogger()->warn("An error occurred in message callback on bus '{}'", [$this], $e);
                 }
             }
         }
