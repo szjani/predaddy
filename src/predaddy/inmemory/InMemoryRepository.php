@@ -50,6 +50,7 @@ final class InMemoryRepository extends AbstractRepository
         if (!array_key_exists($key, $this->aggregates)) {
             $this->throwInvalidAggregateIdException($aggregateId);
         }
+        self::getLogger()->debug('Aggregate identified by [{}] has been loaded', [$aggregateId]);
         return $this->aggregates[$key];
     }
 
@@ -61,6 +62,7 @@ final class InMemoryRepository extends AbstractRepository
     public function save(AggregateRoot $aggregateRoot)
     {
         $this->aggregates[$this->createKey($aggregateRoot->getId())] = $aggregateRoot;
+        self::getLogger()->debug('Aggregate identified by [{}] has been persisted', [$aggregateRoot->getId()]);
     }
 
     private function createKey(AggregateId $aggregateId)

@@ -23,6 +23,7 @@
 
 namespace predaddy\messagehandling\interceptors;
 
+use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\EventStore;
 use predaddy\messagehandling\DispatchInterceptor;
@@ -31,7 +32,7 @@ use predaddy\messagehandling\InterceptorChain;
 /**
  * @author Szurovecz János <szjani@szjani.hu>
  */
-final class EventPersister implements DispatchInterceptor
+final class EventPersister extends Object implements DispatchInterceptor
 {
     /**
      * @var EventStore
@@ -50,6 +51,7 @@ final class EventPersister implements DispatchInterceptor
     {
         ObjectClass::forName('predaddy\domain\DomainEvent')->cast($message);
         $this->eventStore->persist($message);
+        self::getLogger()->debug('Message [{}] has been persisted into the message store', [$message]);
         $chain->proceed();
     }
 }

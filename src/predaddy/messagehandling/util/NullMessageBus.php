@@ -86,4 +86,9 @@ final class NullMessageBus implements MessageBus
     public function unregisterClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
     }
+
+    public function __toString()
+    {
+        return __CLASS__;
+    }
 }

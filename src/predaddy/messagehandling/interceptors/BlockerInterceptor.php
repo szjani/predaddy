@@ -61,11 +61,13 @@ final class BlockerInterceptor extends Object implements DispatchInterceptor
     public function startBlocking()
     {
         $this->blocking = true;
+        self::getLogger()->debug('Message blocking has been started');
     }
 
     public function stopBlocking()
     {
         $this->blocking = false;
+        self::getLogger()->debug('Message blocking has been stopped');
     }
 
     public function flush()

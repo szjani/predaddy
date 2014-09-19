@@ -71,7 +71,7 @@ class InMemoryRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $aggregate = $this->getMockForAbstractClass('\predaddy\domain\AbstractAggregateRoot');
         $aggregate
-            ->expects(self::once())
+            ->expects(self::any())
             ->method('getId')
             ->will(self::returnValue($aggregateId));
         return $aggregate;

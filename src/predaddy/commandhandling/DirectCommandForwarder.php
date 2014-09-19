@@ -90,8 +90,13 @@ class DirectCommandForwarder extends Object
         $aggregateId = $command->aggregateId();
         if ($aggregateId === null) {
             $aggregate = ObjectClass::forName($aggregateClass)->newInstanceWithoutConstructor();
+            self::getLogger()->debug('New aggregate [{}] has been created', [$aggregateClass]);
         } else {
             $aggregate = $this->repository->load(new DefaultAggregateId($aggregateId, $aggregateClass));
+            self::getLogger()->debug(
+                'Aggregate [{}] with ID [{}] has been successfully loaded',
+                [$aggregateClass, $aggregateId]
+            );
             if ($command->stateHash() !== null) {
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
@@ -114,6 +119,7 @@ class DirectCommandForwarder extends Object
             ->build();
         $forwarderBus->post($command, $callback);
         if ($thrownException instanceof Exception) {
+            self::getLogger()->debug('Error occurred when command has been applied [{}]', [$command], $thrownException);
             throw $thrownException;
         }
         $this->repository->save($aggregate);

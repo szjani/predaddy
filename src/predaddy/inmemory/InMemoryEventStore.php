@@ -54,6 +54,7 @@ final class InMemoryEventStore extends AbstractSnapshotEventStore
      */
     protected function doPersist(DomainEvent $event)
     {
+        self::getLogger()->debug('Persisting event into inmemory event store [{}]...', [$event]);
         $key = $this->createKey($event->aggregateId());
         $this->events[$key][] = $event;
         return count($this->events[$key]);
@@ -83,6 +84,10 @@ final class InMemoryEventStore extends AbstractSnapshotEventStore
                 $add = true;
             }
         }
+        self::getLogger()->debug(
+            'Events for aggregate [{}] with state hash [{}] has been loaded',
+            [$aggregateId, $stateHash]
+        );
         return new ArrayIterator($result);
     }
 
@@ -92,6 +97,7 @@ final class InMemoryEventStore extends AbstractSnapshotEventStore
      */
     public function loadSnapshot(AggregateId $aggregateId)
     {
+        self::getLogger()->debug('Loading snapshot for aggregate [{}]...', [$aggregateId]);
         $key = $this->createKey($aggregateId);
         return array_key_exists($key, $this->snapshots)
             ? $this->snapshots[$key]
@@ -102,6 +108,7 @@ final class InMemoryEventStore extends AbstractSnapshotEventStore
     {
         $this->events = [];
         $this->snapshots = [];
+        self::getLogger()->debug('Inmemory event store has been cleared');
     }
 
     private function createKey(AggregateId $aggregateId)

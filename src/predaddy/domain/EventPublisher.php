@@ -23,6 +23,7 @@
 
 namespace predaddy\domain;
 
+use precore\lang\Object;
 use predaddy\eventhandling\EventBus;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\util\NullMessageBus;
@@ -35,7 +36,7 @@ use predaddy\messagehandling\util\NullMessageBus;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-final class EventPublisher
+final class EventPublisher extends Object
 {
     private static $instance;
 
@@ -55,6 +56,7 @@ final class EventPublisher
     public function setEventBus(EventBus $eventBus = null)
     {
         $this->eventBus = $eventBus ?: new NullMessageBus();
+        self::getLogger()->debug('Event bus has been set to EventPublisher: [{}]', [$this->eventBus]);
     }
 
     /**
@@ -73,6 +75,7 @@ final class EventPublisher
      */
     public function post(DomainEvent $event)
     {
+        self::getLogger('DomainEvent raised [{}], forwarding to the event bus...', [$event]);
         $this->eventBus->post($event);
     }
 }
