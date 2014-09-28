@@ -85,4 +85,3 @@ final class RepositoryDelegate implements Repository
         return $this->repositories[$className];
     }
 }
- 
