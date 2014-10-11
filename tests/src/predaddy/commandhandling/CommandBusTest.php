@@ -60,7 +60,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \LogicException
+     * @expectedException \RuntimeException
      */
     public function multipleCommandHandlerMustCauseError()
     {

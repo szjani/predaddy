@@ -23,10 +23,10 @@
 
 namespace predaddy\commandhandling;
 
-use LogicException;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use predaddy\messagehandling\SubscriberExceptionHandler;
+use RuntimeException;
 
 /**
  * A typical command bus has the following behaviours:
@@ -67,7 +67,7 @@ class CommandBus extends SimpleMessageBus
         $wrappers = parent::callableWrappersFor($message);
         if (1 < count($wrappers)) {
             $class = get_class($message);
-            throw new LogicException("More than one command handler is registered for message '$class'");
+            throw new RuntimeException("More than one command handler is registered for message '$class'");
         }
         return $wrappers;
     }
