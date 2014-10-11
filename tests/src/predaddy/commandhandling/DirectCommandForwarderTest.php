@@ -30,6 +30,7 @@ use predaddy\domain\DomainTestCase;
 use predaddy\fixture\article\ChangeText;
 use predaddy\fixture\article\EventSourcedArticle;
 use predaddy\inmemory\InMemoryRepository;
+use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 
 class DirectCommandForwarderTest extends DomainTestCase
@@ -40,7 +41,6 @@ class DirectCommandForwarderTest extends DomainTestCase
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
     private $repository;
-    private $messageBusFactory;
 
     /**
      * @var DirectCommandForwarder
@@ -50,12 +50,8 @@ class DirectCommandForwarderTest extends DomainTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->messageBusFactory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
         $this->repository = $this->getMock('\predaddy\domain\Repository');
-        $this->directCommandForwarder = new DirectCommandForwarder(
-            $this->repository,
-            $this->messageBusFactory
-        );
+        $this->directCommandForwarder = new DirectCommandForwarder($this->repository);
         self::$ANY_DIRECT_COMMAND = $this->getMock(__NAMESPACE__ . '\DirectCommand');
     }
 
@@ -75,22 +71,18 @@ class DirectCommandForwarderTest extends DomainTestCase
      */
     public function createNewAggregate()
     {
-        $aggregateClass = TestAggregate::className();
-        $command = $this->aDirectCommand($aggregateClass, null);
+        $command = new CreateCommand();
 
         $this->repository
             ->expects(self::once())
             ->method('save')
-            ->with($this->isInstanceOf($aggregateClass));
-
-        $bus = $this->expectToCreateBus($aggregateClass);
-        $bus
-            ->expects(self::once())
-            ->method('register');
-        $bus
-            ->expects(self::once())
-            ->method('post')
-            ->with($command);
+            ->will(
+                self::returnCallback(
+                    function (TestAggregate $aggregate) {
+                        self::assertTrue($aggregate->initialized());
+                    }
+                )
+            );
 
         $this->directCommandForwarder->catchDeadCommand(new DeadMessage($command));
     }
@@ -100,10 +92,9 @@ class DirectCommandForwarderTest extends DomainTestCase
      */
     public function loadAggregateIfIdNotNull()
     {
-        $aggregate = $this->getMock('\predaddy\domain\AggregateRoot');
-        $aggregateClass = TestAggregate::className();
+        $aggregate = new TestAggregate(new CreateCommand());
         $aggregateId = UUID::randomUUID()->toString();
-        $command = $this->aDirectCommand($aggregateClass, $aggregateId);
+        $command = new CalledCommand($aggregateId);
 
         $this->repository
             ->expects(self::once())
@@ -117,11 +108,16 @@ class DirectCommandForwarderTest extends DomainTestCase
                 )
             );
 
-        $bus = $this->expectToCreateBus($aggregateClass);
-        $bus
+        $this->repository
             ->expects(self::once())
-            ->method('register')
-            ->with($aggregate);
+            ->method('save')
+            ->will(
+                self::returnCallback(
+                    function (TestAggregate $aggregate) {
+                        self::assertTrue($aggregate->called());
+                    }
+                )
+            );
 
         $this->directCommandForwarder->catchDeadCommand(new DeadMessage($command));
     }
@@ -136,57 +132,75 @@ class DirectCommandForwarderTest extends DomainTestCase
         $article = new EventSourcedArticle('author', 'text');
         $repository->save($article);
 
-        $commandForwarder = new DirectCommandForwarder(
-            $repository,
-            $this->messageBusFactory
-        );
+        $commandForwarder = new DirectCommandForwarder($repository);
 
         $command = new ChangeText($article->getId()->value(), 'invalid', 'newText');
         $commandForwarder->catchDeadCommand(new DeadMessage($command));
-    }
-
-    /**
-     * @param $aggregateClass
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function expectToCreateBus($aggregateClass)
-    {
-        $bus = $this->getMock('\predaddy\messagehandling\MessageBus');
-        $this->messageBusFactory
-            ->expects(self::once())
-            ->method('createBus')
-            ->with($aggregateClass)
-            ->will(self::returnValue($bus));
-        return $bus;
-    }
-
-    /**
-     * @param $aggregateClass
-     * @param $aggregateId
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function aDirectCommand($aggregateClass, $aggregateId)
-    {
-        $command = $this->getMock(__NAMESPACE__ . '\DirectCommand');
-        $command
-            ->expects(self::once())
-            ->method('aggregateClass')
-            ->will(self::returnValue($aggregateClass));
-        $command
-            ->expects(self::once())
-            ->method('aggregateId')
-            ->will(self::returnValue($aggregateId));
-        return $command;
     }
 }
 
 class TestAggregate extends AbstractAggregateRoot
 {
+    private $initialized = false;
+    private $called = false;
+
+    /**
+     * @Subscribe
+     * @param CreateCommand $command
+     */
+    public function __construct(CreateCommand $command)
+    {
+        $this->initialized = true;
+    }
+
     /**
      * @return AggregateId
      */
     public function getId()
     {
         // TODO: Implement getId() method.
+    }
+
+    public function called()
+    {
+        return $this->called;
+    }
+
+    public function initialized()
+    {
+        return $this->initialized;
+    }
+
+    /**
+     * @Subscribe
+     * @param CalledCommand $command
+     */
+    public function handler(CalledCommand $command)
+    {
+        $this->called = true;
+    }
+}
+
+class CreateCommand extends AbstractDirectCommand
+{
+
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return TestAggregate::className();
+    }
+}
+
+class CalledCommand extends AbstractDirectCommand
+{
+
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return TestAggregate::className();
     }
 }

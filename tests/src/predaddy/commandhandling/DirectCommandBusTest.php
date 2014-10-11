@@ -28,7 +28,6 @@ use PHPUnit_Framework_TestCase;
 use predaddy\domain\AggregateRoot;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
-use predaddy\messagehandling\SimpleMessageBusFactory;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
 use trf4php\NOPTransactionManager;
@@ -40,7 +39,6 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     private $handlerDescFact;
     private $transactionManager;
     private $repo;
-    private $messageBusFactory;
 
     /**
      * @var DirectCommandBus
@@ -58,11 +56,9 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->handlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
         $this->transactionManager = new NOPTransactionManager();
         $this->repo = $this->getMock('\predaddy\domain\Repository');
-        $this->messageBusFactory = new SimpleMessageBusFactory($this->handlerDescFact);
         $trInterceptor = new WrapInTransactionInterceptor($this->transactionManager);
         $this->bus = new DirectCommandBus(
             $this->repo,
-            $this->messageBusFactory,
             $this->handlerDescFact,
             [$trInterceptor],
             $trInterceptor

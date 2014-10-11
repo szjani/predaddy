@@ -40,7 +40,7 @@ final class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageH
     {
         return new EventSourcingEventHandlerDescriptor(
             $handler,
-            $this->getReader(),
+            self::getReader(),
             $this->getFunctionDescriptorFactory()
         );
     }

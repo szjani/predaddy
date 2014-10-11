@@ -28,9 +28,9 @@ use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\Repository;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
-use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 
 /**
@@ -43,28 +43,31 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
-class DirectCommandForwarder extends Object
+final class DirectCommandForwarder extends Object
 {
+    /**
+     * @var AnnotatedMessageHandlerDescriptorFactory
+     */
+    private static $descriptorFactory;
+
     /**
      * @var Repository
      */
     private $repository;
 
     /**
-     * @var MessageBusFactory
-     */
-    private $messageBusFactory;
-
-    /**
      * @param Repository $repository
-     * @param MessageBusFactory $messageBusFactory
      */
-    public function __construct(
-        Repository $repository,
-        MessageBusFactory $messageBusFactory
-    ) {
+    public function __construct(Repository $repository)
+    {
         $this->repository = $repository;
-        $this->messageBusFactory = $messageBusFactory;
+    }
+
+    public static function init()
+    {
+        self::$descriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
+            new CommandFunctionDescriptorFactory()
+        );
     }
 
     /**
@@ -101,7 +104,7 @@ class DirectCommandForwarder extends Object
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }
-        $forwarderBus = $this->messageBusFactory->createBus($aggregateClass);
+        $forwarderBus = new CommandBus(self::$descriptorFactory, [], null, $aggregateClass);
         $forwarderBus->register($aggregate);
         $result = null;
         $thrownException = null;
@@ -127,3 +130,4 @@ class DirectCommandForwarder extends Object
         return $result;
     }
 }
+DirectCommandForwarder::init();

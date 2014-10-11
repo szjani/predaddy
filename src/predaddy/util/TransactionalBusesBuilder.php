@@ -23,7 +23,6 @@
 
 namespace predaddy\util;
 
-use Doctrine\Common\Annotations\Reader;
 use predaddy\commandhandling\CommandBus;
 use predaddy\commandhandling\CommandFunctionDescriptorFactory;
 use predaddy\commandhandling\DirectCommandBus;
@@ -36,7 +35,6 @@ use predaddy\messagehandling\interceptors\BlockerInterceptor;
 use predaddy\messagehandling\interceptors\BlockerInterceptorManager;
 use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
-use predaddy\messagehandling\SimpleMessageBusFactory;
 use RuntimeException;
 use trf4php\TransactionManager;
 
@@ -48,11 +46,6 @@ use trf4php\TransactionManager;
  */
 final class TransactionalBusesBuilder
 {
-    /**
-     * @var Reader
-     */
-    private $reader;
-
     /**
      * @var array
      */
@@ -111,16 +104,6 @@ final class TransactionalBusesBuilder
     public static function create(TransactionManager $txManager)
     {
         return new self($txManager);
-    }
-
-    /**
-     * @param Reader $reader
-     * @return $this
-     */
-    public function withDoctrineReader(Reader $reader)
-    {
-        $this->reader = $reader;
-        return $this;
     }
 
     /**
@@ -184,7 +167,7 @@ final class TransactionalBusesBuilder
     private function createEventBus()
     {
         return new EventBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory(), $this->reader),
+            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
             array_merge($this->eventInterceptors, [$this->blockerInterceptor])
         );
     }
@@ -196,14 +179,12 @@ final class TransactionalBusesBuilder
     {
         $commandBus = null;
         $cmdHandlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(
-            new CommandFunctionDescriptorFactory(),
-            $this->reader
+            new CommandFunctionDescriptorFactory()
         );
         $commandInterceptorList = array_merge([$this->blockerIntManager, $this->txInterceptor], $this->commandInterceptors);
         if ($this->useDirectCommandBus) {
             $commandBus = new DirectCommandBus(
                 $this->repository,
-                new SimpleMessageBusFactory($cmdHandlerDescFact),
                 $cmdHandlerDescFact,
                 $commandInterceptorList,
                 $this->exceptionHandler

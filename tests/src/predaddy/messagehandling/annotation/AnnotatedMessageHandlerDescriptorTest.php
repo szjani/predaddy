@@ -43,7 +43,6 @@ class AnnotatedMessageHandlerDescriptorTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        AnnotatedMessageHandlerDescriptorFactory::registerAnnotations();
         $handler = new AllMessageHandler();
         $this->config = new AnnotatedMessageHandlerDescriptor(
             $handler,

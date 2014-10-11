@@ -26,10 +26,9 @@ namespace predaddy\domain\eventsourcing;
 use Iterator;
 use predaddy\domain\AbstractAggregateRoot;
 use predaddy\domain\DomainEvent;
+use predaddy\eventhandling\EventBus;
 use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\MessageBus;
-use predaddy\messagehandling\MessageBusFactory;
-use predaddy\messagehandling\SimpleMessageBusFactory;
 use predaddy\messagehandling\annotation\Subscribe;
 
 /**
@@ -44,29 +43,27 @@ use predaddy\messagehandling\annotation\Subscribe;
  */
 abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot implements EventSourcedAggregateRoot
 {
-    private static $messageBusFactory = null;
-
     /**
-     * @param MessageBusFactory $messageBusFactory
+     * @var EventSourcingEventHandlerDescriptorFactory
      */
-    public static function setInnerMessageBusFactory(MessageBusFactory $messageBusFactory = null)
+    private static $descriptorFactory;
+
+    public static function init()
     {
-        self::$messageBusFactory = $messageBusFactory;
+        self::$descriptorFactory = new EventSourcingEventHandlerDescriptorFactory(
+            new EventFunctionDescriptorFactory()
+        );
     }
 
     /**
-     * @return SimpleMessageBusFactory
+     * @param AbstractEventSourcedAggregateRoot $aggregateRoot
+     * @return EventBus
      */
-    public static function getInnerMessageBusFactory()
+    private static function createInnerEventBus(AbstractEventSourcedAggregateRoot $aggregateRoot)
     {
-        if (self::$messageBusFactory === null) {
-            self::$messageBusFactory = new SimpleMessageBusFactory(
-                new EventSourcingEventHandlerDescriptorFactory(
-                    new EventFunctionDescriptorFactory()
-                )
-            );
-        }
-        return self::$messageBusFactory;
+        $bus = new EventBus(self::$descriptorFactory, [], null, static::className());
+        $bus->register($aggregateRoot);
+        return $bus;
     }
 
     /**
@@ -77,8 +74,7 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      */
     final public function loadFromHistory(Iterator $events)
     {
-        $bus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
-        $bus->register($this);
+        $bus = self::createInnerEventBus($this);
         foreach ($events as $event) {
             $this->handleEventInAggregate($event, $bus);
         }
@@ -109,9 +105,9 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
     private function handleEventInAggregate(DomainEvent $event, MessageBus $innerBus = null)
     {
         if ($innerBus === null) {
-            $innerBus = self::getInnerMessageBusFactory()->createBus($this->getClassName());
-            $innerBus->register($this);
+            $innerBus = self::createInnerEventBus($this);
         }
         $innerBus->post($event);
     }
 }
+AbstractEventSourcedAggregateRoot::init();

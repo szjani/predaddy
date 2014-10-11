@@ -74,16 +74,4 @@ class DefaultEventSourcedAggregateRootTest extends DomainTestCase
         self::assertEquals($user->getId(), $resUser->getId());
         self::assertEquals($user->value, $resUser->value);
     }
-
-    public function testExplicitMessageBusFactory()
-    {
-        $factory = $this->getMock('\predaddy\messagehandling\MessageBusFactory');
-        AbstractEventSourcedAggregateRoot::setInnerMessageBusFactory($factory);
-        self::assertSame($factory, AbstractEventSourcedAggregateRoot::getInnerMessageBusFactory());
-        AbstractEventSourcedAggregateRoot::setInnerMessageBusFactory(null);
-        self::assertInstanceOf(
-            '\predaddy\messagehandling\SimpleMessageBusFactory',
-            AbstractEventSourcedAggregateRoot::getInnerMessageBusFactory()
-        );
-    }
 }

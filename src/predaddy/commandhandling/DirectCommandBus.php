@@ -24,7 +24,6 @@
 namespace predaddy\commandhandling;
 
 use predaddy\domain\Repository;
-use predaddy\messagehandling\MessageBusFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SubscriberExceptionHandler;
 
@@ -45,7 +44,6 @@ class DirectCommandBus extends CommandBus
 {
     /**
      * @param Repository $repository Is being passed to the registered DirectCommandForwarder
-     * @param MessageBusFactory $messageBusFactory Is being passed to the registered DirectCommandForwarder
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
      * @param array $interceptors
      * @param SubscriberExceptionHandler $exceptionHandler
@@ -53,13 +51,12 @@ class DirectCommandBus extends CommandBus
      */
     public function __construct(
         Repository $repository,
-        MessageBusFactory $messageBusFactory,
         MessageHandlerDescriptorFactory $handlerDescFactory,
         array $interceptors = [],
         SubscriberExceptionHandler $exceptionHandler = null,
         $identifier = self::DEFAULT_NAME
     ) {
         parent::__construct($handlerDescFactory, $interceptors, $exceptionHandler, $identifier);
-        $this->register(new DirectCommandForwarder($repository, $messageBusFactory));
+        $this->register(new DirectCommandForwarder($repository));
     }
 }

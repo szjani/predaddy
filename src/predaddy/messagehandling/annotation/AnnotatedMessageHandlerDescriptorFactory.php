@@ -27,7 +27,6 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
 use predaddy\messagehandling\CachedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\FunctionDescriptorFactory;
 
 /**
  * Uses Doctrine annotation reader and creates AnnotatedMessageHandlerDescriptor object for each handlers.
@@ -36,38 +35,28 @@ use predaddy\messagehandling\FunctionDescriptorFactory;
  */
 class AnnotatedMessageHandlerDescriptorFactory extends CachedMessageHandlerDescriptorFactory
 {
-    private static $defaultReader;
-
     /**
      * @var Reader
      */
-    private $reader;
+    private static $reader;
 
-    public static function registerAnnotations()
+    /**
+     * @return Reader
+     */
+    public static function getReader()
     {
-        AnnotationRegistry::registerFile(__DIR__ . '/MessageHandlingAnnotations.php');
-    }
-
-    private static function getDefaultReader()
-    {
-        if (self::$defaultReader === null) {
-            self::$defaultReader = new AnnotationReader();
+        if (self::$reader === null) {
+            self::$reader = new AnnotationReader();
         }
-        return self::$defaultReader;
+        return self::$reader;
     }
 
     /**
-     * @param FunctionDescriptorFactory $functionDescFactory
-     * @param Reader $reader if null, an AnnotationReader instance will be used
+     * @param Reader $reader
      */
-    public function __construct(FunctionDescriptorFactory $functionDescFactory, Reader $reader = null)
+    public static function setReader(Reader $reader)
     {
-        self::registerAnnotations();
-        if ($reader === null) {
-            $reader = self::getDefaultReader();
-        }
-        $this->reader = $reader;
-        parent::__construct($functionDescFactory);
+        self::$reader = $reader;
     }
 
     /**
@@ -78,16 +67,9 @@ class AnnotatedMessageHandlerDescriptorFactory extends CachedMessageHandlerDescr
     {
         return new AnnotatedMessageHandlerDescriptor(
             $handler,
-            $this->reader,
+            self::getReader(),
             $this->getFunctionDescriptorFactory()
         );
     }
-
-    /**
-     * @return Reader
-     */
-    public function getReader()
-    {
-        return $this->reader;
-    }
 }
+AnnotationRegistry::registerFile(__DIR__ . '/MessageHandlingAnnotations.php');
