@@ -38,10 +38,6 @@ final class EventSourcingEventHandlerDescriptorFactory extends AnnotatedMessageH
      */
     protected function innerCreate($handler)
     {
-        return new EventSourcingEventHandlerDescriptor(
-            $handler,
-            self::getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return new EventSourcingEventHandlerDescriptor($handler, $this->getFunctionDescriptorFactory());
     }
 }

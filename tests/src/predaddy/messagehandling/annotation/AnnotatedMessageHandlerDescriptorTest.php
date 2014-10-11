@@ -23,7 +23,6 @@
 
 namespace predaddy\messagehandling\annotation;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\AllMessageHandler;
 use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
@@ -46,7 +45,6 @@ class AnnotatedMessageHandlerDescriptorTest extends PHPUnit_Framework_TestCase
         $handler = new AllMessageHandler();
         $this->config = new AnnotatedMessageHandlerDescriptor(
             $handler,
-            new AnnotationReader(),
             new DefaultFunctionDescriptorFactory()
         );
     }

@@ -23,9 +23,6 @@
 
 namespace predaddy\messagehandling\annotation;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\Reader;
 use predaddy\messagehandling\CachedMessageHandlerDescriptorFactory;
 
 /**
@@ -36,40 +33,11 @@ use predaddy\messagehandling\CachedMessageHandlerDescriptorFactory;
 class AnnotatedMessageHandlerDescriptorFactory extends CachedMessageHandlerDescriptorFactory
 {
     /**
-     * @var Reader
-     */
-    private static $reader;
-
-    /**
-     * @return Reader
-     */
-    public static function getReader()
-    {
-        if (self::$reader === null) {
-            self::$reader = new AnnotationReader();
-        }
-        return self::$reader;
-    }
-
-    /**
-     * @param Reader $reader
-     */
-    public static function setReader(Reader $reader)
-    {
-        self::$reader = $reader;
-    }
-
-    /**
      * @param object $handler
      * @return AnnotatedMessageHandlerDescriptor
      */
     protected function innerCreate($handler)
     {
-        return new AnnotatedMessageHandlerDescriptor(
-            $handler,
-            self::getReader(),
-            $this->getFunctionDescriptorFactory()
-        );
+        return new AnnotatedMessageHandlerDescriptor($handler, $this->getFunctionDescriptorFactory());
     }
 }
-AnnotationRegistry::registerFile(__DIR__ . '/MessageHandlingAnnotations.php');

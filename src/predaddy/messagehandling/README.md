@@ -277,5 +277,5 @@ Annotation scanning takes time which can be avoided by using an explicitly set `
 how annotations can be cached in APC. You can read more about it in [Doctrine Annotation manual](http://docs.doctrine-project.org/projects/doctrine-common/en/latest/reference/annotations.html#setup-and-configuration).
 
 ```php
-AnnotatedMessageHandlerDescriptorFactory::setReader(new CachedReader(new AnnotationReader(), new ApcCache()));
+AnnotatedMessageHandlerDescriptor::setReader(new CachedReader(new AnnotationReader(), new ApcCache()));
 ```

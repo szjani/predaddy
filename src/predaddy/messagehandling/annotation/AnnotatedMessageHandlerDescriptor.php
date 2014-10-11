@@ -23,6 +23,8 @@
 
 namespace predaddy\messagehandling\annotation;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
 use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptor;
@@ -38,8 +40,12 @@ use ReflectionMethod;
  */
 class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
 {
+    /**
+     * @var Reader
+     */
+    private static $reader;
+
     private $handlerClass;
-    private $reader;
     private $descriptors = null;
     private $handler;
 
@@ -48,19 +54,35 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
      */
     private $functionDescriptorFactory;
 
+    public static function init()
+    {
+        self::$reader = new AnnotationReader();
+    }
+
+    /**
+     * @return Reader
+     */
+    public static function getReader()
+    {
+        return self::$reader;
+    }
+
+    /**
+     * @param Reader $reader
+     */
+    public static function setReader(Reader $reader)
+    {
+        self::$reader = $reader;
+    }
+
     /**
      * @param object $handler
-     * @param Reader $reader
      * @param FunctionDescriptorFactory $functionDescFactory
      */
-    public function __construct(
-        $handler,
-        Reader $reader,
-        FunctionDescriptorFactory $functionDescFactory
-    ) {
+    public function __construct($handler, FunctionDescriptorFactory $functionDescFactory)
+    {
         $this->handlerClass = ObjectClass::forName(get_class($handler));
         $this->handler = $handler;
-        $this->reader = $reader;
         $this->functionDescriptorFactory = $functionDescFactory;
     }
 
@@ -83,7 +105,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
         $result = [];
         /* @var $reflMethod ReflectionMethod */
         foreach ($this->handlerClass->getMethods($this->methodVisibility()) as $reflMethod) {
-            $methodAnnotation = $this->reader->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe');
+            $methodAnnotation = self::getReader()->getMethodAnnotation($reflMethod, __NAMESPACE__ . '\Subscribe');
             if ($methodAnnotation === null) {
                 continue;
             }
@@ -105,3 +127,5 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
         return ReflectionMethod::IS_PUBLIC;
     }
 }
+AnnotationRegistry::registerFile(__DIR__ . '/MessageHandlingAnnotations.php');
+AnnotatedMessageHandlerDescriptor::init();
