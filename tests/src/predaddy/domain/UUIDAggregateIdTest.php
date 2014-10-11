@@ -24,6 +24,7 @@
 namespace src\predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
+use precore\util\UUID;
 use predaddy\fixture\article\EventSourcedArticleId;
 
 /**
@@ -38,9 +39,18 @@ class UUIDAggregateIdTest extends PHPUnit_Framework_TestCase
      */
     public function shouldCreatedFromValue()
     {
-        $value = 'value';
+        $value = UUID::randomUUID()->toString();
         $articleId = EventSourcedArticleId::from($value);
         self::assertInstanceOf(EventSourcedArticleId::className(), $articleId);
         self::assertEquals($value, $articleId->value());
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     */
+    public function shouldFailIfBuiltFromInvalidString()
+    {
+        EventSourcedArticleId::from('invalid');
     }
 }

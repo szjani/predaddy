@@ -61,7 +61,7 @@ abstract class UUIDAggregateId extends Object implements AggregateId
      */
     final public static function from($value)
     {
-        return new static($value);
+        return new static(UUID::fromString($value)->toString());
     }
 
     /**
