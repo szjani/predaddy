@@ -178,10 +178,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
                 );
                 $context = new SubscriberExceptionContext($this, $message, $callable);
                 try {
-                    $this->exceptionHandler->handleException(
-                        $exp,
-                        $context
-                    );
+                    $this->exceptionHandler->handleException($exp, $context);
                 } catch (Exception $e) {
                     self::getLogger()->warn(
                         "An error occurred in the exception handler with context '{}'",
