@@ -41,7 +41,7 @@ $commandBus->register(new UserCommandHandler($userRepository));
 $eventBus->register(new UserEventHandler());
 ```
 
-Hint: `Repository` interface is required only for {{DirectCommandBus}} and EventSourced aggregates. `$userRepository` in this example can
+Hint: `Repository` interface is required only for `DirectCommandBus` and EventSourced aggregates. `$userRepository` in this example can
 implement a domain specific, customized `UserRepository` interface.
 
 #### The domain model
