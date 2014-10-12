@@ -35,11 +35,14 @@ $eventBus = $trBuses->eventBus();
 $commandBus = $trBuses->commandBus();
 
 // register the command handlers
-$commandBus->register(new UserCommandHandler($repository));
+$commandBus->register(new UserCommandHandler($userRepository));
 
 // register the event handlers
 $eventBus->register(new UserEventHandler());
 ```
+
+Hint: `Repository` interface is required only for {{DirectCommandBus}} and EventSourced aggregates. `$userRepository` in this example can
+implement a domain specific, customized `UserRepository` interface.
 
 #### The domain model
 
@@ -57,6 +60,18 @@ class User extends AbstractAggregateRoot
         Assert::email($email);
         $this->email = $email;
         $this->raise(new UserEmailModified($email));
+    }
+}
+```
+
+It is a good practise to use aggregate specific ID value objects.
+
+```php
+final class UserId extends UUIDAggregateId
+{
+    public function aggregateClass()
+    {
+        return User::className();
     }
 }
 ```
@@ -89,9 +104,12 @@ class UserCommandHandler
     public function handleCommand(ModifyEmail $command)
     {
         // somehow obtain the persistent aggregate root
-        $user = $this->repository->load($command->aggregateId());
+        $user = $this->userRepository->load(UserId::from($command->aggregateId()));
+        
+        // checking the aggregate state (optional)
+        $user->failWhenStateHashViolation($command->stateHash());
+        
         $user->modifyEmailAddress($command->getEmail());
-        $this->repository->save($user);
     }
 }
 ```
@@ -165,7 +183,7 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     private function handleCreated(UserCreated $event)
     {
-        $this->id = $event->getUserId();
+        $this->id = $event->aggregateId();
     }
 
     /**
