@@ -30,21 +30,17 @@ class EventBusTest extends PHPUnit_Framework_TestCase
 {
     public function testNoHandler()
     {
-        $functionDescriptorFactory = new EventFunctionDescriptorFactory();
-        $handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory($functionDescriptorFactory);
-        $commandBus = new EventBus(
-            $handlerDescriptorFactory
-        );
+        $eventBus = new EventBus();
 
         $event = new SimpleEvent();
         $called = false;
-        $commandBus->registerClosure(
+        $eventBus->registerClosure(
             function(Event $incomingEvent) use (&$called, $event) {
                 $called = true;
                 EventBusTest::assertSame($event, $incomingEvent);
             }
         );
-        $commandBus->post($event);
+        $eventBus->post($event);
         self::assertTrue($called);
     }
 }

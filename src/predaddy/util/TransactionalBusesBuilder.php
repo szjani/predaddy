@@ -24,13 +24,10 @@
 namespace predaddy\util;
 
 use predaddy\commandhandling\CommandBus;
-use predaddy\commandhandling\CommandFunctionDescriptorFactory;
 use predaddy\commandhandling\DirectCommandBus;
 use predaddy\domain\EventPublisher;
 use predaddy\domain\Repository;
 use predaddy\eventhandling\EventBus;
-use predaddy\eventhandling\EventFunctionDescriptorFactory;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\BlockerInterceptor;
 use predaddy\messagehandling\interceptors\BlockerInterceptorManager;
 use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
@@ -167,7 +164,7 @@ final class TransactionalBusesBuilder
     private function createEventBus()
     {
         return new EventBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory()),
+            EventBus::DEFAULT_NAME,
             array_merge($this->eventInterceptors, [$this->blockerInterceptor])
         );
     }
@@ -178,20 +175,17 @@ final class TransactionalBusesBuilder
     private function createCommandBus()
     {
         $commandBus = null;
-        $cmdHandlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(
-            new CommandFunctionDescriptorFactory()
-        );
         $commandInterceptorList = array_merge([$this->blockerIntManager, $this->txInterceptor], $this->commandInterceptors);
         if ($this->useDirectCommandBus) {
             $commandBus = new DirectCommandBus(
                 $this->repository,
-                $cmdHandlerDescFact,
+                CommandBus::DEFAULT_NAME,
                 $commandInterceptorList,
                 $this->exceptionHandler
             );
         } else {
             $commandBus = new CommandBus(
-                $cmdHandlerDescFact,
+                CommandBus::DEFAULT_NAME,
                 $commandInterceptorList,
                 $this->exceptionHandler
             );

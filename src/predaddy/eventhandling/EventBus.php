@@ -23,6 +23,7 @@
 
 namespace predaddy\eventhandling;
 
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use predaddy\messagehandling\SubscriberExceptionHandler;
@@ -38,22 +39,41 @@ class EventBus extends SimpleMessageBus
     const DEFAULT_NAME = 'event-bus';
 
     /**
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @var AnnotatedMessageHandlerDescriptorFactory
+     */
+    private static $defaultHandlerDescFactory;
+
+    /**
+     * Should not be called!
+     */
+    public static function init()
+    {
+        self::$defaultHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
+            new EventFunctionDescriptorFactory()
+        );
+    }
+
+    /**
+     * @param string $identifier
      * @param array $interceptors
      * @param SubscriberExceptionHandler $exceptionHandler
-     * @param string $identifier
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
      */
     public function __construct(
-        MessageHandlerDescriptorFactory $handlerDescFactory,
+        $identifier = self::DEFAULT_NAME,
         array $interceptors = [],
         SubscriberExceptionHandler $exceptionHandler = null,
-        $identifier = self::DEFAULT_NAME
+        MessageHandlerDescriptorFactory $handlerDescFactory = null
     ) {
+        if ($handlerDescFactory === null) {
+            $handlerDescFactory = self::$defaultHandlerDescFactory;
+        }
         parent::__construct(
-            $handlerDescFactory,
+            $identifier,
             $interceptors,
             $exceptionHandler,
-            $identifier
+            $handlerDescFactory
         );
     }
 }
+EventBus::init();

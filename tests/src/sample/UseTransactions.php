@@ -11,8 +11,6 @@ namespace sample;
 
 use Exception;
 use predaddy\messagehandling\AbstractMessage;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\Message;
 use predaddy\messagehandling\SimpleMessageBus;
@@ -28,13 +26,7 @@ class SimpleMessage extends AbstractMessage
  * Initialization
  */
 $trInterceptor = new WrapInTransactionInterceptor(new NOPTransactionManager());
-$bus = new SimpleMessageBus(
-    new AnnotatedMessageHandlerDescriptorFactory(
-        new DefaultFunctionDescriptorFactory()
-    ),
-    [$trInterceptor],
-    $trInterceptor
-);
+$bus = new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, [$trInterceptor], $trInterceptor);
 
 /**
  * Code from a service class.

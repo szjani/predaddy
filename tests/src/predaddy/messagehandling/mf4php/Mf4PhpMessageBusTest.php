@@ -30,11 +30,7 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
     public function setUp()
     {
         $this->dispatcher = new MemoryMessageDispatcher();
-        $functionDescFactory = new DefaultFunctionDescriptorFactory();
-        $this->bus = new Mf4PhpMessageBus(
-            $this->dispatcher,
-            new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
-        );
+        $this->bus = new Mf4PhpMessageBus($this->dispatcher);
     }
 
     public function testMessageFactory()

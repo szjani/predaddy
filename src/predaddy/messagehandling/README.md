@@ -16,11 +16,7 @@ If you use CQRS, then I highly recommend to use the pre-configured `EventBus` an
 You can use annotations to define message handler methods with the following configuration.
 
 ```php
-$bus = new SimpleMessageBus(
-    new AnnotatedMessageHandlerDescriptorFactory(
-        new DefaultFunctionDescriptorFactory()
-    )
-);
+$bus = new SimpleMessageBus();
 ```
 
 ### Message

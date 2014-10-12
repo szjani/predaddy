@@ -44,19 +44,19 @@ class DirectCommandBus extends CommandBus
 {
     /**
      * @param Repository $repository Is being passed to the registered DirectCommandForwarder
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param array|string $identifier
      * @param array $interceptors
      * @param SubscriberExceptionHandler $exceptionHandler
-     * @param string $identifier
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
      */
     public function __construct(
         Repository $repository,
-        MessageHandlerDescriptorFactory $handlerDescFactory,
+        $identifier = self::DEFAULT_NAME,
         array $interceptors = [],
         SubscriberExceptionHandler $exceptionHandler = null,
-        $identifier = self::DEFAULT_NAME
+        MessageHandlerDescriptorFactory $handlerDescFactory = null
     ) {
-        parent::__construct($handlerDescFactory, $interceptors, $exceptionHandler, $identifier);
-        $this->register(new DirectCommandForwarder($repository));
+        parent::__construct($identifier, $interceptors, $exceptionHandler, $handlerDescFactory);
+        $this->register(new DirectCommandForwarder($repository, $this->handlerDescriptorFactory()));
     }
 }

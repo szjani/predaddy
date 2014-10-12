@@ -316,13 +316,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
             ->method('handleException')
             ->with($exception);
 
-        $bus = new SimpleMessageBus(
-            new AnnotatedMessageHandlerDescriptorFactory(
-                new DefaultFunctionDescriptorFactory()
-            ),
-            [],
-            $exceptionHandler
-        );
+        $bus = new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, [], $exceptionHandler);
         $bus->registerClosure(
             function (UUID $msg) use ($exception) {
                 throw $exception;
@@ -348,13 +342,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
                     }
                 )
             );
-        $bus = new SimpleMessageBus(
-            new AnnotatedMessageHandlerDescriptorFactory(
-                new DefaultFunctionDescriptorFactory()
-            ),
-            [],
-            $exceptionHandler
-        );
+        $bus = new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, [], $exceptionHandler);
         $bus->registerClosure(
             function (UUID $msg) use ($exception) {
                 throw $exception;
@@ -376,11 +364,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
     public function exceptionThrownByCallbackMustBeCaught()
     {
         $exception = new RuntimeException('Expected exception');
-        $bus = new SimpleMessageBus(
-            new AnnotatedMessageHandlerDescriptorFactory(
-                new DefaultFunctionDescriptorFactory()
-            )
-        );
+        $bus = new SimpleMessageBus();
         $bus->registerClosure(
             function (UUID $msg) use ($exception) {
                 throw $exception;

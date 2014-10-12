@@ -28,6 +28,7 @@ use Closure;
 use Exception;
 use precore\lang\ObjectClass;
 use precore\util\Objects;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use SplObjectStorage;
 
 /**
@@ -41,6 +42,16 @@ use SplObjectStorage;
 class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactoryRegisterableMessageBus
 {
     const DEFAULT_NAME = 'default-bus';
+
+    /**
+     * @var AnnotatedMessageHandlerDescriptorFactory
+     */
+    private static $defaultHandlerDescFactory;
+
+    /**
+     * @var NullSubscriberExceptionHandler
+     */
+    private static $defaultExceptionHandler;
 
     /**
      * @var string
@@ -73,27 +84,49 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     private $functionDescriptors;
 
     /**
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * Should not be called!
+     */
+    public static function init()
+    {
+        self::$defaultHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
+            new DefaultFunctionDescriptorFactory()
+        );
+        self::$defaultExceptionHandler = new NullSubscriberExceptionHandler();
+    }
+
+    /**
+     * @param string $identifier
      * @param array $interceptors
      * @param SubscriberExceptionHandler $exceptionHandler
-     * @param string $identifier
+     * @param MessageHandlerDescriptorFactory $handlerDescFactory
      */
     public function __construct(
-        MessageHandlerDescriptorFactory $handlerDescFactory,
+        $identifier = self::DEFAULT_NAME,
         array $interceptors = [],
         SubscriberExceptionHandler $exceptionHandler = null,
-        $identifier = self::DEFAULT_NAME
+        MessageHandlerDescriptorFactory $handlerDescFactory = null
     ) {
         parent::__construct($interceptors);
         $this->factories = new SplObjectStorage();
         $this->identifier = (string) $identifier;
+        if ($handlerDescFactory === null) {
+            $handlerDescFactory = self::$defaultHandlerDescFactory;
+        }
         $this->handlerDescriptorFactory = $handlerDescFactory;
-        $this->closureDescriptorFactory = $handlerDescFactory->getFunctionDescriptorFactory();
+        $this->closureDescriptorFactory = $this->handlerDescriptorFactory->getFunctionDescriptorFactory();
         if ($exceptionHandler === null) {
-            $exceptionHandler = new NullSubscriberExceptionHandler();
+            $exceptionHandler = self::$defaultExceptionHandler;
         }
         $this->exceptionHandler = $exceptionHandler;
         $this->functionDescriptors = new FunctionDescriptors();
+    }
+
+    /**
+     * @return MessageHandlerDescriptorFactory
+     */
+    final protected function handlerDescriptorFactory()
+    {
+        return $this->handlerDescriptorFactory;
     }
 
     public function registerHandlerFactory(Closure $factory)
@@ -241,3 +274,4 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
             ->toString();
     }
 }
+SimpleMessageBus::init();

@@ -29,9 +29,6 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 
 class CommandBusTest extends PHPUnit_Framework_TestCase
 {
-    private $functionDescriptorFactory;
-    private $handlerDescriptorFactory;
-
     /**
      * @var CommandBus
      */
@@ -39,11 +36,7 @@ class CommandBusTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->functionDescriptorFactory = new CommandFunctionDescriptorFactory();
-        $this->handlerDescriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
-            $this->functionDescriptorFactory
-        );
-        $this->commandBus = new CommandBus($this->handlerDescriptorFactory);
+        $this->commandBus = new CommandBus();
     }
 
     public function testExactCommandType()

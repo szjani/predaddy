@@ -31,6 +31,7 @@ use predaddy\domain\Repository;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
+use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 
 /**
@@ -46,28 +47,23 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
 final class DirectCommandForwarder extends Object
 {
     /**
-     * @var AnnotatedMessageHandlerDescriptorFactory
-     */
-    private static $descriptorFactory;
-
-    /**
      * @var Repository
      */
     private $repository;
 
     /**
-     * @param Repository $repository
+     * @var MessageHandlerDescriptorFactory
      */
-    public function __construct(Repository $repository)
+    private $innerHandlerDescFactory;
+
+    /**
+     * @param Repository $repository
+     * @param MessageHandlerDescriptorFactory $innerHandlerDescFactory
+     */
+    public function __construct(Repository $repository, MessageHandlerDescriptorFactory $innerHandlerDescFactory)
     {
         $this->repository = $repository;
-    }
-
-    public static function init()
-    {
-        self::$descriptorFactory = new AnnotatedMessageHandlerDescriptorFactory(
-            new CommandFunctionDescriptorFactory()
-        );
+        $this->innerHandlerDescFactory = $innerHandlerDescFactory;
     }
 
     /**
@@ -104,7 +100,7 @@ final class DirectCommandForwarder extends Object
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }
-        $forwarderBus = new CommandBus(self::$descriptorFactory, [], null, $aggregateClass);
+        $forwarderBus = new CommandBus($aggregateClass, [], null, $this->innerHandlerDescFactory);
         $forwarderBus->register($aggregate);
         $result = null;
         $thrownException = null;
@@ -130,4 +126,3 @@ final class DirectCommandForwarder extends Object
         return $result;
     }
 }
-DirectCommandForwarder::init();

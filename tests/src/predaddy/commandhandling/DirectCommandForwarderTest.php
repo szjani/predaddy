@@ -30,6 +30,7 @@ use predaddy\domain\DomainTestCase;
 use predaddy\fixture\article\ChangeText;
 use predaddy\fixture\article\EventSourcedArticle;
 use predaddy\inmemory\InMemoryRepository;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 
@@ -51,7 +52,12 @@ class DirectCommandForwarderTest extends DomainTestCase
     {
         parent::setUp();
         $this->repository = $this->getMock('\predaddy\domain\Repository');
-        $this->directCommandForwarder = new DirectCommandForwarder($this->repository);
+        $this->directCommandForwarder = new DirectCommandForwarder(
+            $this->repository,
+            new AnnotatedMessageHandlerDescriptorFactory(
+                new CommandFunctionDescriptorFactory()
+            )
+        );
         self::$ANY_DIRECT_COMMAND = $this->getMock(__NAMESPACE__ . '\DirectCommand');
     }
 
@@ -132,7 +138,12 @@ class DirectCommandForwarderTest extends DomainTestCase
         $article = new EventSourcedArticle('author', 'text');
         $repository->save($article);
 
-        $commandForwarder = new DirectCommandForwarder($repository);
+        $commandForwarder = new DirectCommandForwarder(
+            $repository,
+            new AnnotatedMessageHandlerDescriptorFactory(
+                new CommandFunctionDescriptorFactory()
+            )
+        );
 
         $command = new ChangeText($article->getId()->value(), 'invalid', 'newText');
         $commandForwarder->catchDeadCommand(new DeadMessage($command));

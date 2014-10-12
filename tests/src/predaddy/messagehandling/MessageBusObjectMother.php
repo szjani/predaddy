@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-
 /**
  * @package predaddy\messagehandling
  *
@@ -38,11 +36,6 @@ class MessageBusObjectMother
      */
     public static function createAnnotatedBus(array $interceptors = [])
     {
-        return new SimpleMessageBus(
-            new AnnotatedMessageHandlerDescriptorFactory(
-                new DefaultFunctionDescriptorFactory()
-            ),
-            $interceptors
-        );
+        return new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, $interceptors);
     }
 }

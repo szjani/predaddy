@@ -49,9 +49,7 @@ abstract class DomainTestCase extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->eventBus = new EventBus(
-            new AnnotatedMessageHandlerDescriptorFactory(new EventFunctionDescriptorFactory())
-        );
+        $this->eventBus = new EventBus();
         $this->eventCollector = new EventCollector();
         $this->eventBus->register($this->eventCollector);
         EventPublisher::instance()->setEventBus($this->eventBus);

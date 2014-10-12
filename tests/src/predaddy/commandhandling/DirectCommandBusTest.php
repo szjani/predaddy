@@ -26,7 +26,6 @@ namespace predaddy\commandhandling;
 use Exception;
 use PHPUnit_Framework_TestCase;
 use predaddy\domain\AggregateRoot;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
@@ -36,7 +35,6 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
 {
     private static $ANY_SIMPLE_COMMAND;
 
-    private $handlerDescFact;
     private $transactionManager;
     private $repo;
 
@@ -53,13 +51,12 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->handlerDescFact = new AnnotatedMessageHandlerDescriptorFactory(new CommandFunctionDescriptorFactory());
         $this->transactionManager = new NOPTransactionManager();
         $this->repo = $this->getMock('\predaddy\domain\Repository');
         $trInterceptor = new WrapInTransactionInterceptor($this->transactionManager);
         $this->bus = new DirectCommandBus(
             $this->repo,
-            $this->handlerDescFact,
+            CommandBus::DEFAULT_NAME,
             [$trInterceptor],
             $trInterceptor
         );

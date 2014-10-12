@@ -52,19 +52,12 @@ class EmailSender
 
 // event bus initialization
 $blockerInterceptor = new BlockerInterceptor();
-$eventBus = new EventBus(
-    new AnnotatedMessageHandlerDescriptorFactory(
-        new EventFunctionDescriptorFactory()
-    ),
-    [$blockerInterceptor]
-);
+$eventBus = new EventBus('event-bus', [$blockerInterceptor]);
 $eventBus->register(new EmailSender());
 
 // command bus initialization
 $commandBus = new CommandBus(
-    new AnnotatedMessageHandlerDescriptorFactory(
-        new CommandFunctionDescriptorFactory()
-    ),
+    'command-bus',
     [$blockerInterceptor->manager()],
     $blockerInterceptor->manager()
 );
