@@ -63,7 +63,7 @@ class User extends AbstractAggregateRoot
 
     public function getId()
     {
-        return UserId::from($this->id);
+        return UserId::from($this->userId);
     }
 
     public function modifyEmailAddress($email)
