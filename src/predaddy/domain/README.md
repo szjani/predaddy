@@ -5,9 +5,9 @@ CQRS / Event Sourcing
 
 It is required to implement `Command` interface in command and `DomainEvent` interface in domain event classes. Since these interfaces extend `ObjectInterface`, it is recommended to extend `Object` in your classes which can be also found in precore library.
 
-All commands store the ID of the aggregate which should be passed to, and the current version of the aggregate. Both parameters are optional. ID should be NULL if the purpose of the command is creating a new aggregate. The version field can be used to define which version of the aggregate the user has operated on. This check must be enforced by the repository. If you don't need it, just leave it when you instantiate the command class.
+All commands store the ID of the aggregate which should be passed to, and the current state hash of the aggregate. Both parameters are optional. ID should be NULL if the purpose of the command is creating a new aggregate. The state hash field can be used to define which version of the aggregate the user has operated on. This check must be enforced by the command handler. If you don't need it, just leave it when you instantiate the command class.
 
-These values also occur in domain event objects. If a domain event extends `AbstractDomainEvent` and `DoctrineAggregateRootRepository` or `EventSourcingRepository` is being used, ID and version parameters can be omitted during object construction in ARs unless you need to read them in that particular transaction. Both repository implementations automatically set these values during the persisting process.
+These values also occur in domain event objects. If a domain event extends `AbstractDomainEvent` and an AR extends `AbstractAggregateRoot`, both parameters can be omitted during event object construction since they will be populated automatically.
 
 ### Command handling
 
