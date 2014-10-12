@@ -49,10 +49,22 @@ implement a domain specific, customized `UserRepository` interface.
 ```php
 class User extends AbstractAggregateRoot
 {
-    private $id;
+    /**
+     * Unique identifier
+     *
+     * @var string
+     */
+    private $userId;
+    
+    /**
+     * @var string
+     */
     private $email;
 
-    // some missing methods
+    public function getId()
+    {
+        return UserId::from($this->id);
+    }
 
     public function modifyEmailAddress($email)
     {
@@ -75,6 +87,9 @@ final class UserId extends UUIDAggregateId
     }
 }
 ```
+
+Hint: If your persistence library cannot manage `AggregateId` object within the aggregate roots, you can store only their value in the ARs,
+and you can recreate the ID object in the `getId()` method all the time, like in the example above.
 
 #### An event handler
 

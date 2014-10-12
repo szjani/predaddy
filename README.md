@@ -21,7 +21,7 @@ Some libraries are used which are just API libraries and you must care for their
 Components
 ----------
 
-For more details see the components:
+For more details see the components (click on the titles):
 
 1. #### [Message handling](https://github.com/szjani/predaddy/tree/3.0/src/predaddy/messagehandling#messagebus)
 
@@ -38,6 +38,6 @@ For more details see the components:
 Examples
 --------
 
-You can find some examples in the [sample directory](https://github.com/szjani/predaddy/tree/3.0/tests/src/sample).
+You can find some small CLI examples in the [sample directory](https://github.com/szjani/predaddy/tree/3.0/tests/src/sample).
 
 A sample project is also available which shows how predaddy should be configured and used: https://github.com/szjani/predaddy-issuetracker-sample
