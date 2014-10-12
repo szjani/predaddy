@@ -28,7 +28,6 @@ use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\Repository;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
