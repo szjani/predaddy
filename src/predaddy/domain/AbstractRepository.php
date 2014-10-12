@@ -33,7 +33,7 @@ abstract class AbstractRepository extends Object implements Repository
 {
     protected function throwInvalidAggregateIdException(AggregateId $aggregateId)
     {
-        $this->getLogger()->debug('Aggregate identified by [{}] could not be loaded', [$aggregateId]);
+        self::getLogger()->debug('Aggregate identified by [{}] could not be loaded', [$aggregateId]);
         throw new InvalidArgumentException(sprintf("Aggregate with ID [%s] does not exist", $aggregateId));
     }
 }
