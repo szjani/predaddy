@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 use predaddy\messagehandling\AbstractMessage;
 use predaddy\messagehandling\annotation\Subscribe;
+use predaddy\messagehandling\SimpleMessageBus;
 
 class SampleMessage1 extends AbstractMessage
 {
@@ -41,7 +42,7 @@ class SampleMessageHandler
     }
 }
 
-$bus = require_once 'sampleBus.php';
+$bus = new SimpleMessageBus();
 $bus->register(new SampleMessageHandler());
 
 $bus->post(new SampleMessage1());
