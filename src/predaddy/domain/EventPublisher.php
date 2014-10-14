@@ -45,6 +45,14 @@ final class EventPublisher extends Object
      */
     private $eventBus;
 
+    /**
+     * Should not be called!
+     */
+    public static function init()
+    {
+        self::$instance = new EventPublisher();
+    }
+
     private function __construct()
     {
         $this->eventBus = new NullMessageBus();
@@ -64,9 +72,6 @@ final class EventPublisher extends Object
      */
     public static function instance()
     {
-        if (self::$instance === null) {
-            self::$instance = new EventPublisher();
-        }
         return self::$instance;
     }
 
@@ -79,3 +84,4 @@ final class EventPublisher extends Object
         $this->eventBus->post($event);
     }
 }
+EventPublisher::init();
