@@ -111,7 +111,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
         if ($object instanceof MessageWrapper) {
             $object = $object->getMessage();
         }
-        parent::dispatch($object, $this->emptyCallback());
+        parent::dispatch($object, self::emptyCallback());
     }
 
     /**

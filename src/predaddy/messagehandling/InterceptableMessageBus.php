@@ -36,19 +36,26 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
 abstract class InterceptableMessageBus extends Object implements MessageBus
 {
     /**
+     * @var MessageCallback
+     */
+    private static $emptyCallback;
+
+    /**
      * @var DispatchInterceptor[]
      */
     private $interceptors;
 
     /**
-     * @var MessageCallback
+     * Should not be called directly!
      */
-    private $emptyCallback;
+    public static function init()
+    {
+        self::$emptyCallback = MessageCallbackClosures::builder()->build();
+    }
 
     public function __construct(array $interceptors = [])
     {
         $this->interceptors = $interceptors;
-        $this->emptyCallback = MessageCallbackClosures::builder()->build();
     }
 
     /**
@@ -80,7 +87,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
             throw new InvalidArgumentException('Message must be an object!');
         }
         if ($callback === null) {
-            $callback = $this->emptyCallback();
+            $callback = self::emptyCallback();
         }
         $dispatchClosure = function () use ($message, $callback) {
             $this->dispatch($message, $callback);
@@ -91,9 +98,9 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
     /**
      * @return MessageCallback
      */
-    final protected function emptyCallback()
+    final protected static function emptyCallback()
     {
-        return $this->emptyCallback;
+        return self::$emptyCallback;
     }
 
     /**
@@ -118,3 +125,4 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
         );
     }
 }
+InterceptableMessageBus::init();
