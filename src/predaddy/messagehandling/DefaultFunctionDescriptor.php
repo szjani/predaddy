@@ -81,37 +81,6 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
         return $this->compatibleMessageClassNames[$messageClassName];
     }
 
-    protected function canHandleValidMessage(ObjectClass $messageClass)
-    {
-        return $this->handledMessageClass->isAssignableFrom($messageClass);
-    }
-
-    protected function getBaseMessageClassName()
-    {
-        return null;
-    }
-
-    protected function check()
-    {
-        $baseClassName = $this->getBaseMessageClassName();
-        $params = $this->callableWrapper->reflectionFunction()->getParameters();
-        if (count($params) !== 1) {
-            return false;
-        }
-        /* @var $paramType ReflectionClass */
-        $paramType = $params[0]->getClass();
-        if ($paramType === null) {
-            return false;
-        }
-        $deadMessage = ObjectClass::forName(DeadMessage::className())->isAssignableFrom($paramType);
-        $acceptableType = $baseClassName === null || ObjectClass::forName($baseClassName)->isAssignableFrom($paramType);
-        if (!($deadMessage || $acceptableType)) {
-            return false;
-        }
-        $this->handledMessageClass = ObjectClass::forName($paramType->getName());
-        return true;
-    }
-
     /**
      * @return boolean
      */
@@ -167,5 +136,38 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     public function getCallableWrapper()
     {
         return $this->callableWrapper;
+    }
+
+    protected function canHandleValidMessage(ObjectClass $messageClass)
+    {
+        return $this->handledMessageClass->isAssignableFrom($messageClass);
+    }
+
+    protected function getBaseMessageClassName()
+    {
+        return null;
+    }
+
+    private function check()
+    {
+        $params = $this->callableWrapper->reflectionFunction()->getParameters();
+        if (count($params) !== 1) {
+            return false;
+        }
+        /* @var $paramType ReflectionClass */
+        $paramType = $params[0]->getClass();
+        if ($paramType === null) {
+            return false;
+        }
+        $baseClassName = $this->getBaseMessageClassName();
+        $acceptableType = $baseClassName === null || ObjectClass::forName($baseClassName)->isAssignableFrom($paramType);
+        if (!$acceptableType) {
+            $deadMessage = ObjectClass::forName(DeadMessage::className())->isAssignableFrom($paramType);
+            if (!$deadMessage) {
+                return false;
+            }
+        }
+        $this->handledMessageClass = ObjectClass::forName($paramType->getName());
+        return true;
     }
 }
