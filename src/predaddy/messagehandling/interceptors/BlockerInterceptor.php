@@ -26,8 +26,18 @@ namespace predaddy\messagehandling\interceptors;
 use precore\lang\Object;
 use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
+use predaddy\messagehandling\NonBlockable;
 
 /**
+ * It can block and buffer messages in blocking mode. Its state can be configured with start and stop methods.
+ * The collected messages can be flushed or cleared according to the needs.
+ *
+ * <p> The control can be done by a manager object, which is also an interceptor.
+ * It should be used if two buses should work together.
+ * For instance in a CQRS environment all events can be buffered until the command is processed.
+ *
+ * <p> If the message implements {@link NonBlockable} interface, it will never be buffered.
+ *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class BlockerInterceptor extends Object implements DispatchInterceptor
@@ -51,7 +61,7 @@ final class BlockerInterceptor extends Object implements DispatchInterceptor
 
     public function invoke($message, InterceptorChain $chain)
     {
-        if ($this->blocking) {
+        if ($this->blocking && !($message instanceof NonBlockable)) {
             $this->chains[] = $chain;
         } else {
             $chain->proceed();

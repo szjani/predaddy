@@ -90,4 +90,17 @@ class BlockerInterceptorTest extends PHPUnit_Framework_TestCase
         $this->interceptor->flush();
         self::assertTrue($this->chain->calledTimes(0));
     }
+
+    /**
+     * @test
+     */
+    public function shouldNotBlockNonBlockableMessage()
+    {
+        $aNonBlockable = $this->getMock('\predaddy\messagehandling\NonBlockable');
+        $this->interceptor->startBlocking();
+        $this->interceptor->invoke($aNonBlockable, $this->chain);
+        self::assertTrue($this->chain->calledTimes(1));
+        $this->interceptor->flush();
+        self::assertTrue($this->chain->calledTimes(1));
+    }
 }
