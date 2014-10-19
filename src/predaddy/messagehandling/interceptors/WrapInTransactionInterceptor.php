@@ -43,7 +43,9 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
      */
     private $transactionManager;
 
-    private $inTransaction;
+    private $transactionLevel = 0;
+
+    private $rollbackInvoked = false;
 
     /**
      * @param TransactionManager $transactionManager
@@ -55,31 +57,43 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
 
     public function invoke($message, InterceptorChain $chain)
     {
-        $this->transactionManager->beginTransaction();
-        self::getLogger()->debug('Transaction has been started');
-        $this->inTransaction = true;
-        $chain->proceed();
-        if ($this->inTransaction) {
-            try {
-                $this->transactionManager->commit();
-                self::getLogger()->debug('Transaction has been committed');
-                $this->inTransaction = false;
-            } catch (Exception $e) {
-                $this->inTransaction = false;
-                throw $e;
+        try {
+            $this->transactionLevel++;
+            if ($this->transactionLevel == 1) {
+                $this->transactionManager->beginTransaction();
+                self::getLogger()->debug('Transaction has been started');
+                $chain->proceed();
+                if (!$this->rollbackInvoked) {
+                    $this->transactionManager->commit();
+                    self::getLogger()->debug('Transaction has been committed');
+                } else {
+                    $this->rollbackInvoked = false;
+                }
+            } else {
+                self::getLogger()->debug('Transaction has already started, using the existing one');
+                $chain->proceed();
             }
+            $this->transactionLevel--;
+        } catch (Exception $e) {
+            $this->transactionLevel--;
+            throw $e;
         }
     }
 
     public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
-        try {
-            self::getLogger()->debug("Transaction rollback invoked with context '{}'!", [$context], $exception);
+        if ($this->transactionLevel == 1) {
             $this->transactionManager->rollback();
-            $this->inTransaction = false;
-        } catch (Exception $e) {
-            $this->inTransaction = false;
-            throw $e;
+            $this->rollbackInvoked = true;
+            self::getLogger()->debug("Transaction rollback invoked with context '{}'!", [$context], $exception);
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getTransactionLevel()
+    {
+        return $this->transactionLevel;
     }
 }
