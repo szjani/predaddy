@@ -107,6 +107,9 @@ class UserEventHandler
 }
 ```
 
+Hint: If you would like to handle an event immediately, within the same transaction, the event class just need to
+implement `NonBlockable` interface.
+
 #### The command handler
 
 ```php
