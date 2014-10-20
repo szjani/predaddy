@@ -80,7 +80,7 @@ final class EventPublisher extends Object
      */
     public function post(DomainEvent $event)
     {
-        self::getLogger('DomainEvent raised [{}], forwarding to the event bus...', [$event]);
+        self::getLogger()->debug('DomainEvent raised [{}], forwarding to the event bus...', [$event]);
         $this->eventBus->post($event);
     }
 }
