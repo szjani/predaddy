@@ -28,7 +28,6 @@ use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
 use predaddy\messagehandling\SubscriberExceptionHandler;
-use RuntimeException;
 
 /**
  * A typical command bus has the following behaviours:

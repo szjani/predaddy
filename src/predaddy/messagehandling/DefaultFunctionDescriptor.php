@@ -23,7 +23,6 @@
 
 namespace predaddy\messagehandling;
 
-use InvalidArgumentException;
 use precore\lang\ClassCastException;
 use precore\lang\NullPointerException;
 use precore\lang\Object;
