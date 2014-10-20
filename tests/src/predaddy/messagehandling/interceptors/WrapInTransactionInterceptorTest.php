@@ -2,8 +2,11 @@
 
 namespace predaddy\messagehandling\interceptors;
 
+use Exception;
 use PHPUnit_Framework_TestCase;
-use predaddy\messagehandling\SimpleMessage;
+use predaddy\messagehandling\AbstractMessage;
+use predaddy\messagehandling\SimpleMessageBus;
+use stdClass;
 
 /**
  * Class WrapInTransactionInterceptorTest
@@ -13,6 +16,9 @@ use predaddy\messagehandling\SimpleMessage;
  */
 class WrapInTransactionInterceptorTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var DummyTransactionManager
+     */
     private $transactionManager;
 
     /**
@@ -20,16 +26,20 @@ class WrapInTransactionInterceptorTest extends PHPUnit_Framework_TestCase
      */
     private $interceptor;
 
-    private $aMessage;
-
-    private $aChain;
+    /**
+     * @var SimpleMessageBus
+     */
+    private $aMessageBus;
 
     protected function setUp()
     {
-        $this->aMessage = new SimpleMessage();
-        $this->aChain = $this->getMock('\predaddy\messagehandling\InterceptorChain');
-        $this->transactionManager = $this->getMock('\trf4php\TransactionManager');
+        $this->transactionManager = new DummyTransactionManager();
         $this->interceptor = new WrapInTransactionInterceptor($this->transactionManager);
+        $this->aMessageBus = new SimpleMessageBus(
+            SimpleMessageBus::DEFAULT_NAME,
+            [$this->interceptor],
+            $this->interceptor
+        );
     }
 
     /**
@@ -37,24 +47,52 @@ class WrapInTransactionInterceptorTest extends PHPUnit_Framework_TestCase
      */
     public function shouldOmitIfTransactionIsAlreadyStarted()
     {
-        $this->transactionManager
-            ->expects(self::once())
-            ->method('beginTransaction');
-        $this->transactionManager
-            ->expects(self::once())
-            ->method('commit');
-        $startTransactionChain = $this->getMock('\predaddy\messagehandling\InterceptorChain');
-        $startTransactionChain
-            ->expects(self::once())
-            ->method('proceed')
-            ->will(
-                self::returnCallback(
-                    function () {
-                        $this->interceptor->invoke($this->aMessage, $this->aChain);
-                    }
-                )
-            );
-        $this->interceptor->invoke($this->aMessage, $startTransactionChain);
+        $storedObject1 = new stdClass();
+        $storedObject2 = new stdClass();
+        $this->aMessageBus->registerClosure(
+            function (Cmd1 $cmd) use ($storedObject1) {
+                $this->aMessageBus->post(new Cmd2());
+                $this->transactionManager->store($storedObject1);
+            }
+        );
+        $this->aMessageBus->registerClosure(
+            function (Cmd2 $cmd) use ($storedObject2) {
+                $this->transactionManager->store($storedObject2);
+            }
+        );
+        $this->aMessageBus->post(new Cmd1());
         self::assertEquals(0, $this->interceptor->getTransactionLevel());
+        self::assertTrue($this->transactionManager->isCommitted($storedObject1));
+        self::assertTrue($this->transactionManager->isCommitted($storedObject2));
     }
+
+    /**
+     * @test
+     */
+    public function shouldRollbackInFirstLevel()
+    {
+        $storedObject1 = new stdClass();
+        $storedObject2 = new stdClass();
+        $this->aMessageBus->registerClosure(
+            function (Cmd1 $cmd) use ($storedObject1) {
+                $this->aMessageBus->post(new Cmd2());
+                $this->transactionManager->store($storedObject1);
+            }
+        );
+        $this->aMessageBus->registerClosure(
+            function (Cmd2 $cmd) use ($storedObject2) {
+                $this->transactionManager->store($storedObject2);
+                throw new Exception("Expected exception");
+            }
+        );
+        $this->aMessageBus->post(new Cmd1());
+        self::assertEquals(0, $this->interceptor->getTransactionLevel());
+        self::assertFalse($this->transactionManager->isCommitted($storedObject1));
+        self::assertFalse($this->transactionManager->isCommitted($storedObject2));
+    }
+}
+
+class Cmd1 extends AbstractMessage {
+}
+class Cmd2 extends AbstractMessage {
 }

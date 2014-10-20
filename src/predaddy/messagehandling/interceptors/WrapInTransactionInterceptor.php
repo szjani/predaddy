@@ -45,7 +45,7 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
 
     private $transactionLevel = 0;
 
-    private $rollbackInvoked = false;
+    private $rollbackRequired = false;
 
     /**
      * @param TransactionManager $transactionManager
@@ -63,11 +63,13 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
                 $this->transactionManager->beginTransaction();
                 self::getLogger()->debug('Transaction has been started');
                 $chain->proceed();
-                if (!$this->rollbackInvoked) {
+                if ($this->rollbackRequired) {
+                    $this->transactionManager->rollback();
+                    $this->rollbackRequired = false;
+                    self::getLogger()->debug('Transaction has been rolled back');
+                } else {
                     $this->transactionManager->commit();
                     self::getLogger()->debug('Transaction has been committed');
-                } else {
-                    $this->rollbackInvoked = false;
                 }
             } else {
                 self::getLogger()->debug('Transaction has already started, using the existing one');
@@ -82,11 +84,8 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
 
     public function handleException(Exception $exception, SubscriberExceptionContext $context)
     {
-        if ($this->transactionLevel == 1) {
-            $this->transactionManager->rollback();
-            $this->rollbackInvoked = true;
-            self::getLogger()->debug("Transaction rollback invoked with context '{}'!", [$context], $exception);
-        }
+        $this->rollbackRequired = true;
+        self::getLogger()->debug("Transaction rollback required, context '{}'!", [$context], $exception);
     }
 
     /**
