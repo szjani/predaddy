@@ -24,7 +24,9 @@
 namespace predaddy\messagehandling\interceptors;
 
 use Exception;
+use lf4php\MDC;
 use precore\lang\Object;
+use precore\util\UUID;
 use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 use predaddy\messagehandling\SubscriberExceptionContext;
@@ -32,12 +34,17 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
 use trf4php\TransactionManager;
 
 /**
- * Wraps the command dispatch process in transaction.
+ * Wraps the command dispatch process in transaction. It handles nested levels, which means it does not
+ * start a new transaction if there is an open one.
+ *
+ * <p> It puts a transaction ID to MDC with 'TR' key.
  *
  * @author Szurovecz János <szjani@szjani.hu>
  */
 final class WrapInTransactionInterceptor extends Object implements DispatchInterceptor, SubscriberExceptionHandler
 {
+    const MDC_KEY = 'TR';
+
     /**
      * @var TransactionManager
      */
@@ -61,6 +68,7 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
             $this->transactionLevel++;
             if ($this->transactionLevel == 1) {
                 $this->transactionManager->beginTransaction();
+                MDC::put(self::MDC_KEY, UUID::randomUUID()->toString());
                 self::getLogger()->debug('Transaction has been started');
                 $chain->proceed();
                 if ($this->rollbackRequired) {
@@ -71,12 +79,14 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
                     $this->transactionManager->commit();
                     self::getLogger()->debug('Transaction has been committed');
                 }
+                MDC::remove(self::MDC_KEY);
             } else {
                 self::getLogger()->debug('Transaction has already started, using the existing one');
                 $chain->proceed();
             }
             $this->transactionLevel--;
         } catch (Exception $e) {
+            MDC::remove(self::MDC_KEY);
             $this->transactionLevel--;
             throw $e;
         }

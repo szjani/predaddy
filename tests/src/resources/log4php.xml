@@ -2,7 +2,7 @@
 <configuration xmlns="http://logging.apache.org/log4php/">
     <appender name="default" class="LoggerAppenderConsole">
         <layout class="LoggerLayoutPattern">
-            <param name="conversionPattern" value="[%p] %logger{20} %message%newline%ex" />
+            <param name="conversionPattern" value="[%p] %logger{20} %message [TR: %X{TR}]%newline%ex" />
         </layout>
     </appender>
     <root>
