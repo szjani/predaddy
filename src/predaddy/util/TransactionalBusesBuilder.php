@@ -176,7 +176,7 @@ final class TransactionalBusesBuilder
      */
     private function createCommandBus()
     {
-        $commandBus = null;
+        $commandBus;
         $commandInterceptorList = array_merge([$this->blockerIntManager, $this->txInterceptor], $this->commandInterceptors);
         if ($this->useDirectCommandBus) {
             $commandBus = new DirectCommandBus(

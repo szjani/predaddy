@@ -44,7 +44,7 @@ class DirectCommandBus extends CommandBus
 {
     /**
      * @param Repository $repository Is being passed to the registered DirectCommandForwarder
-     * @param array|string $identifier
+     * @param string $identifier
      * @param array $interceptors
      * @param SubscriberExceptionHandler $exceptionHandler
      * @param MessageHandlerDescriptorFactory $handlerDescFactory
