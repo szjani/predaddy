@@ -176,22 +176,21 @@ final class TransactionalBusesBuilder
      */
     private function createCommandBus()
     {
-        $commandBus;
-        $commandInterceptorList = array_merge([$this->blockerIntManager, $this->txInterceptor], $this->commandInterceptors);
-        if ($this->useDirectCommandBus) {
-            $commandBus = new DirectCommandBus(
+        $commandInterceptorList = array_merge(
+            [$this->blockerIntManager, $this->txInterceptor],
+            $this->commandInterceptors
+        );
+        return $this->useDirectCommandBus
+            ? new DirectCommandBus(
                 $this->repository,
                 CommandBus::DEFAULT_NAME,
                 $commandInterceptorList,
                 $this->exceptionHandler
-            );
-        } else {
-            $commandBus = new CommandBus(
+            )
+            : new CommandBus(
                 CommandBus::DEFAULT_NAME,
                 $commandInterceptorList,
                 $this->exceptionHandler
             );
-        }
-        return $commandBus;
     }
 }
