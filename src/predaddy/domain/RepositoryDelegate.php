@@ -24,6 +24,8 @@
 namespace predaddy\domain;
 
 use InvalidArgumentException;
+use OutOfBoundsException;
+use precore\util\Preconditions;
 
 /**
  * Delegates method calls to the repository registered to the specified aggregate.
@@ -77,11 +79,15 @@ final class RepositoryDelegate implements Repository
      */
     private function getProperRepository($className)
     {
-        if (!array_key_exists($className, $this->repositories)) {
-            throw new InvalidArgumentException(
-                sprintf("There is no registered repository to aggregate '%s'", $className)
+        try {
+            return Preconditions::checkElementExists(
+                $this->repositories,
+                $className,
+                "There is no registered repository to aggregate '%s'",
+                $className
             );
+        } catch (OutOfBoundsException $e) {
+            throw new InvalidArgumentException('', 0, $e);
         }
-        return $this->repositories[$className];
     }
 }

@@ -27,6 +27,7 @@ use InvalidArgumentException;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
+use precore\util\Preconditions;
 
 /**
  * Default implementation of Pageable.
@@ -48,9 +49,7 @@ class PageRequest extends Object implements Pageable
      */
     public function __construct($page, $size, Sort $sort = null)
     {
-        if ($page < 0) {
-            throw new InvalidArgumentException('Page must be at least 0');
-        }
+        Preconditions::checkArgument(0 <= $page, 'Page must be at least 0');
         $this->page = (int) $page;
         $this->size = (int) $size;
         $this->sort = $sort;

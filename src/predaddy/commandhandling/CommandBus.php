@@ -23,6 +23,7 @@
 
 namespace predaddy\commandhandling;
 
+use precore\util\Preconditions;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
@@ -84,10 +85,11 @@ class CommandBus extends SimpleMessageBus
     protected function callableWrappersFor($message)
     {
         $wrappers = parent::callableWrappersFor($message);
-        if (1 < count($wrappers)) {
-            $class = get_class($message);
-            throw new RuntimeException("More than one command handler is registered for message '$class'");
-        }
+        Preconditions::checkState(
+            count($wrappers) <= 1,
+            "More than one command handler is registered for message '%s'",
+            get_class($message)
+        );
         return $wrappers;
     }
 }

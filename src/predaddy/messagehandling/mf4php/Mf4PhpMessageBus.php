@@ -29,6 +29,7 @@ use mf4php\Message as Mf4phpMessage;
 use mf4php\MessageDispatcher;
 use mf4php\MessageListener;
 use mf4php\ObjectMessage;
+use precore\util\Preconditions;
 use predaddy\messagehandling\MessageCallback;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
@@ -104,9 +105,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      */
     public function onMessage(Mf4phpMessage $message)
     {
-        if (!($message instanceof ObjectMessage)) {
-            throw new InvalidArgumentException("Message must be an instance of ObjectMessage");
-        }
+        Preconditions::checkArgument($message instanceof ObjectMessage, "Message must be an instance of ObjectMessage");
         $object = $message->getObject();
         if ($object instanceof MessageWrapper) {
             $object = $object->getMessage();

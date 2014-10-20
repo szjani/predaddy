@@ -84,7 +84,7 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \InvalidArgumentException
+     * @expectedException \RuntimeException
      */
     public function shouldNotBeComparableWithNull()
     {

@@ -25,10 +25,12 @@ namespace predaddy\messagehandling;
 
 use InvalidArgumentException;
 use precore\lang\ClassCastException;
+use precore\lang\NullPointerException;
 use precore\lang\Object;
 use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
+use precore\util\Preconditions;
 use ReflectionClass;
 
 /**
@@ -110,13 +112,11 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
      * @return int a negative integer, zero, or a positive integer
      *         as this object is less than, equal to, or greater than the specified object.
      * @throws ClassCastException - if the specified object's type prevents it from being compared to this object.
-     * @throws InvalidArgumentException if the specified object is null
+     * @throws NullPointerException if the specified object is null
      */
     public function compareTo($object)
     {
-        if ($object === null) {
-            throw new InvalidArgumentException('Compared object cannot be null');
-        }
+        Preconditions::checkNotNull($object, 'Compared object cannot be null');
         if (!($object instanceof self)) {
             throw new ClassCastException(sprintf('Compared object must be an instance of %s', __CLASS__));
         }

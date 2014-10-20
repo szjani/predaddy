@@ -23,6 +23,7 @@
 
 namespace predaddy\util;
 
+use precore\util\Preconditions;
 use predaddy\commandhandling\CommandBus;
 use predaddy\commandhandling\DirectCommandBus;
 use predaddy\domain\EventPublisher;
@@ -140,9 +141,10 @@ final class TransactionalBusesBuilder
      */
     public function useDirectCommandBus($flag = true)
     {
-        if ($flag && $this->repository === null) {
-            throw new RuntimeException('You must set a Repository to be able to create DirectCommandBus');
-        }
+        Preconditions::checkState(
+            !$flag || $this->repository !== null,
+            'You must set a Repository to be able to create DirectCommandBus'
+        );
         $this->useDirectCommandBus = $flag;
         return $this;
     }
