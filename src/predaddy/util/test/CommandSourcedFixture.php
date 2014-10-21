@@ -25,7 +25,6 @@ namespace predaddy\util\test;
 
 use predaddy\commandhandling\Command;
 use predaddy\domain\DomainEvent;
-use predaddy\domain\Repository;
 
 /**
  * Class CommandSourcedFixture
@@ -38,14 +37,15 @@ class CommandSourcedFixture extends Fixture
     /**
      * @var array
      */
-    private $givenCommands;
+    private $givenCommands = [];
 
-    public function __construct($aggregateClass, Repository $repository = null)
-    {
-        parent::__construct($aggregateClass, $repository);
-        $this->givenCommands = [];
-    }
-
+    /**
+     * These commands will be initialize the AR. The raised domain events will be ignored.
+     * It works only with non-ES aggregates.
+     *
+     * @param Command $commands one ore more commands
+     * @return CommandSourcedFixture
+     */
     public function givenCommands(Command $commands)
     {
         $this->givenCommands = func_get_args();

@@ -46,18 +46,19 @@ final class EventSourcedFixture extends Fixture
     /**
      * @var DomainEvent[]
      */
-    private $given;
+    private $given = [];
 
     public function __construct($aggregateClass)
     {
         $this->eventStore = new InMemoryEventStore();
         parent::__construct($aggregateClass, new EventSourcingRepository($this->eventStore));
-        $this->given = [];
     }
 
     /**
+     * These events will be initialize the AR. It works only with ES aggregates.
+     *
      * @param DomainEvent $events
-     * @return $this
+     * @return EventSourcedFixture
      */
     public function givenEvents(DomainEvent $events)
     {

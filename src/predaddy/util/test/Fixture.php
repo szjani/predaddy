@@ -40,7 +40,8 @@ use predaddy\domain\DomainEvent;
 use predaddy\domain\EventPublisher;
 use predaddy\domain\Repository;
 use predaddy\eventhandling\EventBus;
-use predaddy\messagehandling\util\MessageCallbackClosures;
+use predaddy\messagehandling\annotation\Subscribe;
+use predaddy\messagehandling\MessageCallback;
 
 /**
  * Class Fixture
@@ -48,7 +49,7 @@ use predaddy\messagehandling\util\MessageCallbackClosures;
  * @package predaddy\util\test
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-abstract class Fixture
+abstract class Fixture implements MessageCallback
 {
     const EVENT_NUMBER_MISMATCH = 'Raised and expected number of events mismatches';
 
@@ -88,6 +89,11 @@ abstract class Fixture
     private $expectedReturnValue;
 
     /**
+     * @var mixed
+     */
+    private $commandResult;
+
+    /**
      * @var bool
      */
     private $checkReturnValue = false;
@@ -101,6 +107,11 @@ abstract class Fixture
      * @var null|string
      */
     private $expectedExceptionMessage = null;
+
+    /**
+     * @var null|Exception
+     */
+    private $raisedException;
 
     /**
      * @var null|Repository
@@ -198,13 +209,12 @@ abstract class Fixture
     /**
      * Sets the aggregate ID for the given command.
      * Useful if we don't know the AR ID in the test case and it is not interesting either.
-     *
      * Can be used both in {@link givenCommands()} and {@link when()} method parameters.
      *
      * Do not use it with create commands, unless the AR ID is defined by the client and the command must know it.
      *
      * @param AbstractCommand $command
-     * @return AbstractCommand
+     * @return AbstractCommand the command itself, but it may be populated later
      */
     public function fill(AbstractCommand $command)
     {
@@ -277,6 +287,34 @@ abstract class Fixture
     }
 
     /**
+     * @param mixed $result
+     * @return void
+     */
+    public function onSuccess($result)
+    {
+        $this->commandResult = $result;
+    }
+
+    /**
+     * @param Exception $exception
+     * @return void
+     */
+    public function onFailure(Exception $exception)
+    {
+        $this->raisedException = $exception;
+    }
+
+    /**
+     * @Subscribe
+     * @param DomainEvent $event
+     */
+    public function catchEvent(DomainEvent $event)
+    {
+        $this->raisedEvents[] = $event;
+        $this->setAggregateId($event->aggregateId());
+    }
+
+    /**
      * @param AggregateId $aggregateId
      */
     protected function setAggregateId(AggregateId $aggregateId)
@@ -311,6 +349,36 @@ abstract class Fixture
         return $this->aggregateClass;
     }
 
+    private function evaluate()
+    {
+        $this->eventBus->register($this);
+        $this->commandBus->post($this->command, $this);
+        $this->checkReturnValue();
+        $this->checkThrownException();
+        $this->checkRaisedEvents();
+    }
+
+    private function checkReturnValue()
+    {
+        if ($this->checkReturnValue) {
+            PHPUnit_Framework_TestCase::assertEquals($this->expectedReturnValue, $this->commandResult);
+        }
+    }
+
+    private function checkThrownException()
+    {
+        if ($this->raisedException !== null) {
+            /* @var $exception Exception */
+            PHPUnit_Framework_TestCase::assertInstanceOf($this->expectedExceptionClass, $this->raisedException);
+            if ($this->expectedExceptionMessage !== null) {
+                PHPUnit_Framework_TestCase::assertEquals(
+                    $this->expectedExceptionMessage,
+                    $this->raisedException->getMessage()
+                );
+            }
+        }
+    }
+
     private function checkRaisedEvents()
     {
         $thenCount = count($this->then);
@@ -327,42 +395,6 @@ abstract class Fixture
             }
             PHPUnit_Framework_TestCase::assertEquals($expectedEvent, $raisedEvent);
         }
-    }
-
-    private function evaluate()
-    {
-        $this->eventBus->registerClosure(
-            function (DomainEvent $event) {
-                $this->raisedEvents[] = $event;
-                $this->setAggregateId($event->aggregateId());
-            }
-        );
-        $commandResult = null;
-        $exception = null;
-        $callback = MessageCallbackClosures::builder()
-            ->successClosure(
-                function ($result) use (&$commandResult) {
-                    $commandResult = $result;
-                }
-            )
-            ->failureClosure(
-                function (Exception $e) use (&$exception) {
-                    $exception = $e;
-                }
-            )
-            ->build();
-        $this->commandBus->post($this->command, $callback);
-        if ($this->checkReturnValue) {
-            PHPUnit_Framework_TestCase::assertEquals($this->expectedReturnValue, $commandResult);
-        }
-        if ($exception !== null) {
-            /* @var $exception Exception */
-            PHPUnit_Framework_TestCase::assertInstanceOf($this->expectedExceptionClass, $exception);
-            if ($this->expectedExceptionMessage !== null) {
-                PHPUnit_Framework_TestCase::assertEquals($this->expectedExceptionMessage, $exception->getMessage());
-            }
-        }
-        $this->checkRaisedEvents();
     }
 }
 

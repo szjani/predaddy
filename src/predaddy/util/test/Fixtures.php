@@ -30,9 +30,13 @@ use predaddy\domain\Repository;
 /**
  * Utility class which makes easier to test aggregates. Supports both ES and non-ES aggregates.
  * Follows BDD concept:
- *  - init commands or events initialize the AR
- *  - the required command should be sent
- *  - the expected events, return values, or thrown exception can be checked
+ * <ul>
+ *   <li>init commands or events initialize the AR
+ *   <li>the required command should be sent
+ *   <li>the expected events, return values, or thrown exception can be checked
+ * </ul>
+ *
+ * It uses PHPUnit, which must be available.
  *
  * {@link Fixture} helps to fill commands with aggregate ID, and ignore some properties when compares events.
  * It is convenience if the aggregate ID is generated inside the AR, and further commands need to know it.
