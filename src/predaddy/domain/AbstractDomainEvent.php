@@ -81,7 +81,7 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
     protected function toStringHelper()
     {
         return parent::toStringHelper()
-            ->add('aggregateClass', $this->aggregateValue)
+            ->add('aggregateClass', $this->aggregateClass)
             ->add('aggregateValue', $this->aggregateValue)
             ->add('stateHash', $this->stateHash);
     }
