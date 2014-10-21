@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use precore\lang\ObjectInterface;
+use precore\util\Preconditions;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\Subscribe;
 
@@ -64,6 +65,7 @@ class User extends AbstractAggregateRoot
 
     public function increment()
     {
+        Preconditions::checkState($this->value <= 2, "Cannot be incremented more, than twice");
         $this->value++;
         $this->version++;
         $this->raise(new IncrementedEvent());

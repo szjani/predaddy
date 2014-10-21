@@ -40,6 +40,10 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
     const DEFAULT_VALUE = 1;
 
     private $id;
+
+    /**
+     * @var int
+     */
     public $value = self::DEFAULT_VALUE;
 
     /**
@@ -62,10 +66,12 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
     /**
      * @Subscribe
      * @param Increment $command
+     * @return int new value
      */
     public function increment(Increment $command)
     {
         $this->apply(new IncrementedEvent($this->id));
+        return $this->value;
     }
 
     /**
@@ -74,7 +80,7 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     public function decrement(Decrement $command)
     {
-        $this->apply(new DecrementedEvent());
+        $this->apply(new DecrementedEvent($this->value - 1));
     }
 
     /**

@@ -21,21 +21,42 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\util\test;
 
-use PHPUnit_Framework_TestCase;
+use predaddy\commandhandling\Command;
+use predaddy\domain\DomainEvent;
+use predaddy\domain\Repository;
 
 /**
- * @package predaddy\domain
+ * Class CommandSourcedFixture
  *
- * @author Szurovecz János <szjani@szjani.hu>
+ * @package predaddy\util\test
+ * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class AbstractDomainEventTest extends PHPUnit_Framework_TestCase
+class CommandSourcedFixture extends Fixture
 {
-    public function testEmptyConstructorResult()
+    /**
+     * @var array
+     */
+    private $givenCommands;
+
+    public function __construct($aggregateClass, Repository $repository = null)
     {
-        $event = new DecrementedEvent(1);
-        self::assertNull($event->stateHash());
-        self::assertEquals('', $event->aggregateId()->value());
+        parent::__construct($aggregateClass, $repository);
+        $this->givenCommands = [];
+    }
+
+    public function givenCommands(Command $commands)
+    {
+        $this->givenCommands = func_get_args();
+        $eventHandler = function (DomainEvent $event) {
+            $this->setAggregateId($event->aggregateId());
+        };
+        $this->getEventBus()->registerClosure($eventHandler);
+        foreach ($this->givenCommands as $command) {
+            $this->getCommandBus()->post($command);
+        }
+        $this->getEventBus()->unregisterClosure($eventHandler);
+        return $this;
     }
 }
