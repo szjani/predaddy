@@ -34,6 +34,10 @@ For more details see the components (click on the titles):
 3. #### [Presentation - finders, etc.](https://github.com/szjani/predaddy/tree/3.0/src/predaddy/presentation#paginator-components)
 
    Common classes and interfaces for handling the read side. It also can be used in any applications.
+   
+4. #### [Testing - helper for aggregate testing](https://github.com/szjani/predaddy/tree/3.0/src/predaddy/util/test#testing)
+
+   Fixtures to ease aggregate testing.
 
 Examples
 --------
