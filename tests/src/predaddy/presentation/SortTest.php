@@ -102,7 +102,7 @@ class SortTest extends PHPUnit_Framework_TestCase
         $properties = ['prop1', 'prop2'];
         $sort = Sort::create($properties, Direction::$DESC);
         self::assertEquals(
-            'predaddy\presentation\Sort{orders={0=predaddy\presentation\Order{property=prop1, direction=predaddy\presentation\Direction::$DESC}, 1=predaddy\presentation\Order{property=prop2, direction=predaddy\presentation\Direction::$DESC}}}',
+            'predaddy\presentation\Sort{orders={0=predaddy\presentation\Order{property=prop1, direction=DESC}, 1=predaddy\presentation\Order{property=prop2, direction=DESC}}}',
             $sort->toString()
         );
     }

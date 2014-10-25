@@ -106,7 +106,7 @@ class PageRequestTest extends PHPUnit_Framework_TestCase
     {
         $pageRequest = new PageRequest($this->page, $this->size, $this->sort);
         self::assertEquals(
-            'predaddy\presentation\PageRequest{page=3, size=4, sort=predaddy\presentation\Sort{orders={0=predaddy\presentation\Order{property=prop1, direction=predaddy\presentation\Direction::$DESC}}}}',
+            'predaddy\presentation\PageRequest{page=3, size=4, sort=predaddy\presentation\Sort{orders={0=predaddy\presentation\Order{property=prop1, direction=DESC}}}}',
             $pageRequest->toString()
         );
     }
