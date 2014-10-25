@@ -18,7 +18,7 @@ use predaddy\messagehandling\SimpleMessageHandler;
 /**
  * Description of Mf4PhpMessageBusTest
  *
- * @author Szurovecz János <szjani@szjani.hu>
+ * @author Janos Szurovecz <szjani@szjani.hu>
  */
 class Mf4PhpMessageBusTest extends SimpleMessageBusTest
 {

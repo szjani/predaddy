@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2012-2014 Szurovecz János
+ * Copyright (c) 2012-2014 Janos Szurovecz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,7 +26,7 @@ namespace predaddy\commandhandling;
 /**
  * Can be used for any DirectCommand. These objects are being passed directly to the proper aggregate.
  *
- * @author Szurovecz János <szjani@szjani.hu>
+ * @author Janos Szurovecz <szjani@szjani.hu>
  */
 abstract class AbstractDirectCommand extends AbstractCommand implements DirectCommand
 {
