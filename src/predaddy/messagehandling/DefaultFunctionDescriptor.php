@@ -161,7 +161,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
         $baseClassName = $this->getBaseMessageClassName();
         $acceptableType = $baseClassName === null || ObjectClass::forName($baseClassName)->isAssignableFrom($paramType);
         if (!$acceptableType) {
-            $deadMessage = ObjectClass::forName(DeadMessage::className())->isAssignableFrom($paramType);
+            $deadMessage = DeadMessage::objectClass()->isAssignableFrom($paramType);
             if (!$deadMessage) {
                 return false;
             }
