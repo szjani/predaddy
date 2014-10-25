@@ -130,7 +130,7 @@ class DirectCommandForwarderTest extends DomainTestCase
 
     /**
      * @test
-     * @expectedException \UnexpectedValueException
+     * @expectedException \precore\lang\IllegalStateException
      */
     public function shouldFailStateHashCheck()
     {

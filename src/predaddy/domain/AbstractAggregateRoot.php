@@ -23,10 +23,11 @@
 
 namespace predaddy\domain;
 
+use precore\lang\IllegalStateException;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
-use UnexpectedValueException;
+use precore\util\Preconditions;
 
 /**
  * AggregateRoot implementation which provides features for handling
@@ -53,15 +54,14 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
 
     /**
      * @param string $expectedHash
-     * @throws UnexpectedValueException
+     * @throws IllegalStateException
      */
     final public function failWhenStateHashViolation($expectedHash)
     {
-        if ($expectedHash !== $this->stateHash()) {
-            throw new UnexpectedValueException(
-                'Concurrency Violation: Stale data detected. Entity was already modified.'
-            );
-        }
+        Preconditions::checkState(
+            $this->stateHash() === $expectedHash,
+            'Concurrency Violation: Stale data detected. Entity was already modified.'
+        );
     }
 
     /**

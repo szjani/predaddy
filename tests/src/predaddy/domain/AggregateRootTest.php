@@ -23,13 +23,6 @@
 
 namespace predaddy\domain;
 
-use PHPUnit_Framework_TestCase;
-use predaddy\eventhandling\EventBus;
-use predaddy\eventhandling\EventFunctionDescriptorFactory;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
-use SplObjectStorage;
-
 /**
  * Description of AggregateRootTest
  *
@@ -82,7 +75,7 @@ class AggregateRootTest extends DomainTestCase
 
     /**
      * @test
-     * @expectedException \UnexpectedValueException
+     * @expectedException \precore\lang\IllegalStateException
      */
     public function stateHashViolationShouldThrowException()
     {

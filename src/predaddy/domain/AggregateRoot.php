@@ -23,6 +23,8 @@
 
 namespace predaddy\domain;
 
+use precore\lang\IllegalStateException;
+
 /**
  * Aggregate root class which provides the AggregateId
  * and the ability to validate its state.
@@ -44,7 +46,7 @@ interface AggregateRoot extends Entity, StateHashAware
      *
      * @see http://www.w3.org/1999/04/Editing
      * @param string $expectedHash
-     * @throws \UnexpectedValueException
+     * @throws IllegalStateException
      */
     public function failWhenStateHashViolation($expectedHash);
 }
