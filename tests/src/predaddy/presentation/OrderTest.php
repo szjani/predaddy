@@ -49,7 +49,7 @@ class OrderTest extends \PHPUnit_Framework_TestCase
         $property = 'name';
         $order = new Order(Direction::$ASC, $property);
         self::assertEquals(
-            'predaddy\presentation\Order{property=name, direction=ASC}',
+            'predaddy\presentation\Order{name, ASC}',
             $order->toString()
         );
     }

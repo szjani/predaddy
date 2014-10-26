@@ -77,8 +77,8 @@ class Order extends Object
     public function toString()
     {
         return Objects::toStringHelper($this)
-            ->add('property', $this->property)
-            ->add('direction', $this->direction)
+            ->add($this->property)
+            ->add($this->direction)
             ->toString();
     }
 }

@@ -73,8 +73,8 @@ final class DefaultAggregateId extends Object implements AggregateId
     public function toString()
     {
         return Objects::toStringHelper($this)
-            ->add('value', $this->value)
-            ->add('aggregateClass', $this->aggregateClass)
+            ->add($this->value)
+            ->add($this->aggregateClass)
             ->toString();
     }
 

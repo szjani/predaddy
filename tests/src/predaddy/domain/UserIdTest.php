@@ -35,7 +35,6 @@ class UserIdTest extends PHPUnit_Framework_TestCase
     public function testToString()
     {
         $userId = UserId::create();
-        self::assertRegExp('#uuid=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}#', (string) $userId);
-        self::assertTrue(0 < strpos((string) $userId, sprintf('aggregateClass=%s', User::className())));
+        self::assertRegExp('#[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}.*User\}$#', (string) $userId);
     }
 }

@@ -82,8 +82,8 @@ abstract class UUIDAggregateId extends Object implements AggregateId
     final public function toString()
     {
         return Objects::toStringHelper($this)
-            ->add('uuid', $this->value())
-            ->add('aggregateClass', $this->aggregateClass())
+            ->add($this->value())
+            ->add($this->aggregateClass())
             ->toString();
     }
 }

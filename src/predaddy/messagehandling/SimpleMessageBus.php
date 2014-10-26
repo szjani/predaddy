@@ -270,7 +270,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     public function toString()
     {
         return Objects::toStringHelper($this)
-            ->add('id', $this->identifier)
+            ->add($this->identifier)
             ->toString();
     }
 }
