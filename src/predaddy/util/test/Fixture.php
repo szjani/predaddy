@@ -384,7 +384,7 @@ abstract class Fixture implements MessageCallback
         $thenCount = count($this->then);
         $raisedCount = count($this->raisedEvents);
         PHPUnit_Framework_TestCase::assertEquals($thenCount, $raisedCount, self::EVENT_NUMBER_MISMATCH);
-        for ($i = 0; $i < count($this->then); $i++) {
+        for ($i = 0; $i < $thenCount; $i++) {
             $expectedEvent = $this->then[$i];
             $raisedEvent = $this->raisedEvents[$i];
             if ($raisedEvent instanceof AbstractDomainEvent) {
