@@ -36,6 +36,10 @@ final class MethodConfiguration
     private $name;
     private $priority;
 
+    /**
+     * @param string $name
+     * @param int $priority
+     */
     public function __construct($name, $priority = MessageBus::DEFAULT_PRIORITY)
     {
         $this->name = $name;
