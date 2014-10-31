@@ -24,16 +24,32 @@
 namespace predaddy\messagehandling;
 
 use precore\lang\Object;
+use precore\util\UUID;
+use predaddy\messagehandling\annotation\Subscribe;
 
 /**
  * Description of AbstractMessageHandler
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class AbstractMessageHandler extends Object
+abstract class AbstractMessageHandler extends Object
 {
     /**
      * @var Message
      */
     public $lastMessage;
+
+    /**
+     * @var UUID
+     */
+    public $lastParentMessage;
+
+    /**
+     * @Subscribe
+     * @param UUID $message
+     */
+    public function handleInParent(UUID $message)
+    {
+        $this->lastParentMessage = $message;
+    }
 }

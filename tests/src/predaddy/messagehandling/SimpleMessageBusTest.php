@@ -81,6 +81,20 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         self::assertSame($expectedMessage, $deadMessageHandler->lastMessage->wrappedMessage());
     }
 
+    /**
+     * @test
+     */
+    public function shouldHandlerBeCalledFromParent()
+    {
+        $message = UUID::randomUUID();
+        $handler = new SimpleMessageHandler();
+
+        $this->bus->register($handler);
+        $this->bus->post($message);
+
+        self::assertSame($message, $handler->lastParentMessage);
+    }
+
     public function testMultipleSaveMessageHandler()
     {
         $multipleSameMessageHandler = new MultipleSameMessageHandler();
