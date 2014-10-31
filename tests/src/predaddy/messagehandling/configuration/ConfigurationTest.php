@@ -28,12 +28,11 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \RuntimeException
      */
-    public function shouldErrorIfMissingConfiguration()
+    public function shouldReturnNoMethods()
     {
         $configuration = Configuration::builder()->build();
-        $configuration->methodsFor($this->anObject);
+        self::assertCount(0, $configuration->methodsFor($this->anObject));
     }
 
     /**

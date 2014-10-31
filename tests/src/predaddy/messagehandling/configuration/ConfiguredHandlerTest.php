@@ -5,8 +5,10 @@ namespace predaddy\messagehandling\configuration;
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
+use predaddy\messagehandling\AbstractMessageHandler;
 use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
+use predaddy\messagehandling\SimpleMessageHandler;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use stdClass;
 
@@ -80,6 +82,24 @@ class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
         $message = UUID::randomUUID();
         $bus->post($message, self::assertReturn($message));
         self::assertEquals(2, $this->called);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldHandlerBeCalledFromParent()
+    {
+        $message = UUID::randomUUID();
+        $handler = new SimpleMessageHandler();
+
+        $config = Configuration::builder()
+            ->withMethod(AbstractMessageHandler::className(), new MethodConfiguration('handleInParent'))
+            ->build();
+        $bus = $this->createBus($config);
+        $bus->register($handler);
+        $bus->post($message);
+
+        self::assertSame($message, $handler->lastParentMessage);
     }
 
     /**

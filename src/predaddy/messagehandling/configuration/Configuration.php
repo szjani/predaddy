@@ -23,11 +23,15 @@
 
 namespace predaddy\messagehandling\configuration;
 
+use precore\lang\ObjectClass;
 use precore\util\Preconditions;
 
 /**
  * A {@link Configuration} object stores handler method definitions for handler classes.
  * It is intended to configure {@link SimpleMessageBus} without annotation scanning.
+ *
+ * Supports parent classes as expected. It means you need to register a handler method for only one class
+ * and that will be valid for all subclasses.
  *
  * Any configuration file reader classes should use it.
  *
@@ -62,13 +66,18 @@ final class Configuration
      */
     public function methodsFor($handler)
     {
-        $class = get_class($handler);
-        return Preconditions::checkElementExists(
-            $this->configMap,
-            $class,
-            'No handler method is registered for class [%s]',
-            $class
-        );
+        $handlerClass = get_class($handler);
+        if (!array_key_exists($handlerClass, $this->configMap)) {
+            $handlerClassObject = ObjectClass::forName($handlerClass);
+            $handlerConfig = [];
+            foreach ($this->configMap as $class => $currentConfigs) {
+                if (ObjectClass::forName($class)->isAssignableFrom($handlerClassObject)) {
+                    $handlerConfig = array_merge($handlerConfig, $currentConfigs);
+                }
+            }
+            $this->configMap[$handlerClass] = $handlerConfig;
+        }
+        return $this->configMap[$handlerClass];
     }
 
     /**
