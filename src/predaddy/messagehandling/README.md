@@ -74,6 +74,36 @@ $closure = function (Message $message) {
 };
 ```
 
+If you prefer non-annotation based configuration, you can use `Configuration` and the related `ConfiguredMessageHandlerDescriptorFactory`
+classes to setup a `SimpleMessageBus` object.
+
+The following example shows how you can use both annotation scanning and configuration based setup at the same time.
+
+```php
+// handler method configuration
+$configuration = Configuration::builder()
+    ->withMethod('Foo\Foo', new MethodConfiguration('handlerMethodName'))
+    ->withMethod('Bar\Bar', new MethodConfiguration('barHandler', 3))
+    ->withMethod('Foo\AbstractHandler', new MethodConfiguration('allMessageHandler'))
+    ->build();
+
+$functionDescFactory = new DefaultFunctionDescriptorFactory();
+$messageBus = new SimpleMessageBus(
+    'bus-name',
+    [], // not relevant now
+    null, // not relevant now
+    new MultipleMessageHandlerDescriptorFactory(
+        $functionDescFactory,
+        [
+            new ConfiguredMessageHandlerDescriptorFactory($functionDescFactory, $configuration),
+            new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
+        ]
+    )
+);
+```
+
+Hint: Feel free to implement any configuration file reading utility class which provides the properly built `Configuration` object.
+
 ### Registering handlers
 
 ```php

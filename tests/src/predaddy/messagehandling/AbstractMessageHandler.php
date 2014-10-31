@@ -44,6 +44,8 @@ abstract class AbstractMessageHandler extends Object
      */
     public $lastParentMessage;
 
+    public $counterInParent = 0;
+
     /**
      * @Subscribe
      * @param UUID $message
@@ -51,5 +53,6 @@ abstract class AbstractMessageHandler extends Object
     public function handleInParent(UUID $message)
     {
         $this->lastParentMessage = $message;
+        $this->counterInParent++;
     }
 }
