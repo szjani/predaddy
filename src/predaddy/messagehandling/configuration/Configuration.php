@@ -24,7 +24,6 @@
 namespace predaddy\messagehandling\configuration;
 
 use precore\lang\ObjectClass;
-use precore\util\Preconditions;
 
 /**
  * A {@link Configuration} object stores handler method definitions for handler classes.
