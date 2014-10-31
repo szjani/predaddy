@@ -298,7 +298,7 @@ if all necessary dependencies are passed to the constructor and inner objects ar
 
 ### Performance
 
-If you use annotation based configuration which is the only way supported by predaddy, you should pay attention to annotation caching.
+If you use annotation based configuration, you should pay attention to annotation caching.
 Annotation scanning takes time which can be avoided by using an explicitly set `Reader` object. The following example shows
 how annotations can be cached in APC. You can read more about it in [Doctrine Annotation manual](http://docs.doctrine-project.org/projects/doctrine-common/en/latest/reference/annotations.html#setup-and-configuration).
 
