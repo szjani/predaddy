@@ -22,7 +22,7 @@ class MultipleConfiguredHandlerTest extends PHPUnit_Framework_TestCase
     public function shouldWorkBothAnnotationAndConfiguration()
     {
         $configuration = Configuration::builder()
-            ->withMethod(ConfiguredHandler::className(), new MethodConfiguration('configuredHandler'))
+            ->withMethod(ConfiguredHandler::className(), 'configuredHandler')
             ->build();
         $bus = $this->createBus($configuration);
         $handler = new ConfiguredHandler();
@@ -39,7 +39,7 @@ class MultipleConfiguredHandlerTest extends PHPUnit_Framework_TestCase
     public function shouldCallOnlyOnceAHandlerMethod()
     {
         $configuration = Configuration::builder()
-            ->withMethod(ConfiguredHandler::className(), new MethodConfiguration('handleInParent'))
+            ->withMethod(ConfiguredHandler::className(), 'handleInParent')
             ->build();
         $bus = $this->createBus($configuration);
         $handler = new ConfiguredHandler();

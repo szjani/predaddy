@@ -41,7 +41,7 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     public function shouldBuildOneMethod()
     {
         $configuration = Configuration::builder()
-            ->withMethod(self::A_CLASS_NAME, new MethodConfiguration(self::A_METHOD_NAME, self::A_PRIORITY))
+            ->withMethod(self::A_CLASS_NAME, self::A_METHOD_NAME, self::A_PRIORITY)
             ->build();
         $methodConfigs = $configuration->methodsFor($this->anObject);
         self::assertCount(1, $methodConfigs);
@@ -55,28 +55,12 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     public function shouldBuildTwoMethods()
     {
         $configuration = Configuration::builder()
-            ->withMethod(self::A_CLASS_NAME, new MethodConfiguration(self::A_METHOD_NAME, self::A_PRIORITY))
-            ->withMethod(self::A_CLASS_NAME, new MethodConfiguration(self::A_METHOD_NAME2))
+            ->withMethod(self::A_CLASS_NAME, self::A_METHOD_NAME, self::A_PRIORITY)
+            ->withMethod(self::A_CLASS_NAME, self::A_METHOD_NAME2)
             ->build();
         $methodConfigs = $configuration->methodsFor($this->anObject);
         self::assertCount(2, $methodConfigs);
         self::assertEquals(self::A_METHOD_NAME2, $methodConfigs[1]->getName());
         self::assertEquals(MessageBus::DEFAULT_PRIORITY, $methodConfigs[1]->getPriority());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldBuildTwoMethodsWithOneLine()
-    {
-        $configuration = Configuration::builder()
-            ->withMethod(
-                self::A_CLASS_NAME,
-                new MethodConfiguration(self::A_METHOD_NAME, self::A_PRIORITY),
-                new MethodConfiguration(self::A_METHOD_NAME2)
-            )
-            ->build();
-        $methodConfigs = $configuration->methodsFor($this->anObject);
-        self::assertCount(2, $methodConfigs);
     }
 }

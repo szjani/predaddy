@@ -23,8 +23,6 @@
 
 namespace predaddy\messagehandling\configuration;
 
-use predaddy\messagehandling\MessageBus;
-
 /**
  * Represents a handler method's name and priority.
  *
@@ -40,7 +38,7 @@ final class MethodConfiguration
      * @param string $name
      * @param int $priority
      */
-    public function __construct($name, $priority = MessageBus::DEFAULT_PRIORITY)
+    public function __construct($name, $priority)
     {
         $this->name = $name;
         $this->priority = (int) $priority;

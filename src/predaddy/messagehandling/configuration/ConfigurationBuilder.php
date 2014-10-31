@@ -23,6 +23,8 @@
 
 namespace predaddy\messagehandling\configuration;
 
+use predaddy\messagehandling\MessageBus;
+
 /**
  * Builder for {@link Configuration} class.
  *
@@ -39,17 +41,13 @@ final class ConfigurationBuilder
 
     /**
      * @param string $class FQCN
-     * @param MethodConfiguration... $configurations on or more instances
+     * @param string $methodName
+     * @param int $priority
      * @return $this
      */
-    public function withMethod($class, MethodConfiguration $configurations)
+    public function withMethod($class, $methodName, $priority = MessageBus::DEFAULT_PRIORITY)
     {
-        $configurations = array_slice(func_get_args(), 1);
-        $class = trim($class, '\\');
-        if (array_key_exists($class, $this->configMap)) {
-            $configurations = array_merge($this->configMap[$class], $configurations);
-        }
-        $this->configMap[$class] = $configurations;
+        $this->configMap[trim($class, '\\')][] = new MethodConfiguration($methodName, $priority);
         return $this;
     }
 

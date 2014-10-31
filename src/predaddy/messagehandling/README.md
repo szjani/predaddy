@@ -82,9 +82,9 @@ The following example shows how you can use both annotation scanning and configu
 ```php
 // handler method configuration
 $configuration = Configuration::builder()
-    ->withMethod('Foo\Foo', new MethodConfiguration('handlerMethodName'))
-    ->withMethod('Bar\Bar', new MethodConfiguration('barHandler', 3))
-    ->withMethod('Foo\AbstractHandler', new MethodConfiguration('allMessageHandler'))
+    ->withMethod('Foo\Foo', 'handlerMethodName')
+    ->withMethod('Bar\Bar', 'barHandler', 3)
+    ->withMethod('Foo\AbstractHandler', 'allMessageHandler')
     ->build();
 
 $functionDescFactory = new DefaultFunctionDescriptorFactory();

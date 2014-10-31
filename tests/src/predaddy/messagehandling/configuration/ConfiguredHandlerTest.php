@@ -44,7 +44,7 @@ class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
     public function shouldNotHandle()
     {
         $config = Configuration::builder()
-            ->withMethod(__CLASS__, new MethodConfiguration('handleUuid'))
+            ->withMethod(__CLASS__, 'handleUuid')
             ->build();
         $bus = $this->createBus($config);
         $bus->register($this);
@@ -59,7 +59,7 @@ class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
     public function shouldCallHandler()
     {
         $config = Configuration::builder()
-            ->withMethod(__CLASS__, new MethodConfiguration('handleUuid'))
+            ->withMethod(__CLASS__, 'handleUuid')
             ->build();
         $bus = $this->createBus($config);
         $bus->register($this);
@@ -74,8 +74,8 @@ class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
     public function shouldHandleInterfaceAsWell()
     {
         $config = Configuration::builder()
-            ->withMethod(__CLASS__, new MethodConfiguration('handleUuid'))
-            ->withMethod(__CLASS__, new MethodConfiguration('handleObject'))
+            ->withMethod(__CLASS__, 'handleUuid')
+            ->withMethod(__CLASS__, 'handleObject')
             ->build();
         $bus = $this->createBus($config);
         $bus->register($this);
@@ -93,7 +93,7 @@ class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
         $handler = new SimpleMessageHandler();
 
         $config = Configuration::builder()
-            ->withMethod(AbstractMessageHandler::className(), new MethodConfiguration('handleInParent'))
+            ->withMethod(AbstractMessageHandler::className(), 'handleInParent')
             ->build();
         $bus = $this->createBus($config);
         $bus->register($handler);
