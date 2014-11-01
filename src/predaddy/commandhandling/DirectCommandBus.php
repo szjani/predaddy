@@ -25,19 +25,17 @@ namespace predaddy\commandhandling;
 
 use precore\util\Preconditions;
 use predaddy\domain\Repository;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
- * DirectCommandBus automatically registers a DirectCommandForwarder object as a handler
+ * {@link DirectCommandBus} automatically registers a {@link DirectCommandForwarder} object as a handler
  * which handles all unhandled commands. This bus should be used if business method parameters
- * in the aggregates are Command objects.
+ * in the aggregates are {@link Command} objects.
  *
  * If you need to handle a particular command explicit, you can register your own command handler.
- * In this case the command is not being dispatched to the registered DirectCommandForwarder object
+ * In this case the command is not being dispatched to the registered {@link DirectCommandForwarder} object
  * but you have to manage that aggregate instead.
  *
- * If you have specialized repositories for your aggregates, it is recommended to use RepositoryDelegate.
+ * If you have specialized repositories for your aggregates, it is recommended to use {@link RepositoryDelegate}.
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
