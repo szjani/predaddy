@@ -46,7 +46,8 @@ class DirectCommandBus extends CommandBus
     /**
      * @param DirectCommandBusBuilder $builder
      */
-    public function __construct(DirectCommandBusBuilder $builder) {
+    public function __construct(DirectCommandBusBuilder $builder)
+    {
         parent::__construct($builder);
         $this->register(new DirectCommandForwarder($builder->getRepository(), $builder->getHandlerDescriptorFactory()));
     }
