@@ -158,7 +158,13 @@ $messageCallback = MessageCallbackClosures::builder()
 All `MessageBus` implementation catches all exceptions thrown by handlers, so the messages are being forwarded
 to all handlers, even if some of them throw exception.
 
-If you need to handle exceptions, you can implement `SubscriberExceptionHandler` interface and pass the object to the `SimpleMessageBus`'s constructor.
+If you need to handle exceptions, you can implement `SubscriberExceptionHandler` interface and use builder to instantiate the bus:
+
+```php
+$bus = SimpleMessageBus::builder()
+    ->withExceptionHandler($exceptionHandler)
+    ->build();
+```
 
 ### Handler prioritization
 
@@ -252,7 +258,7 @@ There is a default implementation of `MessageBus` interface called `SimpleMessag
 #### CommandBus
 
 `Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type. If more than one
-handler can the command passed to, `LogicException` will be thrown.
+handler can the command passed to, `IllegalStateException` will be thrown.
 
 #### DirectCommandBus
 
@@ -260,7 +266,7 @@ handler can the command passed to, `LogicException` will be thrown.
 
 #### EventBus
 
-Does not modify the behavior of `SimpleMessageBus`, it just clarifies its purpose.
+Only `Event` objects will be passed to the appropriate handlers.
 
 #### Mf4phpMessageBus
 
