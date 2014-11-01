@@ -36,8 +36,8 @@ use precore\lang\ObjectClass;
  *
  * <pre>
  *  $config = Configuration::builder()
- *      ->withMethod('foo/Foo', new MethodConfiguration('foo'))
- *      ->withMethod('foo/Bar', new MethodConfiguration('bar', 2))
+ *      ->withMethod('foo/Foo', 'foo')
+ *      ->withMethod('foo/Bar', 'bar', 2)
  *      ->build();
  * </pre>
  *
