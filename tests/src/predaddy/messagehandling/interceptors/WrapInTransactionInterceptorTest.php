@@ -35,11 +35,10 @@ class WrapInTransactionInterceptorTest extends PHPUnit_Framework_TestCase
     {
         $this->transactionManager = new DummyTransactionManager();
         $this->interceptor = new WrapInTransactionInterceptor($this->transactionManager);
-        $this->aMessageBus = new SimpleMessageBus(
-            SimpleMessageBus::DEFAULT_NAME,
-            [$this->interceptor],
-            $this->interceptor
-        );
+        $this->aMessageBus = SimpleMessageBus::builder()
+            ->withInterceptors([$this->interceptor])
+            ->withExceptionHandler($this->interceptor)
+            ->build();
     }
 
     /**

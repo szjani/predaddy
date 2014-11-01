@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Janos Szurovecz
+ * Copyright (c) 2014 Janos Szurovecz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,49 +21,56 @@
  * SOFTWARE.
  */
 
-namespace predaddy\commandhandling;
+namespace predaddy\messagehandling\mf4php;
 
-use precore\util\Preconditions;
-use predaddy\messagehandling\SimpleMessageBus;
+use mf4php\MessageDispatcher;
+use predaddy\messagehandling\SimpleMessageBusBuilder;
 
 /**
- * A typical command bus has the following behaviours:
- *  - all command handler methods are wrapped by a unique transaction
- *  - the type of the message must be exactly the same as the parameter in the handler method
+ * Builder for {@link Mf4PhpMessageBus}.
  *
- * Only one command handler can process a particular command, otherwise a runtime exception will be thrown.
- *
+ * @package predaddy\messagehandling\mf4php
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class CommandBus extends SimpleMessageBus
+class Mf4PhpMessageBusBuilder extends SimpleMessageBusBuilder
 {
+    const DEFAULT_NAME = 'mf4php-bus';
+
     /**
-     * @param CommandBusBuilder $builder
+     * @var MessageDispatcher
      */
-    public function __construct(CommandBusBuilder $builder = null)
+    private $dispatcher;
+
+    /**
+     * @param MessageDispatcher $dispatcher
+     */
+    public function __construct(MessageDispatcher $dispatcher)
     {
-        if ($builder === null) {
-            $builder = self::builder();
-        }
-        parent::__construct($builder);
+        parent::__construct();
+        $this->dispatcher = $dispatcher;
     }
 
     /**
-     * @return CommandBusBuilder
+     * @return string
      */
-    public static function builder()
+    protected static function defaultName()
     {
-        return new CommandBusBuilder();
+        return self::DEFAULT_NAME;
     }
 
-    protected function callableWrappersFor($message)
+    /**
+     * @return MessageDispatcher
+     */
+    public function getDispatcher()
     {
-        $wrappers = parent::callableWrappersFor($message);
-        Preconditions::checkState(
-            count($wrappers) <= 1,
-            "More than one command handler is registered for message '%s'",
-            get_class($message)
-        );
-        return $wrappers;
+        return $this->dispatcher;
+    }
+
+    /**
+     * @return Mf4PhpMessageBus
+     */
+    public function build()
+    {
+        return new Mf4PhpMessageBus($this);
     }
 }

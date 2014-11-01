@@ -28,31 +28,19 @@ use Closure;
 use Exception;
 use precore\lang\ObjectClass;
 use precore\util\Objects;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use SplObjectStorage;
 
 /**
- * MessageBus which find handler methods in the registered message handlers.
+ * {@link MessageBus} which find handler methods in the registered message handlers.
  *
- * Handler method finding mechanism can be modified by the given
- * MessageHandlerDescriptorFactory and FunctionDescriptorFactory instances.
+ * Handler method finding mechanism can be modified with
+ * {@link MessageHandlerDescriptorFactory} and {@link FunctionDescriptorFactory} instances
+ * through the builder object.
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
 class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactoryRegisterableMessageBus
 {
-    const DEFAULT_NAME = 'default-bus';
-
-    /**
-     * @var AnnotatedMessageHandlerDescriptorFactory
-     */
-    private static $defaultHandlerDescFactory;
-
-    /**
-     * @var NullSubscriberExceptionHandler
-     */
-    private static $defaultExceptionHandler;
-
     /**
      * @var string
      */
@@ -84,49 +72,28 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     private $functionDescriptors;
 
     /**
-     * Should not be called!
+     * @param SimpleMessageBusBuilder $builder
      */
-    public static function init()
+    public function __construct(SimpleMessageBusBuilder $builder = null)
     {
-        self::$defaultHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
-            new DefaultFunctionDescriptorFactory()
-        );
-        self::$defaultExceptionHandler = new NullSubscriberExceptionHandler();
-    }
-
-    /**
-     * @param string $identifier
-     * @param array $interceptors
-     * @param SubscriberExceptionHandler $exceptionHandler
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
-     */
-    public function __construct(
-        $identifier = self::DEFAULT_NAME,
-        array $interceptors = [],
-        SubscriberExceptionHandler $exceptionHandler = null,
-        MessageHandlerDescriptorFactory $handlerDescFactory = null
-    ) {
-        parent::__construct($interceptors);
-        $this->factories = new SplObjectStorage();
-        $this->identifier = (string) $identifier;
-        if ($handlerDescFactory === null) {
-            $handlerDescFactory = self::$defaultHandlerDescFactory;
+        if ($builder === null) {
+            $builder = self::builder();
         }
-        $this->handlerDescriptorFactory = $handlerDescFactory;
-        $this->closureDescriptorFactory = $this->handlerDescriptorFactory->getFunctionDescriptorFactory();
-        if ($exceptionHandler === null) {
-            $exceptionHandler = self::$defaultExceptionHandler;
-        }
-        $this->exceptionHandler = $exceptionHandler;
+        parent::__construct($builder->getInterceptors());
+        $this->identifier = $builder->getIdentifier();
+        $this->exceptionHandler = $builder->getExceptionHandler();
+        $this->handlerDescriptorFactory = $builder->getHandlerDescriptorFactory();
+        $this->closureDescriptorFactory = $builder->getHandlerDescriptorFactory()->getFunctionDescriptorFactory();
         $this->functionDescriptors = new FunctionDescriptors();
+        $this->factories = new SplObjectStorage();
     }
 
     /**
-     * @return MessageHandlerDescriptorFactory
+     * @return SimpleMessageBusBuilder
      */
-    final protected function handlerDescriptorFactory()
+    public static function builder()
     {
-        return $this->handlerDescriptorFactory;
+        return new SimpleMessageBusBuilder();
     }
 
     public function registerHandlerFactory(Closure $factory)
@@ -274,4 +241,3 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
             ->toString();
     }
 }
-SimpleMessageBus::init();

@@ -30,7 +30,7 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
     public function setUp()
     {
         $this->dispatcher = new MemoryMessageDispatcher();
-        $this->bus = new Mf4PhpMessageBus($this->dispatcher);
+        $this->bus = Mf4PhpMessageBus::builder($this->dispatcher)->build();
     }
 
     public function testMessageFactory()
@@ -79,6 +79,6 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
     public function postInvalidMessageToDispatcher()
     {
         $message = $this->getMock('\mf4php\Message');
-        $this->dispatcher->send(new DefaultQueue(Mf4PhpMessageBus::DEFAULT_NAME), $message);
+        $this->dispatcher->send(new DefaultQueue(Mf4PhpMessageBusBuilder::DEFAULT_NAME), $message);
     }
 }

@@ -132,14 +132,13 @@ class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
      */
     private function createBus(Configuration $configuration)
     {
-        return new SimpleMessageBus(
-            SimpleMessageBus::DEFAULT_NAME,
-            [],
-            null,
-            new ConfiguredMessageHandlerDescriptorFactory(
-                new DefaultFunctionDescriptorFactory(),
-                $configuration
+        return SimpleMessageBus::builder()
+            ->withHandlerDescriptorFactory(
+                new ConfiguredMessageHandlerDescriptorFactory(
+                    new DefaultFunctionDescriptorFactory(),
+                    $configuration
+                )
             )
-        );
+            ->build();
     }
 }

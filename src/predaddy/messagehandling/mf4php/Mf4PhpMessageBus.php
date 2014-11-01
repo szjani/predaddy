@@ -29,57 +29,55 @@ use mf4php\Message as Mf4phpMessage;
 use mf4php\MessageDispatcher;
 use mf4php\MessageListener;
 use mf4php\ObjectMessage;
+use precore\lang\NullPointerException;
 use precore\util\Preconditions;
 use predaddy\messagehandling\MessageCallback;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use predaddy\messagehandling\SubscriberExceptionHandler;
 use Serializable;
 
 /**
- * MessageBus implementation which uses mf4php to forward messages.
+ * {@link MessageBus} implementation which uses mf4php to forward messages.
  *
  * If you use a proper MessageDispatcher it is possible to
  * handle messages after the transaction has been committed.
  *
- * With an asynchronous MessageDispatcher implementation message
+ * With an asynchronous {@link MessageDispatcher} implementation message
  * handling can be asynchronous.
  *
- * Do not register it to the given MessageDispatcher,
+ * Do not register it to the given {@link MessageDispatcher},
  * it is handled by default.
  *
- * Does not support MessageCallback!
+ * Does not support {@link MessageCallback}!
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
 class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
 {
-    const DEFAULT_NAME = 'mf4php-bus';
-
     private $dispatcher;
     private $queue;
     private $objectMessageFactories = [];
     private $defaultObjectMessageFactory;
 
     /**
-     * @param MessageDispatcher $dispatcher
-     * @param string $busId
-     * @param array $interceptors
-     * @param SubscriberExceptionHandler $exceptionHandler
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param Mf4PhpMessageBusBuilder $builder
      */
-    public function __construct(
-        MessageDispatcher $dispatcher,
-        $busId = self::DEFAULT_NAME,
-        array $interceptors = [],
-        SubscriberExceptionHandler $exceptionHandler = null,
-        MessageHandlerDescriptorFactory $handlerDescFactory = null
-    ) {
-        parent::__construct($busId, $interceptors, $exceptionHandler, $handlerDescFactory);
-        $this->dispatcher = $dispatcher;
-        $this->queue = new DefaultQueue($busId);
+    public function __construct(Mf4PhpMessageBusBuilder $builder)
+    {
+        parent::__construct($builder);
+        $this->dispatcher = $builder->getDispatcher();
+        $this->queue = new DefaultQueue($builder->getIdentifier());
         $this->defaultObjectMessageFactory = new DefaultObjectMessageFactory();
-        $dispatcher->addListener($this->queue, $this);
+        $this->dispatcher->addListener($this->queue, $this);
+    }
+
+    /**
+     * @param MessageDispatcher $dispatcher the default value is due to PHP restrictions
+     * @return Mf4PhpMessageBusBuilder
+     * @throws NullPointerException if $dispatcher is null
+     */
+    public static function builder(MessageDispatcher $dispatcher = null)
+    {
+        return new Mf4PhpMessageBusBuilder(Preconditions::checkNotNull($dispatcher));
     }
 
     /**

@@ -26,7 +26,10 @@ class SimpleMessage extends AbstractMessage
  * Initialization
  */
 $trInterceptor = new WrapInTransactionInterceptor(new NOPTransactionManager());
-$bus = new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, [$trInterceptor], $trInterceptor);
+$bus = SimpleMessageBus::builder()
+    ->withInterceptors([$trInterceptor])
+    ->withExceptionHandler($trInterceptor)
+    ->build();
 
 /**
  * Code from a service class.

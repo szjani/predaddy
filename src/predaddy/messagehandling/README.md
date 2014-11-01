@@ -88,17 +88,17 @@ $configuration = Configuration::builder()
     ->build();
 
 $functionDescFactory = new DefaultFunctionDescriptorFactory();
-$messageBus = new SimpleMessageBus(
-    'bus-name',
-    [], // not relevant now
-    null, // not relevant now
-    new MultipleMessageHandlerDescriptorFactory(
-        $functionDescFactory,
-        [
-            new ConfiguredMessageHandlerDescriptorFactory($functionDescFactory, $configuration),
-            new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
-        ]
+$messageBus = SimpleMessageBus::builder()
+    ->withHandlerDescriptorFactory(
+        new MultipleMessageHandlerDescriptorFactory(
+            $functionDescFactory,
+            [
+                new ConfiguredMessageHandlerDescriptorFactory($functionDescFactory, $configuration),
+                new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
+            ]
+        )
     )
+    ->build();
 );
 ```
 

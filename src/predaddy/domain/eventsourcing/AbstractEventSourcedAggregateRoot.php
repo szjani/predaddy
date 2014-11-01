@@ -61,7 +61,10 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      */
     private static function createInnerEventBus(AbstractEventSourcedAggregateRoot $aggregateRoot)
     {
-        $bus = new EventBus(static::className(), [], null, self::$descriptorFactory);
+        $bus = EventBus::builder()
+            ->withIdentifier(static::className())
+            ->withHandlerDescriptorFactory(self::$descriptorFactory)
+            ->build();
         $bus->register($aggregateRoot);
         return $bus;
     }

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Janos Szurovecz
+ * Copyright (c) 2014 Janos Szurovecz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,47 +23,43 @@
 
 namespace predaddy\commandhandling;
 
-use precore\util\Preconditions;
-use predaddy\messagehandling\SimpleMessageBus;
+use predaddy\domain\Repository;
 
 /**
- * A typical command bus has the following behaviours:
- *  - all command handler methods are wrapped by a unique transaction
- *  - the type of the message must be exactly the same as the parameter in the handler method
+ * Builder for {@link DirectCommandBus}.
  *
- * Only one command handler can process a particular command, otherwise a runtime exception will be thrown.
- *
+ * @package predaddy\commandhandling
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class CommandBus extends SimpleMessageBus
+class DirectCommandBusBuilder extends CommandBusBuilder
 {
     /**
-     * @param CommandBusBuilder $builder
+     * @var Repository
      */
-    public function __construct(CommandBusBuilder $builder = null)
+    private $repository;
+
+    /**
+     * @param Repository $repository
+     */
+    public function __construct(Repository $repository)
     {
-        if ($builder === null) {
-            $builder = self::builder();
-        }
-        parent::__construct($builder);
+        parent::__construct();
+        $this->repository = $repository;
     }
 
     /**
-     * @return CommandBusBuilder
+     * @return Repository
      */
-    public static function builder()
+    public function getRepository()
     {
-        return new CommandBusBuilder();
+        return $this->repository;
     }
 
-    protected function callableWrappersFor($message)
+    /**
+     * @return DirectCommandBus
+     */
+    public function build()
     {
-        $wrappers = parent::callableWrappersFor($message);
-        Preconditions::checkState(
-            count($wrappers) <= 1,
-            "More than one command handler is registered for message '%s'",
-            get_class($message)
-        );
-        return $wrappers;
+        return new DirectCommandBus($this);
     }
 }

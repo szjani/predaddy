@@ -23,57 +23,31 @@
 
 namespace predaddy\eventhandling;
 
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
-use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SimpleMessageBus;
-use predaddy\messagehandling\SubscriberExceptionHandler;
 
 /**
- * It's highly recommended to use an EventFunctionDescriptorFactory instance.
- * In that case Messages must implement the Event interface.
+ * With default configuration it supports only handlers which can process {@link Event} objects.
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
 class EventBus extends SimpleMessageBus
 {
-    const DEFAULT_NAME = 'event-bus';
-
     /**
-     * @var AnnotatedMessageHandlerDescriptorFactory
+     * @param EventBusBuilder $builder
      */
-    private static $defaultHandlerDescFactory;
-
-    /**
-     * Should not be called!
-     */
-    public static function init()
+    public function __construct(EventBusBuilder $builder = null)
     {
-        self::$defaultHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
-            new EventFunctionDescriptorFactory()
-        );
+        if ($builder === null) {
+            $builder = self::builder();
+        }
+        parent::__construct($builder);
     }
 
     /**
-     * @param string $identifier
-     * @param array $interceptors
-     * @param SubscriberExceptionHandler $exceptionHandler
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @return EventBusBuilder
      */
-    public function __construct(
-        $identifier = self::DEFAULT_NAME,
-        array $interceptors = [],
-        SubscriberExceptionHandler $exceptionHandler = null,
-        MessageHandlerDescriptorFactory $handlerDescFactory = null
-    ) {
-        if ($handlerDescFactory === null) {
-            $handlerDescFactory = self::$defaultHandlerDescFactory;
-        }
-        parent::__construct(
-            $identifier,
-            $interceptors,
-            $exceptionHandler,
-            $handlerDescFactory
-        );
+    public static function builder()
+    {
+        return new EventBusBuilder();
     }
 }
-EventBus::init();

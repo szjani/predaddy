@@ -54,12 +54,10 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         $this->transactionManager = new NOPTransactionManager();
         $this->repo = $this->getMock('\predaddy\domain\Repository');
         $trInterceptor = new WrapInTransactionInterceptor($this->transactionManager);
-        $this->bus = new DirectCommandBus(
-            $this->repo,
-            CommandBus::DEFAULT_NAME,
-            [$trInterceptor],
-            $trInterceptor
-        );
+        $this->bus = DirectCommandBus::builder($this->repo)
+            ->withExceptionHandler($trInterceptor)
+            ->withInterceptors([$trInterceptor])
+            ->build();
     }
 
     /**

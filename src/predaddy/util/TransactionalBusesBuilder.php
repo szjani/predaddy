@@ -165,10 +165,9 @@ final class TransactionalBusesBuilder
      */
     private function createEventBus()
     {
-        return new EventBus(
-            EventBus::DEFAULT_NAME,
-            array_merge($this->eventInterceptors, [$this->blockerInterceptor])
-        );
+        return EventBus::builder()
+            ->withInterceptors(array_merge($this->eventInterceptors, [$this->blockerInterceptor]))
+            ->build();
     }
 
     /**
@@ -181,16 +180,13 @@ final class TransactionalBusesBuilder
             $this->commandInterceptors
         );
         return $this->useDirectCommandBus
-            ? new DirectCommandBus(
-                $this->repository,
-                CommandBus::DEFAULT_NAME,
-                $commandInterceptorList,
-                $this->exceptionHandler
-            )
-            : new CommandBus(
-                CommandBus::DEFAULT_NAME,
-                $commandInterceptorList,
-                $this->exceptionHandler
-            );
+            ? DirectCommandBus::builder($this->repository)
+                ->withInterceptors($commandInterceptorList)
+                ->withExceptionHandler($this->exceptionHandler)
+                ->build()
+            : CommandBus::builder()
+                ->withInterceptors($commandInterceptorList)
+                ->withExceptionHandler($this->exceptionHandler)
+                ->build();
     }
 }

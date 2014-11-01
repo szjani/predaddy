@@ -99,7 +99,10 @@ final class DirectCommandForwarder extends Object
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }
-        $forwarderBus = new CommandBus($aggregateClass, [], null, $this->innerHandlerDescFactory);
+        $forwarderBus = CommandBus::builder()
+            ->withIdentifier($aggregateClass)
+            ->withHandlerDescriptorFactory($this->innerHandlerDescFactory)
+            ->build();
         $forwarderBus->register($aggregate);
         $result = null;
         $thrownException = null;

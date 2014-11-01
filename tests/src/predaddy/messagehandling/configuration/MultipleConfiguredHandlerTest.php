@@ -57,17 +57,16 @@ class MultipleConfiguredHandlerTest extends PHPUnit_Framework_TestCase
     private function createBus(Configuration $configuration)
     {
         $functionDescFactory = new DefaultFunctionDescriptorFactory();
-        return new SimpleMessageBus(
-            SimpleMessageBus::DEFAULT_NAME,
-            [],
-            null,
-            new MultipleMessageHandlerDescriptorFactory(
-                $functionDescFactory,
-                [
-                    new ConfiguredMessageHandlerDescriptorFactory($functionDescFactory, $configuration),
-                    new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
-                ]
+        return SimpleMessageBus::builder()
+            ->withHandlerDescriptorFactory(
+                new MultipleMessageHandlerDescriptorFactory(
+                    $functionDescFactory,
+                    [
+                        new ConfiguredMessageHandlerDescriptorFactory($functionDescFactory, $configuration),
+                        new AnnotatedMessageHandlerDescriptorFactory($functionDescFactory)
+                    ]
+                )
             )
-        );
+            ->build();
     }
 }

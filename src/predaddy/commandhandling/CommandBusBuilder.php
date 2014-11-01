@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (c) 2013 Janos Szurovecz
+ * Copyright (c) 2014 Janos Szurovecz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,47 +23,59 @@
 
 namespace predaddy\commandhandling;
 
-use precore\util\Preconditions;
-use predaddy\messagehandling\SimpleMessageBus;
+use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
+use predaddy\messagehandling\SimpleMessageBusBuilder;
 
 /**
- * A typical command bus has the following behaviours:
- *  - all command handler methods are wrapped by a unique transaction
- *  - the type of the message must be exactly the same as the parameter in the handler method
+ * Builder for {@link CommandBus}.
  *
- * Only one command handler can process a particular command, otherwise a runtime exception will be thrown.
+ * It's highly recommended to use an {@link CommandFunctionDescriptorFactory} instance.
+ * In that case, messages must implement {@link Command} interface.
  *
+ * @package predaddy\commandhandling
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class CommandBus extends SimpleMessageBus
+class CommandBusBuilder extends SimpleMessageBusBuilder
 {
-    /**
-     * @param CommandBusBuilder $builder
-     */
-    public function __construct(CommandBusBuilder $builder = null)
-    {
-        if ($builder === null) {
-            $builder = self::builder();
-        }
-        parent::__construct($builder);
-    }
+    const DEFAULT_NAME = 'command-bus';
 
     /**
-     * @return CommandBusBuilder
+     * @var AnnotatedMessageHandlerDescriptorFactory
      */
-    public static function builder()
-    {
-        return new CommandBusBuilder();
-    }
+    private static $defaultHandlerDescFactory;
 
-    protected function callableWrappersFor($message)
+    /**
+     * Should not be called!
+     */
+    public static function init()
     {
-        $wrappers = parent::callableWrappersFor($message);
-        Preconditions::checkState(
-            count($wrappers) <= 1,
-            "More than one command handler is registered for message '%s'",
-            get_class($message)
+        self::$defaultHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
+            new CommandFunctionDescriptorFactory()
         );
-        return $wrappers;
+    }
+
+    /**
+     * @return AnnotatedMessageHandlerDescriptorFactory
+     */
+    protected static function defaultHandlerDescFactory()
+    {
+        return self::$defaultHandlerDescFactory;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function defaultName()
+    {
+        return self::DEFAULT_NAME;
+    }
+
+    /**
+     * @return CommandBus
+     */
+    public function build()
+    {
+        return new CommandBus($this);
     }
 }
+CommandBusBuilder::init();

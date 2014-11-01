@@ -330,7 +330,9 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
             ->method('handleException')
             ->with($exception);
 
-        $bus = new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, [], $exceptionHandler);
+        $bus = SimpleMessageBus::builder()
+            ->withExceptionHandler($exceptionHandler)
+            ->build();
         $bus->registerClosure(
             function (UUID $msg) use ($exception) {
                 throw $exception;
@@ -356,7 +358,9 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
                     }
                 )
             );
-        $bus = new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, [], $exceptionHandler);
+        $bus = SimpleMessageBus::builder()
+            ->withExceptionHandler($exceptionHandler)
+            ->build();
         $bus->registerClosure(
             function (UUID $msg) use ($exception) {
                 throw $exception;

@@ -6,12 +6,9 @@ require_once __DIR__ . '/../../bootstrap.php';
 use Exception;
 use predaddy\commandhandling\AbstractCommand;
 use predaddy\commandhandling\CommandBus;
-use predaddy\commandhandling\CommandFunctionDescriptorFactory;
 use predaddy\eventhandling\Event;
 use predaddy\eventhandling\EventBus;
-use predaddy\eventhandling\EventFunctionDescriptorFactory;
 use predaddy\messagehandling\AbstractMessage;
-use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\interceptors\BlockerInterceptor;
 use predaddy\messagehandling\annotation\Subscribe;
 
@@ -52,15 +49,16 @@ class EmailSender
 
 // event bus initialization
 $blockerInterceptor = new BlockerInterceptor();
-$eventBus = new EventBus('event-bus', [$blockerInterceptor]);
+$eventBus = EventBus::builder()
+    ->withInterceptors([$blockerInterceptor])
+    ->build();
 $eventBus->register(new EmailSender());
 
 // command bus initialization
-$commandBus = new CommandBus(
-    'command-bus',
-    [$blockerInterceptor->manager()],
-    $blockerInterceptor->manager()
-);
+$commandBus = CommandBus::builder()
+    ->withInterceptors([$blockerInterceptor->manager()])
+    ->withExceptionHandler($blockerInterceptor->manager())
+    ->build();
 
 /**
  * Explicit handling of $blockerInterceptor, no command bus.

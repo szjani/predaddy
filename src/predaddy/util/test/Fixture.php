@@ -133,7 +133,7 @@ abstract class Fixture implements MessageCallback
         $this->aggregateClass = $aggregateClass;
         $this->commandBus = $repository === null
             ? new CommandBus()
-            : new DirectCommandBus($repository);
+            : DirectCommandBus::builder($repository)->build();
         $this->eventBus = new EventBus();
         EventPublisher::instance()->setEventBus($this->eventBus);
         $this->repository = $repository;

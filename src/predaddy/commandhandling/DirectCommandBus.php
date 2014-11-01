@@ -23,6 +23,7 @@
 
 namespace predaddy\commandhandling;
 
+use precore\util\Preconditions;
 use predaddy\domain\Repository;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\SubscriberExceptionHandler;
@@ -43,20 +44,21 @@ use predaddy\messagehandling\SubscriberExceptionHandler;
 class DirectCommandBus extends CommandBus
 {
     /**
-     * @param Repository $repository Is being passed to the registered DirectCommandForwarder
-     * @param string $identifier
-     * @param array $interceptors
-     * @param SubscriberExceptionHandler $exceptionHandler
-     * @param MessageHandlerDescriptorFactory $handlerDescFactory
+     * @param DirectCommandBusBuilder $builder
      */
-    public function __construct(
-        Repository $repository,
-        $identifier = self::DEFAULT_NAME,
-        array $interceptors = [],
-        SubscriberExceptionHandler $exceptionHandler = null,
-        MessageHandlerDescriptorFactory $handlerDescFactory = null
-    ) {
-        parent::__construct($identifier, $interceptors, $exceptionHandler, $handlerDescFactory);
-        $this->register(new DirectCommandForwarder($repository, $this->handlerDescriptorFactory()));
+    public function __construct(DirectCommandBusBuilder $builder) {
+        parent::__construct($builder);
+        $this->register(new DirectCommandForwarder($builder->getRepository(), $builder->getHandlerDescriptorFactory()));
+    }
+
+    /**
+     * The given repository cannot be null, the default value is due to PHP restrictions.
+     *
+     * @param Repository $repository Is being passed to the registered DirectCommandForwarder
+     * @return DirectCommandBusBuilder
+     */
+    public static function builder(Repository $repository = null)
+    {
+        return new DirectCommandBusBuilder(Preconditions::checkNotNull($repository));
     }
 }

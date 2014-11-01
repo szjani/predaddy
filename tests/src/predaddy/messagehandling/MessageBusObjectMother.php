@@ -36,6 +36,8 @@ class MessageBusObjectMother
      */
     public static function createAnnotatedBus(array $interceptors = [])
     {
-        return new SimpleMessageBus(SimpleMessageBus::DEFAULT_NAME, $interceptors);
+        return SimpleMessageBus::builder()
+            ->withInterceptors($interceptors)
+            ->build();
     }
 }
