@@ -28,7 +28,6 @@ use Closure;
 use Exception;
 use PHPUnit_Framework_TestCase;
 use precore\lang\ObjectClass;
-use precore\util\UUID;
 use predaddy\commandhandling\AbstractCommand;
 use predaddy\commandhandling\Command;
 use predaddy\commandhandling\CommandBus;
@@ -119,14 +118,9 @@ abstract class Fixture implements MessageCallback
     private $repository;
 
     /**
-     * @var DefaultAggregateId
+     * @var DefaultAggregateId|null
      */
     private $aggregateId;
-
-    /**
-     * @var array
-     */
-    private $fillableCommands = [];
 
     public function __construct($aggregateClass, Repository $repository = null)
     {
@@ -137,7 +131,7 @@ abstract class Fixture implements MessageCallback
         $this->eventBus = new EventBus();
         EventPublisher::instance()->setEventBus($this->eventBus);
         $this->repository = $repository;
-        $this->aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $this->getAggregateClass());
+        //$this->aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $this->getAggregateClass());
     }
 
     /**
@@ -202,25 +196,11 @@ abstract class Fixture implements MessageCallback
      */
     public function when(Command $command)
     {
+        if ($this->aggregateId !== null && $command instanceof AbstractCommand) {
+            CommandPopulator::populate($this->getAggregateId()->value(), $command);
+        }
         $this->command = $command;
         return $this;
-    }
-
-    /**
-     * Sets the aggregate ID for the given command.
-     * Useful if we don't know the AR ID in the test case and it is not interesting either.
-     * Can be used both in {@link givenCommands()} and {@link when()} method parameters.
-     *
-     * Do not use it with create commands, unless the AR ID is defined by the client and the command must know it.
-     *
-     * @param AbstractCommand $command
-     * @return AbstractCommand the command itself, but it may be populated later
-     */
-    public function fill(AbstractCommand $command)
-    {
-        CommandPopulator::populate($this->getAggregateId()->value(), $command);
-        $this->fillableCommands[] = $command;
-        return $command;
     }
 
     /**
@@ -320,9 +300,6 @@ abstract class Fixture implements MessageCallback
     protected function setAggregateId(AggregateId $aggregateId)
     {
         $this->aggregateId = $aggregateId;
-        foreach ($this->fillableCommands as $command) {
-            CommandPopulator::populate($this->getAggregateId()->value(), $command);
-        }
     }
 
     /**

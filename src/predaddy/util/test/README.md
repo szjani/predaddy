@@ -29,7 +29,7 @@ $fixture
       new EntryAdded(100),
       new EntryAdded(200),
    )
-   ->when($fixture->fill(new AddEntry(300)))
+   ->when(new AddEntry(300))
    ->expectReturnValue(600)
    ->expectEvents(new EntryAdded(300));
 ```
@@ -45,7 +45,7 @@ $fixture
       new AccountCreated(),
       new EntryAdded(100)
    )
-   ->when($fixture->fill(new AddEntry(-300)))
+   ->when(new AddEntry(-300))
    ->expectException('\RuntimeException', 'Balance cannot be negative, entry is not allowed!');
 ```
 
@@ -57,7 +57,7 @@ $fixture
    ->registerAnnotatedCommandHandler(new AccountCommandHandler(new InMemoryRepository()))
    ->givenCommands(
       new CreateAccount(),
-      $fixture->fill(new AddEntry(100))
+      new AddEntry(100)
    )
    ->...
 ```

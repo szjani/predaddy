@@ -23,7 +23,7 @@ class UserTest extends PHPUnit_Framework_TestCase
         $fixture
             ->registerAnnotatedCommandHandler(new UserCommandHandler(new InMemoryRepository()))
             ->givenCommands(new CreateUser())
-            ->when($fixture->fill(new Increment()))
+            ->when(new Increment())
             ->expectReturnValue(2)
             ->expectEvents(new IncrementedEvent());
     }
@@ -39,9 +39,9 @@ class UserTest extends PHPUnit_Framework_TestCase
             ->registerAnnotatedCommandHandler(new UserCommandHandler($repository))
             ->givenCommands(
                 new CreateUser(),
-                $fixture->fill(new Increment())
+                new Increment()
             )
-            ->when($fixture->fill(new Increment()))
+            ->when(new Increment())
             ->expectReturnValue(3)
             ->expectEvents(new IncrementedEvent());
 
@@ -61,10 +61,10 @@ class UserTest extends PHPUnit_Framework_TestCase
             ->registerAnnotatedCommandHandler(new UserCommandHandler(new InMemoryRepository()))
             ->givenCommands(
                 new CreateUser(),
-                $fixture->fill(new Increment()),
-                $fixture->fill(new Increment())
+                new Increment(),
+                new Increment()
             )
-            ->when($fixture->fill(new Increment()))
+            ->when(new Increment())
             ->expectException('\RuntimeException', 'Cannot be incremented more, than twice');
     }
 }

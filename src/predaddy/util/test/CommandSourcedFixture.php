@@ -50,7 +50,12 @@ class CommandSourcedFixture extends Fixture
     {
         $this->givenCommands = func_get_args();
         $eventHandler = function (DomainEvent $event) {
-            $this->setAggregateId($event->aggregateId());
+            if ($this->getAggregateId() === null) {
+                $this->setAggregateId($event->aggregateId());
+                foreach ($this->givenCommands as $command) {
+                    CommandPopulator::populate($this->getAggregateId()->value(), $command);
+                }
+            }
         };
         $this->getEventBus()->registerClosure($eventHandler);
         foreach ($this->givenCommands as $command) {

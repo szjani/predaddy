@@ -35,7 +35,7 @@ class EventSourcedUserTest extends PHPUnit_Framework_TestCase
         $fixture = Fixtures::newGivenWhenThenFixture(EventSourcedUser::className());
         $fixture
             ->givenEvents(new UserCreated())
-            ->when($fixture->fill(new Increment()))
+            ->when(new Increment())
             ->expectReturnValue(2)
             ->expectEvents(new IncrementedEvent());
     }
@@ -51,7 +51,7 @@ class EventSourcedUserTest extends PHPUnit_Framework_TestCase
                 new UserCreated(),
                 new IncrementedEvent()
             )
-            ->when($fixture->fill(new Decrement()))
+            ->when(new Decrement())
             ->expectEvents(new DecrementedEvent(1));
     }
 }
