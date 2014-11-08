@@ -30,6 +30,7 @@
     },
     "suggest": {
         "predaddy/predaddy-doctrine-orm": "Using Doctrine ORM to persist aggregates and events",
+        "predaddy/predaddy-symfony-validator": "To validate messages with Symfony Validator",
         "jms/serializer": "For serializing events and aggregates with JmsSerializer",
         "mf4php/mf4php": "Use it and one of its implementation if you want to use Mf4PhpMessageBus (asynchronous event handling)"
     }
