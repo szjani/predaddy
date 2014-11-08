@@ -25,7 +25,9 @@ namespace predaddy\messagehandling\annotation;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\Cache\ArrayCache;
 use precore\lang\ObjectClass;
 use predaddy\messagehandling\FunctionDescriptor;
 use predaddy\messagehandling\FunctionDescriptorFactory;
@@ -56,7 +58,7 @@ class AnnotatedMessageHandlerDescriptor implements MessageHandlerDescriptor
 
     public static function init()
     {
-        self::$reader = new AnnotationReader();
+        self::$reader = new CachedReader(new AnnotationReader(), new ArrayCache());
     }
 
     /**

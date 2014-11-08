@@ -13,6 +13,7 @@
         "php": ">=5.4",
         "precore/precore": "~1.8",
         "doctrine/annotations": "~1.1",
+        "doctrine/cache": "~1.0",
         "lf4php/lf4php": "~4.2",
         "trf4php/trf4php": "~1.1"
     },
