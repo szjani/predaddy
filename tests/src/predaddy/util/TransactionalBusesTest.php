@@ -23,6 +23,7 @@
 
 namespace predaddy\util;
 
+use Exception;
 use PHPUnit_Framework_TestCase;
 use predaddy\commandhandling\SimpleCommand;
 use predaddy\eventhandling\SimpleEvent;
@@ -122,5 +123,89 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
         } catch (TransactionException $e) {
         }
         self::assertTrue($this->eventHandler->neverCalled());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCallCommandInterceptorBeforeTransaction()
+    {
+        $interceptor = $this->getMock('\predaddy\messagehandling\DispatchInterceptor');
+        $interceptor
+            ->expects(self::once())
+            ->method('invoke');
+        $this->transactionManager
+            ->expects(self::never())
+            ->method('beginTransaction');
+
+        $buses = TransactionalBusesBuilder::create($this->transactionManager)
+            ->interceptCommandsOutsideTransaction([$interceptor])
+            ->build();
+        $buses->commandBus()->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCallCommandInterceptorWithinTransaction()
+    {
+        $interceptor = $this->getMock('\predaddy\messagehandling\DispatchInterceptor');
+        $interceptor
+            ->expects(self::once())
+            ->method('invoke');
+        $this->transactionManager
+            ->expects(self::once())
+            ->method('beginTransaction');
+
+        $buses = TransactionalBusesBuilder::create($this->transactionManager)
+            ->interceptCommandsWithinTransaction([$interceptor])
+            ->build();
+        $buses->commandBus()->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCallEventInterceptorWithinTransaction()
+    {
+        $interceptor = $this->getMock('\predaddy\messagehandling\DispatchInterceptor');
+        $interceptor
+            ->expects(self::once())
+            ->method('invoke');
+
+        $buses = TransactionalBusesBuilder::create($this->transactionManager)
+            ->interceptEventsWithinTransaction([$interceptor])
+            ->build();
+
+        $buses->commandBus()->registerClosure(
+            function (SimpleCommand $command) use ($buses) {
+                $buses->eventBus()->post(new SimpleEvent());
+                throw new Exception();
+            }
+        );
+        $buses->commandBus()->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotCallEventInterceptorOutsideTransaction()
+    {
+        $interceptor = $this->getMock('\predaddy\messagehandling\DispatchInterceptor');
+        $interceptor
+            ->expects(self::never())
+            ->method('invoke');
+
+        $buses = TransactionalBusesBuilder::create($this->transactionManager)
+            ->interceptEventsOutsideTransaction([$interceptor])
+            ->build();
+
+        $buses->commandBus()->registerClosure(
+            function (SimpleCommand $command) use ($buses) {
+                $buses->eventBus()->post(new SimpleEvent());
+                throw new Exception();
+            }
+        );
+        $buses->commandBus()->post(new SimpleCommand());
     }
 }

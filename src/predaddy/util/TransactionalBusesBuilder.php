@@ -29,6 +29,7 @@ use predaddy\commandhandling\DirectCommandBus;
 use predaddy\domain\EventPublisher;
 use predaddy\domain\Repository;
 use predaddy\eventhandling\EventBus;
+use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\interceptors\BlockerInterceptor;
 use predaddy\messagehandling\interceptors\BlockerInterceptorManager;
 use predaddy\messagehandling\interceptors\ExceptionHandlerDelegate;
@@ -45,14 +46,24 @@ use trf4php\TransactionManager;
 final class TransactionalBusesBuilder
 {
     /**
-     * @var array
+     * @var DispatchInterceptor[]
      */
-    private $commandInterceptors = [];
+    private $outsideTransactionCommandInterceptors = [];
 
     /**
-     * @var array
+     * @var DispatchInterceptor[]
      */
-    private $eventInterceptors = [];
+    private $withinTransactionCommandInterceptors = [];
+
+    /**
+     * @var DispatchInterceptor[]
+     */
+    private $outsideTransactionEventInterceptors = [];
+
+    /**
+     * @var DispatchInterceptor[]
+     */
+    private $withinTransactionEventInterceptors = [];
 
     /**
      * @var boolean
@@ -105,22 +116,42 @@ final class TransactionalBusesBuilder
     }
 
     /**
-     * @param array $interceptors
+     * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function withCommandInterceptors(array $interceptors)
+    public function interceptCommandsWithinTransaction(array $interceptors)
     {
-        $this->commandInterceptors = $interceptors;
+        $this->withinTransactionCommandInterceptors = $interceptors;
         return $this;
     }
 
     /**
-     * @param array $interceptors
+     * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function withEventInterceptors(array $interceptors)
+    public function interceptCommandsOutsideTransaction(array $interceptors)
     {
-        $this->eventInterceptors = $interceptors;
+        $this->outsideTransactionCommandInterceptors = $interceptors;
+        return $this;
+    }
+
+    /**
+     * @param DispatchInterceptor[] $interceptors
+     * @return $this
+     */
+    public function interceptEventsWithinTransaction(array $interceptors)
+    {
+        $this->withinTransactionEventInterceptors = $interceptors;
+        return $this;
+    }
+
+    /**
+     * @param DispatchInterceptor[] $interceptors
+     * @return $this
+     */
+    public function interceptEventsOutsideTransaction(array $interceptors)
+    {
+        $this->outsideTransactionEventInterceptors = $interceptors;
         return $this;
     }
 
@@ -166,7 +197,13 @@ final class TransactionalBusesBuilder
     private function createEventBus()
     {
         return EventBus::builder()
-            ->withInterceptors(array_merge($this->eventInterceptors, [$this->blockerInterceptor]))
+            ->withInterceptors(
+                array_merge(
+                    $this->withinTransactionEventInterceptors,
+                    [$this->blockerInterceptor],
+                    $this->outsideTransactionEventInterceptors
+                )
+            )
             ->build();
     }
 
@@ -176,8 +213,9 @@ final class TransactionalBusesBuilder
     private function createCommandBus()
     {
         $commandInterceptorList = array_merge(
+            $this->outsideTransactionCommandInterceptors,
             [$this->blockerIntManager, $this->txInterceptor],
-            $this->commandInterceptors
+            $this->withinTransactionCommandInterceptors
         );
         return $this->useDirectCommandBus
             ? DirectCommandBus::builder($this->repository)

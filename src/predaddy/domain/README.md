@@ -151,7 +151,7 @@ Even if you use `DirectCommandBus`, you can register explicit command handlers s
 ```php
 $eventStore = new DoctrineOrmEventStore($entityManager);
 $trBuses = TransactionalBusesBuilder::create(new DoctrineTransactionManager($entityManager))
-    ->withEventInterceptors([new EventPersister($eventStore)])
+    ->interceptEventsWithinTransaction([new EventPersister($eventStore)])
     ->withRepository(new EventSourcingRepository($eventStore))
     ->useDirectCommandBus()
     ->build();
