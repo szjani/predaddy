@@ -31,7 +31,7 @@ use predaddy\domain\Repository;
 use predaddy\eventhandling\EventBus;
 use predaddy\messagehandling\interceptors\BlockerInterceptor;
 use predaddy\messagehandling\interceptors\BlockerInterceptorManager;
-use predaddy\messagehandling\interceptors\TransactionalExceptionHandler;
+use predaddy\messagehandling\interceptors\ExceptionHandlerDelegate;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use RuntimeException;
 use trf4php\TransactionManager;
@@ -75,7 +75,7 @@ final class TransactionalBusesBuilder
     private $txInterceptor;
 
     /**
-     * @var TransactionalExceptionHandler
+     * @var ExceptionHandlerDelegate
      */
     private $exceptionHandler;
 
@@ -92,7 +92,7 @@ final class TransactionalBusesBuilder
         $this->blockerInterceptor = new BlockerInterceptor();
         $this->blockerIntManager = $this->blockerInterceptor->manager();
         $this->txInterceptor = new WrapInTransactionInterceptor($txManager);
-        $this->exceptionHandler = new TransactionalExceptionHandler($this->txInterceptor, $this->blockerIntManager);
+        $this->exceptionHandler = new ExceptionHandlerDelegate([$this->txInterceptor, $this->blockerIntManager]);
     }
 
     /**
