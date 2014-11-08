@@ -156,12 +156,16 @@ final class TransactionalBusesBuilder
     }
 
     /**
+     * This builder instance will create a {@link DirectCommandBus}
+     * with the given {@link Repository}.
+     *
      * @param Repository $repository
      * @return $this
      */
     public function withRepository(Repository $repository)
     {
         $this->repository = $repository;
+        $this->useDirectCommandBus();
         return $this;
     }
 

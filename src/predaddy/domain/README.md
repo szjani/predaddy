@@ -153,7 +153,6 @@ $eventStore = new DoctrineOrmEventStore($entityManager);
 $trBuses = TransactionalBusesBuilder::create(new DoctrineTransactionManager($entityManager))
     ->interceptEventsWithinTransaction([new EventPersister($eventStore)])
     ->withRepository(new EventSourcingRepository($eventStore))
-    ->useDirectCommandBus()
     ->build();
 $eventBus = $trBuses->eventBus();
 $commandBus = $trBuses->commandBus();
