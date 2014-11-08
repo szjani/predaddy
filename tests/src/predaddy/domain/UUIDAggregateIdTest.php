@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-namespace src\predaddy\domain;
+namespace predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;

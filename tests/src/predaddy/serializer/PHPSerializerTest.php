@@ -21,11 +21,9 @@
  * SOFTWARE.
  */
 
-namespace src\predaddy\serializer;
+namespace predaddy\serializer;
 
 use PHPUnit_Framework_TestCase;
-use predaddy\serializer\Bar;
-use predaddy\serializer\PHPSerializer;
 
 /**
  * @package src\predaddy\serializer

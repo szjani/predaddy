@@ -21,11 +21,10 @@
  * SOFTWARE.
  */
 
-namespace src\predaddy\messagehandling\interceptors;
+namespace predaddy\messagehandling\interceptors;
 
 use PHPUnit_Framework_TestCase;
 use predaddy\messagehandling\InterceptorChain;
-use predaddy\messagehandling\interceptors\EventPersister;
 
 /**
  * @package src\predaddy\messagehandling\interceptors
