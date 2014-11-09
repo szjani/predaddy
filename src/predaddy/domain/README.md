@@ -138,6 +138,8 @@ class UserCommandHandler
 $commandBus->post(new ModifyEmail($userId, $email));
 ```
 
+Hint: If you would like to validate commands before they are being processed, take a look at [predaddy-symfony-validator component](https://github.com/szjani/predaddy-symfony-validator).
+
 ### Event Sourcing
 
 The following configuration provides you a direct command passing process, so commands are being sent directly to the aggregate roots. As you can see it uses Doctrine implementation of `ObservableTransactionManager` and `EventStore`.
