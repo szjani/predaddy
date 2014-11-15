@@ -32,6 +32,7 @@ use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
 use predaddy\messagehandling\util\MessageCallbackClosures;
+use predaddy\messagehandling\util\SimpleMessageCallback;
 
 /**
  * The responsibility of this class is to
@@ -104,27 +105,15 @@ final class DirectCommandForwarder extends Object
             ->withHandlerDescriptorFactory($this->innerHandlerDescFactory)
             ->build();
         $forwarderBus->register($aggregate);
-        $result = null;
-        $thrownException = null;
-        $callback = MessageCallbackClosures::builder()
-            ->successClosure(
-                function ($res) use (&$result) {
-                    $result = $res;
-                }
-            )
-            ->failureClosure(
-                function (Exception $exp) use (&$thrownException) {
-                    $thrownException = $exp;
-                }
-            )
-            ->build();
+        $callback = new SimpleMessageCallback();
         $forwarderBus->post($command, $callback);
+        $thrownException = $callback->getException();
         if ($thrownException instanceof Exception) {
             self::getLogger()->debug('Error occurred when command has been applied [{}]', [$command], $thrownException);
             throw $thrownException;
         }
         $this->repository->save($aggregate);
         self::getLogger()->info("Command [{}] has been applied", [$command]);
-        return $result;
+        return $callback->getResult();
     }
 }
