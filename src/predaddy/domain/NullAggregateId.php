@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use precore\lang\Object;
+use precore\util\Objects;
 
 /**
  * It probably does not need to be used in application level.
@@ -69,6 +70,11 @@ final class NullAggregateId extends Object implements AggregateId
     public function aggregateClass()
     {
         return '';
+    }
+
+    public function toString()
+    {
+        return Objects::toStringHelper(__CLASS__)->toString();
     }
 }
 NullAggregateId::init();
