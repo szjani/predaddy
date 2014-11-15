@@ -37,6 +37,8 @@ use precore\util\UUID;
  */
 abstract class UUIDAggregateId extends Object implements AggregateId
 {
+    use AggregateIdTrait;
+
     /**
      * @var string
      */
@@ -70,20 +72,5 @@ abstract class UUIDAggregateId extends Object implements AggregateId
     final public function value()
     {
         return $this->uuid;
-    }
-
-    final public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof AggregateId
-            && $this->value() === $object->value()
-            && $this->aggregateClass() === $object->aggregateClass();
-    }
-
-    final public function toString()
-    {
-        return Objects::toStringHelper($this)
-            ->add($this->value())
-            ->add($this->aggregateClass())
-            ->toString();
     }
 }

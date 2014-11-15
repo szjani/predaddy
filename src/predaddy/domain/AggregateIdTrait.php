@@ -23,52 +23,33 @@
 
 namespace predaddy\domain;
 
-use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 
-/**
- * Basic implementation of AggregateId. Intended for internal use.
- *
- * @author Janos Szurovecz <szjani@szjani.hu>
- */
-final class DefaultAggregateId extends Object implements AggregateId
+trait AggregateIdTrait
 {
-    use AggregateIdTrait;
-
-    /**
-     * @var string
-     */
-    private $value;
-
-    /**
-     * @var string
-     */
-    private $aggregateClass;
-
-    /**
-     * @param string $value
-     * @param string $aggregateClass
-     */
-    public function __construct($value, $aggregateClass)
-    {
-        $this->value = $value;
-        $this->aggregateClass = $aggregateClass;
-    }
-
     /**
      * @return string
      */
-    public function value()
-    {
-        return $this->value;
-    }
+    public abstract function value();
 
     /**
-     * @return string
+     * @return string FQCN
      */
-    public function aggregateClass()
+    public abstract function aggregateClass();
+
+    final public function equals(ObjectInterface $object = null)
     {
-        return $this->aggregateClass;
+        return $object instanceof AggregateId
+            && $this->value() === $object->value()
+            && $this->aggregateClass() === $object->aggregateClass();
+    }
+
+    final public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add($this->value())
+            ->add($this->aggregateClass())
+            ->toString();
     }
 }

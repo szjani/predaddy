@@ -29,8 +29,8 @@ namespace predaddy\domain;
  * @package predaddy\domain
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-trait StateHashTrait {
-
+trait StateHashTrait
+{
     protected $stateHash;
 
     /**
