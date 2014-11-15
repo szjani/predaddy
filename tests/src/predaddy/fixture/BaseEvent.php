@@ -24,6 +24,7 @@
 namespace predaddy\fixture;
 
 use predaddy\domain\AbstractDomainEvent;
+use predaddy\domain\AggregateId;
 
 /**
  * @package predaddy
@@ -32,4 +33,8 @@ use predaddy\domain\AbstractDomainEvent;
  */
 class BaseEvent extends AbstractDomainEvent
 {
+    public function setStateHash($stateHash)
+    {
+        $this->stateHash = $stateHash;
+    }
 }

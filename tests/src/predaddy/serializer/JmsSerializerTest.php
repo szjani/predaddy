@@ -77,9 +77,12 @@ class JmsSerializerTest extends PHPUnit_Framework_TestCase
 
     public function testEventSerialization()
     {
+        $stateHash = '001';
         $event = new BaseEvent(EventSourcedArticleId::create());
+        $event->setStateHash($stateHash);
         $ser = $this->serializer->serialize($event);
         $res = $this->serializer->deserialize($ser, BaseEvent::objectClass());
         self::assertTrue($event->equals($res));
+        self::assertEquals($stateHash, $res->stateHash());
     }
 }
