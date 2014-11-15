@@ -23,9 +23,10 @@
 
 namespace predaddy\domain\eventsourcing;
 
-use predaddy\commandhandling\AbstractDirectCommand;
+use predaddy\commandhandling\AbstractCommand;
+use predaddy\commandhandling\DirectCommand;
 
-class CreateEventSourcedUser extends AbstractDirectCommand
+class CreateEventSourcedUser extends AbstractCommand implements DirectCommand
 {
     /**
      * @return string

@@ -28,6 +28,7 @@ use precore\lang\Object;
 use precore\lang\ObjectClass;
 use predaddy\domain\DefaultAggregateId;
 use predaddy\domain\Repository;
+use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
@@ -96,7 +97,7 @@ final class DirectCommandForwarder extends Object
                 'Aggregate [{}] with ID [{}] has been successfully loaded',
                 [$aggregateClass, $aggregateId]
             );
-            if ($command->stateHash() !== null) {
+            if ($command instanceof StateHashAware) {
                 $aggregate->failWhenStateHashViolation($command->stateHash());
             }
         }

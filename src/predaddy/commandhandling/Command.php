@@ -23,7 +23,6 @@
 
 namespace predaddy\commandhandling;
 
-use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\Message;
 
 /**
@@ -34,13 +33,9 @@ use predaddy\messagehandling\Message;
  * which need to be loaded from a persistent store. If aggregate id is null,
  * a new aggregate instance need to be created.
  *
- * The state hash can solve the lost update problem. If the state hash is null,
- * there will not be state hash check.
- *
- * @see http://www.w3.org/1999/04/Editing/
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-interface Command extends Message, StateHashAware
+interface Command extends Message
 {
     /**
      * @return string|null null if it is a create command

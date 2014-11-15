@@ -34,9 +34,10 @@ use predaddy\messagehandling\AbstractMessage;
  */
 abstract class AbstractDomainEvent extends AbstractMessage implements DomainEvent
 {
+    use StateHashTrait;
+
     protected $aggregateClass;
     protected $aggregateValue;
-    protected $stateHash;
 
     /**
      * @param AbstractDomainEvent $event
@@ -68,14 +69,6 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
     public function aggregateId()
     {
         return new DefaultAggregateId($this->aggregateValue, $this->aggregateClass);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function stateHash()
-    {
-        return $this->stateHash;
     }
 
     protected function toStringHelper()

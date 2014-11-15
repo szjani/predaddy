@@ -23,10 +23,9 @@
 
 namespace predaddy\commandhandling;
 
-
 use predaddy\fixture\article\EventSourcedArticle;
 
-class SimpleCommand extends AbstractDirectCommand
+class SimpleCommand extends AbstractCommand implements DirectCommand
 {
     public $content;
 

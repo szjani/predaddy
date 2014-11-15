@@ -192,7 +192,7 @@ class TestAggregate extends AbstractAggregateRoot
     }
 }
 
-class CreateCommand extends AbstractDirectCommand
+class CreateCommand extends AbstractCommand implements DirectCommand
 {
 
     /**
@@ -204,7 +204,7 @@ class CreateCommand extends AbstractDirectCommand
     }
 }
 
-class CalledCommand extends AbstractDirectCommand
+class CalledCommand extends AbstractCommand implements DirectCommand
 {
 
     /**

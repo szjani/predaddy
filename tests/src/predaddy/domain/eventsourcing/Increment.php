@@ -23,9 +23,10 @@
 
 namespace predaddy\domain\eventsourcing;
 
-use predaddy\commandhandling\AbstractDirectCommand;
+use predaddy\commandhandling\AbstractCommand;
+use predaddy\commandhandling\DirectCommand;
 
-class Increment extends AbstractDirectCommand
+class Increment extends AbstractCommand implements DirectCommand
 {
     /**
      * @return string

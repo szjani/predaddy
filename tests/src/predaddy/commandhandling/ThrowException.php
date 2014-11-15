@@ -28,7 +28,7 @@ namespace predaddy\commandhandling;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class ThrowException extends AbstractDirectCommand
+class ThrowException extends AbstractCommand implements DirectCommand
 {
     /**
      * @return string

@@ -23,14 +23,15 @@
 
 namespace predaddy\domain\eventsourcing;
 
-use predaddy\commandhandling\AbstractDirectCommand;
+use predaddy\commandhandling\AbstractCommand;
+use predaddy\commandhandling\DirectCommand;
 
 /**
  * @package predaddy\domain
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class Decrement extends AbstractDirectCommand
+class Decrement extends AbstractCommand implements DirectCommand
 {
     /**
      * @return string

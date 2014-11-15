@@ -23,6 +23,7 @@
 
 namespace predaddy\commandhandling;
 
+use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\AbstractMessage;
 
 /**
@@ -38,19 +39,12 @@ abstract class AbstractCommand extends AbstractMessage implements Command
     protected $aggregateId;
 
     /**
-     * @var string|null
-     */
-    protected $stateHash;
-
-    /**
      * @param string|null $aggregateId
-     * @param string|null $stateHash
      */
-    public function __construct($aggregateId = null, $stateHash = null)
+    public function __construct($aggregateId = null)
     {
         parent::__construct();
         $this->aggregateId = $aggregateId;
-        $this->stateHash = $stateHash;
     }
 
     /**
@@ -61,18 +55,15 @@ abstract class AbstractCommand extends AbstractMessage implements Command
         return $this->aggregateId;
     }
 
-    /**
-     * @return string|null
-     */
-    public function stateHash()
-    {
-        return $this->stateHash;
-    }
-
     protected function toStringHelper()
     {
-        return parent::toStringHelper()
-            ->add('aggregateId', $this->aggregateId)
-            ->add('stateHash', $this->stateHash);
+        $toStringHelper = parent::toStringHelper()->add('aggregateId', $this->aggregateId);
+        if ($this instanceof StateHashAware) {
+            $toStringHelper->add('stateHash', $this->stateHash());
+        }
+        if ($this instanceof DirectCommand) {
+            $toStringHelper->add('aggregateClass', $this->aggregateClass());
+        }
+        return $toStringHelper;
     }
 }

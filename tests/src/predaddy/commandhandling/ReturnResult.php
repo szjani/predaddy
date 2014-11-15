@@ -28,7 +28,7 @@ namespace predaddy\commandhandling;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class ReturnResult extends AbstractDirectCommand
+class ReturnResult extends AbstractCommand implements DirectCommand
 {
     /**
      * @return string
