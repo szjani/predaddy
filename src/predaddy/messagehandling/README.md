@@ -286,14 +286,14 @@ and the corresponding lf4php binder. For more information see [lf4php documentat
 Predaddy logs on different levels. In order to ease finding errors and debug application overriding `__toString()` method in messages is essential.
 `AbstractMessage` overrides `toString()` inherited from `Object` which is part of precore library and string generation based on `ToStringHelper`.
 If you extend `AbstractMessage` you can can easily add more fields into the generated string if you override `toStringHelper()` method.
-The following example can be found in `AbstractCommand`:
+The following example can be found in `AbstractDomainEvent`:
 
 ```php
 protected function toStringHelper()
 {
     return parent::toStringHelper()
-        ->add('aggregateId', $this->aggregateId)
-        ->add('stateHash', $this->stateHash);
+        ->add($this->aggregateId())
+        ->add('stateHash', $this->stateHash());
 }
 ```
 
