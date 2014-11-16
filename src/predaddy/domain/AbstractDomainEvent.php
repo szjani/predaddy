@@ -47,20 +47,21 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
      */
     public static function initEvent(AbstractDomainEvent $event, AggregateId $aggregateId, $stateHash)
     {
-        $event->aggregateClass = $aggregateId->aggregateClass();
-        $event->aggregateValue = $aggregateId->value();
+        $event->setAggregateId($aggregateId);
         $event->stateHash = $stateHash;
         return $event;
     }
 
+    /**
+     * @param AggregateId|null $aggregateId
+     */
     public function __construct(AggregateId $aggregateId = null)
     {
         parent::__construct();
         if ($aggregateId === null) {
             $aggregateId = NullAggregateId::instance();
         }
-        $this->aggregateClass = $aggregateId->aggregateClass();
-        $this->aggregateValue = $aggregateId->value();
+        $this->setAggregateId($aggregateId);
     }
 
     /**
@@ -76,5 +77,14 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
         return parent::toStringHelper()
             ->add($this->aggregateId())
             ->add('stateHash', $this->stateHash());
+    }
+
+    /**
+     * @param AggregateId $aggregateId
+     */
+    private function setAggregateId(AggregateId $aggregateId)
+    {
+        $this->aggregateClass = $aggregateId->aggregateClass();
+        $this->aggregateValue = $aggregateId->value();
     }
 }
