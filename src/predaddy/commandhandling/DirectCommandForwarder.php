@@ -32,7 +32,6 @@ use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\annotation\Subscribe;
 use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\MessageHandlerDescriptorFactory;
-use predaddy\messagehandling\util\MessageCallbackClosures;
 use predaddy\messagehandling\util\SimpleMessageCallback;
 
 /**
