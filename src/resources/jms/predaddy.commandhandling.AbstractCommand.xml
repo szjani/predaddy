@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<serializer>
+    <class name="predaddy\commandhandling\AbstractCommand" exclusion-policy="ALL">
+        <property name="aggregateId" type="string" expose="true" />
+    </class>
+</serializer>
