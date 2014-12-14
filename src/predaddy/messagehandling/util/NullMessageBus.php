@@ -24,6 +24,7 @@
 namespace predaddy\messagehandling\util;
 
 use Closure;
+use precore\lang\Object;
 use predaddy\messagehandling\MessageBus;
 use predaddy\messagehandling\MessageCallback;
 
@@ -31,7 +32,7 @@ use predaddy\messagehandling\MessageCallback;
  * @author Janos Szurovecz <szjani@szjani.hu>
  * @codeCoverageIgnore
  */
-final class NullMessageBus implements MessageBus
+final class NullMessageBus extends Object implements MessageBus
 {
     /**
      * Post a message on this bus. It is dispatched to all subscribed handlers.
@@ -46,6 +47,7 @@ final class NullMessageBus implements MessageBus
      */
     public function post($message, MessageCallback $callback = null)
     {
+        self::getLogger()->warn("Calling '{}' will do nothing.", [__METHOD__]);
     }
 
     /**
@@ -56,6 +58,7 @@ final class NullMessageBus implements MessageBus
      */
     public function register($handler)
     {
+        self::getLogger()->warn("Calling '{}' will do nothing.", [__METHOD__]);
     }
 
     /**
@@ -67,6 +70,7 @@ final class NullMessageBus implements MessageBus
      */
     public function unregister($handler)
     {
+        self::getLogger()->warn("Calling '{}' will do nothing.", [__METHOD__]);
     }
 
     /**
@@ -76,6 +80,7 @@ final class NullMessageBus implements MessageBus
      */
     public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
+        self::getLogger()->warn("Calling '{}' will do nothing.", [__METHOD__]);
     }
 
     /**
@@ -85,6 +90,7 @@ final class NullMessageBus implements MessageBus
      */
     public function unregisterClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
+        self::getLogger()->warn("Calling '{}' will do nothing.", [__METHOD__]);
     }
 
     public function __toString()
