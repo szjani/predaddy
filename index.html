@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,55 +16,116 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Predaddy</h1>
-        <p>Common DDD classes including an annotation driven message bus and tools for CQRS and Event Sourcing</p>
-        <p class="view"><a href="https://github.com/szjani/predaddy">View the Project on GitHub <small>szjani/predaddy</small></a></p>
+        <h1 class="header">Predaddy</h1>
+        <p class="header">Common DDD classes including an annotation driven message bus and tools for CQRS and Event Sourcing</p>
+
         <ul>
-          <li><a href="https://github.com/szjani/predaddy/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/szjani/predaddy/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/szjani/predaddy">View On <strong>GitHub</strong></a></li>
+          <li class="download"><a class="buttons" href="https://github.com/szjani/predaddy/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/szjani/predaddy/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/szjani/predaddy">View On GitHub</a></li>
         </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/szjani">szjani</a></p>
+
+
       </header>
       <section>
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <h1>
+<a id="predaddy" class="anchor" href="#predaddy" aria-hidden="true"><span class="octicon octicon-link"></span></a>predaddy</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p><a href="https://packagist.org/packages/predaddy/predaddy"><img src="https://poser.pugx.org/predaddy/predaddy/v/stable.png" alt="Latest Stable Version"></a>
+<a href="https://scrutinizer-ci.com/g/szjani/predaddy/"><img src="https://scrutinizer-ci.com/g/szjani/predaddy/badges/quality-score.png?s=496589a983254d22b4334552572b833061b9bd03" alt="Scrutinizer Quality Score"></a>
+<a href="https://insight.sensiolabs.com/projects/ad36fc7a-f48d-4919-b20d-90eae34aecd9"><img src="https://insight.sensiolabs.com/projects/ad36fc7a-f48d-4919-b20d-90eae34aecd9/mini.png" alt="SensioLabsInsight"></a>
+<a href="https://gitter.im/szjani/predaddy"><img src="https://badges.gitter.im/szjani/predaddy.png" alt="Gitter chat"></a>
+<a href="http://opensource.org/licenses/MIT"><img src="http://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT license"></a>
+<a href="https://flattr.com/submit/auto?user_id=szjani&amp;url=https://github.com/szjani/predaddy" target="_blank"><img align="bottom" src="https://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0"></a></p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<table>
+<thead>
+<tr>
+<th>master</th>
+<th>1.2</th>
+<th>2.2</th>
+<th>3.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://travis-ci.org/szjani/predaddy"><img src="https://travis-ci.org/szjani/predaddy.png?branch=master" alt="Build Status"></a></td>
+<td><a href="https://travis-ci.org/szjani/predaddy"><img src="https://travis-ci.org/szjani/predaddy.png?branch=1.2" alt="Build Status"></a></td>
+<td><a href="https://travis-ci.org/szjani/predaddy"><img src="https://travis-ci.org/szjani/predaddy.png?branch=2.2" alt="Build Status"></a></td>
+<td><a href="https://travis-ci.org/szjani/predaddy"><img src="https://travis-ci.org/szjani/predaddy.png?branch=3.0" alt="Build Status"></a></td>
+</tr>
+<tr>
+<td><a href="https://coveralls.io/r/szjani/predaddy?branch=master"><img src="https://coveralls.io/repos/szjani/predaddy/badge.png?branch=master" alt="Coverage Status"></a></td>
+<td><a href="https://coveralls.io/r/szjani/predaddy?branch=1.2"><img src="https://coveralls.io/repos/szjani/predaddy/badge.png?branch=1.2" alt="Coverage Status"></a></td>
+<td><a href="https://coveralls.io/r/szjani/predaddy?branch=2.2"><img src="https://coveralls.io/repos/szjani/predaddy/badge.png?branch=2.2" alt="Coverage Status"></a></td>
+<td><a href="https://coveralls.io/r/szjani/predaddy?branch=3.0"><img src="https://coveralls.io/repos/szjani/predaddy/badge.png?branch=3.0" alt="Coverage Status"></a></td>
+</tr>
+</tbody>
+</table>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>It is a library which gives you some usable classes to be able to use common DDD patterns. Some predaddy components can be used in any projects regardless of the fact that you are using DDD or not.
+I have got several ideas from <a href="http://code.google.com/p/guava-libraries/wiki/EventBusExplained">Google's Guava EventBus</a> and <a href="http://www.axonframework.org/">Axon framework</a>.</p>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<p>Some libraries are used which are just API libraries and you must care for their implementations:</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<ol>
+<li>
+<a href="https://github.com/szjani/lf4php">lf4php</a> for logging. Without an implementation predaddy is not logging.</li>
+<li>
+<a href="https://github.com/szjani/trf4php">trf4php</a> for transaction management. In most cases you will need to use a trf4php implementation (eg. <a href="https://github.com/szjani/trf4php-doctrine">trf4php-doctrine</a>)</li>
+</ol>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<h2>
+<a id="components" class="anchor" href="#components" aria-hidden="true"><span class="octicon octicon-link"></span></a>Components</h2>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>For more details see the components (click on the titles):</p>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<ol>
+<li>
+<h4>
+<a id="message-handling" class="anchor" href="#message-handling" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/szjani/predaddy/tree/3.0/src/predaddy/messagehandling#messagebus">Message handling</a>
+</h4>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>It's an annotation based publish/subscribe implementation, can be used any projects even without DDD/CQRS/Event Sourcing.</p>
+</li>
+<li>
+<h4>
+<a id="cqrs-and-event-sourcing" class="anchor" href="#cqrs-and-event-sourcing" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/szjani/predaddy/tree/3.0/src/predaddy/domain#cqrs--event-sourcing">CQRS and Event Sourcing</a>
+</h4>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<p>Complex solution for handling aggregates, based on the message handling component.</p>
+</li>
+<li>
+<h4>
+<a id="presentation---finders-etc" class="anchor" href="#presentation---finders-etc" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/szjani/predaddy/tree/3.0/src/predaddy/presentation#paginator-components">Presentation - finders, etc.</a>
+</h4>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>Common classes and interfaces for handling the read side. It also can be used in any applications.</p>
+</li>
+<li>
+<h4>
+<a id="testing---helper-for-aggregate-testing" class="anchor" href="#testing---helper-for-aggregate-testing" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/szjani/predaddy/tree/3.0/src/predaddy/util/test#testing">Testing - helper for aggregate testing</a>
+</h4>
+
+<p>Fixtures to ease aggregate testing.</p>
+</li>
+</ol>
+
+<h2>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<p>You can find some small CLI examples in the <a href="https://github.com/szjani/predaddy/tree/3.0/tests/src/sample">sample directory</a>.</p>
+
+<p>A sample project is also available which shows how predaddy should be configured and used: <a href="https://github.com/szjani/predaddy-issuetracker-sample">https://github.com/szjani/predaddy-issuetracker-sample</a></p>
       </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/szjani">szjani</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-              <script type="text/javascript">
+		          <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
