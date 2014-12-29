@@ -25,9 +25,19 @@ namespace predaddy\commandhandling;
 
 use Exception;
 use PHPUnit_Framework_TestCase;
+use precore\lang\IllegalStateException;
+use precore\util\UUID;
+use predaddy\domain\AbstractAggregateRoot;
+use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
+use predaddy\fixture\article\ChangeText;
+use predaddy\fixture\article\EventSourcedArticle;
+use predaddy\inmemory\InMemoryRepository;
+use predaddy\messagehandling\annotation\Subscribe;
+use predaddy\messagehandling\DeadMessage;
 use predaddy\messagehandling\interceptors\WrapInTransactionInterceptor;
 use predaddy\messagehandling\util\MessageCallbackClosures;
+use predaddy\messagehandling\util\SimpleMessageCallback;
 use RuntimeException;
 use trf4php\NOPTransactionManager;
 
@@ -120,6 +130,23 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function shouldRaiseDeadMessageIfNoHandlerAndNotDirectCommand()
+    {
+        $command = $this->getMock('\predaddy\commandhandling\Command');
+        $called = false;
+        $this->bus->registerClosure(
+            function (DeadMessage $message) use (&$called, $command) {
+                self::assertSame($command, $message->wrappedMessage());
+                $called = true;
+            }
+        );
+        $this->bus->post($command);
+        self::assertTrue($called);
+    }
+
+    /**
+     * @test
+     */
     public function exceptionMustBePassedToCallback()
     {
         $aggRoot = new TestAggregate01();
@@ -159,11 +186,150 @@ class DirectCommandBusTest extends PHPUnit_Framework_TestCase
         self::assertTrue($resultPassed);
     }
 
+    /**
+     * @test
+     */
+    public function createNewAggregate()
+    {
+        $command = new CreateCommand();
+
+        $this->repo
+            ->expects(self::once())
+            ->method('save')
+            ->will(
+                self::returnCallback(
+                    function (TestAggregate $aggregate) {
+                        self::assertTrue($aggregate->initialized());
+                    }
+                )
+            );
+
+        $this->bus->post($command);
+    }
+
     private function expectedToBeLoaded(AggregateRoot $aggregateRoot)
     {
         $this->repo
             ->expects(self::once())
             ->method('load')
             ->will(self::returnValue($aggregateRoot));
+    }
+
+    /**
+     * @test
+     */
+    public function loadAggregateIfIdNotNull()
+    {
+        $aggregate = new TestAggregate(new CreateCommand());
+        $aggregateId = UUID::randomUUID()->toString();
+        $command = new CalledCommand($aggregateId);
+
+        $this->repo
+            ->expects(self::once())
+            ->method('load')
+            ->will(
+                self::returnCallback(
+                    function (AggregateId $aggregateIdObj) use ($aggregateId, $aggregate) {
+                        self::assertEquals($aggregateId, $aggregateIdObj->value());
+                        return $aggregate;
+                    }
+                )
+            );
+
+        $this->repo
+            ->expects(self::once())
+            ->method('save')
+            ->will(
+                self::returnCallback(
+                    function (TestAggregate $aggregate) {
+                        self::assertTrue($aggregate->called());
+                    }
+                )
+            );
+
+        $this->bus->post($command);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldFailStateHashCheck()
+    {
+        $repository = new InMemoryRepository();
+        $article = new EventSourcedArticle('author', 'text');
+        $repository->save($article);
+
+        $bus = DirectCommandBus::builder($repository)->build();
+
+        $command = new ChangeText($article->getId()->value(), 'invalid', 'newText');
+        $callback = new SimpleMessageCallback();
+        $bus->post($command, $callback);
+        self::assertTrue($callback->getException() instanceof IllegalStateException);
+    }
+}
+
+class TestAggregate extends AbstractAggregateRoot
+{
+    private $initialized = false;
+    private $called = false;
+
+    /**
+     * @Subscribe
+     * @param CreateCommand $command
+     */
+    public function __construct(CreateCommand $command)
+    {
+        $this->initialized = true;
+    }
+
+    /**
+     * @return AggregateId
+     */
+    public function getId()
+    {
+        // TODO: Implement getId() method.
+    }
+
+    public function called()
+    {
+        return $this->called;
+    }
+
+    public function initialized()
+    {
+        return $this->initialized;
+    }
+
+    /**
+     * @Subscribe
+     * @param CalledCommand $command
+     */
+    public function handler(CalledCommand $command)
+    {
+        $this->called = true;
+    }
+}
+
+class CreateCommand extends AbstractCommand implements DirectCommand
+{
+
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return TestAggregate::className();
+    }
+}
+
+class CalledCommand extends AbstractCommand implements DirectCommand
+{
+
+    /**
+     * @return string
+     */
+    public function aggregateClass()
+    {
+        return TestAggregate::className();
     }
 }
