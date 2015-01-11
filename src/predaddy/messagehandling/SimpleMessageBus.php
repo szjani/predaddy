@@ -27,6 +27,7 @@ use ArrayObject;
 use Closure;
 use Exception;
 use precore\lang\ObjectClass;
+use precore\util\Collections;
 use precore\util\Objects;
 use SplObjectStorage;
 
@@ -67,7 +68,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     private $exceptionHandler;
 
     /**
-     * @var FunctionDescriptors
+     * @var SplObjectStorage
      */
     private $functionDescriptors;
 
@@ -84,7 +85,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         $this->exceptionHandler = $builder->getExceptionHandler();
         $this->handlerDescriptorFactory = $builder->getHandlerDescriptorFactory();
         $this->closureDescriptorFactory = $builder->getHandlerDescriptorFactory()->getFunctionDescriptorFactory();
-        $this->functionDescriptors = new FunctionDescriptors();
+        $this->functionDescriptors = new SplObjectStorage();
         $this->factories = new SplObjectStorage();
     }
 
@@ -113,8 +114,8 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     public function register($handler)
     {
         $descriptor = $this->handlerDescriptorFactory->create($handler);
-        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptors) {
-            $this->functionDescriptors->add($functionDescriptors);
+        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
+            $this->functionDescriptors->attach($functionDescriptor);
         }
     }
 
@@ -124,8 +125,8 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     public function unregister($handler)
     {
         $descriptor = $this->handlerDescriptorFactory->create($handler);
-        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptors) {
-            $this->functionDescriptors->remove($functionDescriptors);
+        foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
+            $this->functionDescriptors->detach($functionDescriptor);
         }
     }
 
@@ -136,7 +137,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
         $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($closure), $priority);
-        $this->functionDescriptors->add($descriptor);
+        $this->functionDescriptors->attach($descriptor);
     }
 
     /**
@@ -146,7 +147,13 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     public function unregisterClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
     {
         $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($closure), $priority);
-        $this->functionDescriptors->remove($descriptor);
+        $this->functionDescriptors->detach($descriptor);
+        foreach ($this->functionDescriptors as $key => $value) {
+            if ($value->equals($descriptor)) {
+                $this->functionDescriptors->offsetUnset($value);
+                break;
+            }
+        }
     }
 
     /**
@@ -204,13 +211,19 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
 
     /**
      * @param $message
-     * @return \Traversable|\Countable
+     * @return ArrayObject
      */
     protected function callableWrappersFor($message)
     {
         $objectClass = ObjectClass::forName(get_class($message));
-        /* @var $functionDescriptors FunctionDescriptors */
-        $functionDescriptors = clone $this->functionDescriptors;
+        $heap = Collections::createHeap(Collections::reverseOrder());
+
+        /* @var $functionDescriptor FunctionDescriptor */
+        foreach ($this->functionDescriptors as $functionDescriptor) {
+            if ($functionDescriptor->isHandlerFor($objectClass)) {
+                $heap->insert($functionDescriptor);
+            }
+        }
 
         foreach ($this->factories as $factory) {
             /* @var $factoryDescriptor FunctionDescriptor */
@@ -219,17 +232,14 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
                 $handler = call_user_func($factory, $message);
                 $descriptor = $this->handlerDescriptorFactory->create($handler);
                 foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
-                    $functionDescriptors->add($functionDescriptor);
+                    $heap->insert($functionDescriptor);
                 }
             }
         }
 
         $res = new ArrayObject();
-        /* @var $functionDescriptor FunctionDescriptor */
-        foreach ($functionDescriptors as $functionDescriptor) {
-            if ($functionDescriptor->isHandlerFor($objectClass)) {
-                $res->append($functionDescriptor->getCallableWrapper());
-            }
+        foreach ($heap as $functionDescriptor) {
+            $res->append($functionDescriptor->getCallableWrapper());
         }
         return $res;
     }

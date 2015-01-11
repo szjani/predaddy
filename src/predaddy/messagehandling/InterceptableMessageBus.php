@@ -29,6 +29,7 @@ use InvalidArgumentException;
 use Iterator;
 use precore\lang\Object;
 use predaddy\messagehandling\util\MessageCallbackClosures;
+use SplFixedArray;
 
 /**
  * @author Janos Szurovecz <szjani@szjani.hu>
@@ -41,7 +42,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
     private static $emptyCallback;
 
     /**
-     * @var DispatchInterceptor[]
+     * @var SplFixedArray
      */
     private $interceptors;
 
@@ -55,7 +56,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
 
     public function __construct(array $interceptors = [])
     {
-        $this->interceptors = $interceptors;
+        $this->interceptors = SplFixedArray::fromArray($interceptors);
     }
 
     /**
@@ -104,23 +105,15 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
     }
 
     /**
-     * @return Iterator of Interceptor
-     */
-    protected function createInterceptorIterator()
-    {
-        return new ArrayIterator($this->interceptors);
-    }
-
-    /**
      * @param $message
      * @param Closure $dispatchClosure
      * @return InterceptorChain
      */
-    protected function createChain($message, Closure $dispatchClosure)
+    private function createChain($message, Closure $dispatchClosure)
     {
         return new DefaultInterceptorChain(
             $message,
-            $this->createInterceptorIterator(),
+            $this->interceptors,
             $dispatchClosure
         );
     }
