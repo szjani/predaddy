@@ -40,4 +40,12 @@ class SimpleMessageHandler extends AbstractMessageHandler
     {
         $this->lastMessage = $message;
     }
+
+    /**
+     * @Subscribe
+     * @param SimpleMessageHandler $handler
+     */
+    public function handleSelf(SimpleMessageHandler $handler)
+    {
+    }
 }

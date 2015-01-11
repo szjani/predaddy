@@ -29,6 +29,7 @@ use Exception;
 use precore\lang\ObjectClass;
 use precore\util\Collections;
 use precore\util\Objects;
+use SplHeap;
 use SplObjectStorage;
 
 /**
@@ -218,12 +219,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         $objectClass = ObjectClass::forName(get_class($message));
         $heap = Collections::createHeap(Collections::reverseOrder());
 
-        /* @var $functionDescriptor FunctionDescriptor */
-        foreach ($this->functionDescriptors as $functionDescriptor) {
-            if ($functionDescriptor->isHandlerFor($objectClass)) {
-                $heap->insert($functionDescriptor);
-            }
-        }
+        self::insertAllHandlers($this->functionDescriptors, $heap, $objectClass);
 
         foreach ($this->factories as $factory) {
             /* @var $factoryDescriptor FunctionDescriptor */
@@ -231,9 +227,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
             if ($factoryDescriptor->isHandlerFor($objectClass)) {
                 $handler = call_user_func($factory, $message);
                 $descriptor = $this->handlerDescriptorFactory->create($handler);
-                foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
-                    $heap->insert($functionDescriptor);
-                }
+                self::insertAllHandlers($descriptor->getFunctionDescriptors(), $heap, $objectClass);
             }
         }
 
@@ -241,7 +235,18 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         foreach ($heap as $functionDescriptor) {
             $res->append($functionDescriptor->getCallableWrapper());
         }
+
         return $res;
+    }
+
+    private static function insertAllHandlers($functionDescriptors, SplHeap $heap, ObjectClass $objectClass)
+    {
+        /* @var $functionDescriptor FunctionDescriptor */
+        foreach ($functionDescriptors as $functionDescriptor) {
+            if ($functionDescriptor->isHandlerFor($objectClass)) {
+                $heap->insert($functionDescriptor);
+            }
+        }
     }
 
     public function toString()
