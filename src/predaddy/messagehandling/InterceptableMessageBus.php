@@ -23,10 +23,8 @@
 
 namespace predaddy\messagehandling;
 
-use ArrayIterator;
 use Closure;
 use InvalidArgumentException;
-use Iterator;
 use precore\lang\Object;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use SplFixedArray;
