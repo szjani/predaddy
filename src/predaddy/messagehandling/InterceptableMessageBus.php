@@ -26,6 +26,7 @@ namespace predaddy\messagehandling;
 use Closure;
 use InvalidArgumentException;
 use precore\lang\Object;
+use precore\util\Preconditions;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use SplFixedArray;
 
@@ -81,10 +82,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
      */
     final public function post($message, MessageCallback $callback = null)
     {
-        if (!is_object($message)) {
-            self::getLogger()->warn('Incoming message is not an object');
-            throw new InvalidArgumentException('Message must be an object!');
-        }
+        Preconditions::checkArgument(is_object($message), 'Incoming message is not an object');
         if ($callback === null) {
             $callback = self::emptyCallback();
         }
