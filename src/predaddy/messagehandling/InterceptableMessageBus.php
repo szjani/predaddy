@@ -28,6 +28,7 @@ use InvalidArgumentException;
 use precore\lang\Object;
 use precore\util\Preconditions;
 use predaddy\messagehandling\util\MessageCallbackClosures;
+use RuntimeException;
 use SplFixedArray;
 
 /**
@@ -79,6 +80,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
      * @param MessageCallback $callback
      * @return void
      * @throws InvalidArgumentException If $message is not an object
+     * @throws RuntimeException that may be thrown by an interceptor
      */
     final public function post($message, MessageCallback $callback = null)
     {
