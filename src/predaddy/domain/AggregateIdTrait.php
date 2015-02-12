@@ -45,7 +45,7 @@ trait AggregateIdTrait
         }
         /* @var $object AggregateIdTrait|ObjectInterface */
         return $object !== null
-            && get_class($this) === $object->getClassName()
+            && (get_class($this) === $object->getClassName() || $object instanceof DefaultAggregateId)
             && $this->value() === $object->value()
             && $this->aggregateClass() === $object->aggregateClass();
     }
