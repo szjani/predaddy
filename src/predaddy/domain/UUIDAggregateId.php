@@ -23,9 +23,6 @@
 
 namespace predaddy\domain;
 
-use precore\util\Objects;
-use precore\lang\Object;
-use precore\lang\ObjectInterface;
 use precore\util\UUID;
 
 /**
@@ -35,10 +32,8 @@ use precore\util\UUID;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-abstract class UUIDAggregateId extends Object implements AggregateId
+abstract class UUIDAggregateId extends AbstractAggregateId
 {
-    use AggregateIdTrait;
-
     /**
      * @var string
      */
