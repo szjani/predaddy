@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <serializer>
-    <class name="predaddy\domain\DefaultAggregateId">
+    <class name="predaddy\domain\GenericAggregateId">
         <property name="value" type="string" />
         <property name="aggregateClass" type="string" />
     </class>

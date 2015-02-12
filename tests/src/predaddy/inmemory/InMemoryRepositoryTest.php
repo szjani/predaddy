@@ -25,7 +25,7 @@ namespace predaddy\inmemory;
 
 use PHPUnit_Framework_TestCase;
 use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\GenericAggregateId;
 
 /**
  * @package predaddy\domain\impl
@@ -44,7 +44,7 @@ class InMemoryRepositoryTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->repository = new InMemoryRepository();
-        self::$AN_AGGREGATE_ID = new DefaultAggregateId(1, __CLASS__);
+        self::$AN_AGGREGATE_ID = new GenericAggregateId(1, __CLASS__);
     }
 
     /**

@@ -27,7 +27,7 @@ use ArrayObject;
 use Exception;
 use precore\lang\ObjectClass;
 use precore\util\Preconditions;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\GenericAggregateId;
 use predaddy\domain\Repository;
 use predaddy\domain\StateHashAware;
 use predaddy\messagehandling\ClosureWrapper;
@@ -103,7 +103,7 @@ class DirectCommandBus extends CommandBus
             $aggregate = ObjectClass::forName($aggregateClass)->newInstanceWithoutConstructor();
             self::getLogger()->debug('New aggregate [{}] has been created', [$aggregateClass]);
         } else {
-            $aggregate = $this->repository->load(new DefaultAggregateId($aggregateId, $aggregateClass));
+            $aggregate = $this->repository->load(new GenericAggregateId($aggregateId, $aggregateClass));
             self::getLogger()->debug(
                 'Aggregate [{}] with ID [{}] has been successfully loaded',
                 [$aggregateClass, $aggregateId]

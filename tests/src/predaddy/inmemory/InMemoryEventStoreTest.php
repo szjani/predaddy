@@ -25,7 +25,7 @@ namespace predaddy\inmemory;
 
 use predaddy\domain\AbstractDomainEvent;
 use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\GenericAggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
 use predaddy\domain\eventsourcing\CreateEventSourcedUser;
@@ -133,7 +133,7 @@ class InMemoryEventStoreTest extends DomainTestCase
      */
     public function shouldIgnoreNonEventSourcedAggregateIdInSnapshotting()
     {
-        $aggregateId = new DefaultAggregateId('value', __CLASS__);
+        $aggregateId = new GenericAggregateId('value', __CLASS__);
         $this->eventStore->createSnapshot($aggregateId);
         self::assertNull($this->eventStore->loadSnapshot($aggregateId));
     }

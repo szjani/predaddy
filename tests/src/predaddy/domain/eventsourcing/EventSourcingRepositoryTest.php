@@ -27,7 +27,7 @@ use ArrayIterator;
 use precore\util\UUID;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DecrementedEvent;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\GenericAggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\DomainTestCase;
 use predaddy\domain\EventStore;
@@ -62,7 +62,7 @@ class EventSourcingRepositoryTest extends DomainTestCase
      */
     protected function createRandomAggregateId()
     {
-        return new DefaultAggregateId(UUID::randomUUID()->toString(), EventSourcedUser::className());
+        return new GenericAggregateId(UUID::randomUUID()->toString(), EventSourcedUser::className());
     }
 
     public function testGetEventStorage()

@@ -65,11 +65,11 @@ abstract class AbstractDomainEvent extends AbstractMessage implements DomainEven
     }
 
     /**
-     * @return DefaultAggregateId
+     * @return GenericAggregateId
      */
     public function aggregateId()
     {
-        return new DefaultAggregateId($this->aggregateValue, $this->aggregateClass);
+        return new GenericAggregateId($this->aggregateValue, $this->aggregateClass);
     }
 
     protected function toStringHelper()

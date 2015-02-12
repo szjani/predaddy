@@ -34,7 +34,7 @@ use predaddy\commandhandling\CommandBus;
 use predaddy\commandhandling\DirectCommandBus;
 use predaddy\domain\AbstractDomainEvent;
 use predaddy\domain\AggregateId;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\GenericAggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\EventPublisher;
 use predaddy\domain\Repository;
@@ -118,7 +118,7 @@ abstract class Fixture implements MessageCallback
     private $repository;
 
     /**
-     * @var DefaultAggregateId|null
+     * @var GenericAggregateId|null
      */
     private $aggregateId;
 
@@ -131,7 +131,7 @@ abstract class Fixture implements MessageCallback
         $this->eventBus = new EventBus();
         EventPublisher::instance()->setEventBus($this->eventBus);
         $this->repository = $repository;
-        //$this->aggregateId = new DefaultAggregateId(UUID::randomUUID()->toString(), $this->getAggregateClass());
+        //$this->aggregateId = new GenericAggregateId(UUID::randomUUID()->toString(), $this->getAggregateClass());
     }
 
     /**

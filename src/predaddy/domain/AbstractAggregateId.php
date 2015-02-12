@@ -21,7 +21,7 @@ abstract class AbstractAggregateId extends Object implements AggregateId
         }
         /* @var $object AbstractAggregateId */
         return $object !== null
-        && ($this->getClassName() === $object->getClassName() || $object instanceof DefaultAggregateId)
+        && ($this->getClassName() === $object->getClassName() || $object instanceof GenericAggregateId)
         && $this->value() === $object->value()
         && $this->aggregateClass() === $object->aggregateClass();
     }

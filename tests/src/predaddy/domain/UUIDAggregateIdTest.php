@@ -90,7 +90,7 @@ class UUIDAggregateIdTest extends PHPUnit_Framework_TestCase
     public function shouldEqualsBeSymmetric()
     {
         $id1 = EventSourcedArticleId::create();
-        $id2 = new DefaultAggregateId($id1->value(), $id1->aggregateClass());
+        $id2 = new GenericAggregateId($id1->value(), $id1->aggregateClass());
         self::assertTrue($id2->equals($id1));
         self::assertTrue($id1->equals($id2));
     }

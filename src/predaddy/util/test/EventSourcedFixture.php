@@ -25,7 +25,7 @@ namespace predaddy\util\test;
 
 use precore\util\UUID;
 use predaddy\domain\AbstractDomainEvent;
-use predaddy\domain\DefaultAggregateId;
+use predaddy\domain\GenericAggregateId;
 use predaddy\domain\DomainEvent;
 use predaddy\domain\eventsourcing\EventSourcingRepository;
 use predaddy\domain\EventStore;
@@ -69,7 +69,7 @@ final class EventSourcedFixture extends Fixture
             if ($this->getAggregateId() === null) {
                 $aggregateId = $event->aggregateId() !== null && !$event->aggregateId()->equals(NullAggregateId::instance())
                     ? $event->aggregateId()
-                    : new DefaultAggregateId(UUID::randomUUID()->toString(), $this->getAggregateClass());
+                    : new GenericAggregateId(UUID::randomUUID()->toString(), $this->getAggregateClass());
                 $this->setAggregateId($aggregateId);
             }
             if ($event instanceof AbstractDomainEvent) {

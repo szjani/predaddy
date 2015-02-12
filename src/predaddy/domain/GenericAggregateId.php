@@ -32,7 +32,7 @@ use precore\util\Objects;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-final class DefaultAggregateId extends Object implements AggregateId
+final class GenericAggregateId extends Object implements AggregateId
 {
     /**
      * @var string
