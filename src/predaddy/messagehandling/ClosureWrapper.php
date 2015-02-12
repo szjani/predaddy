@@ -57,7 +57,10 @@ final class ClosureWrapper extends Object implements CallableWrapper
 
     public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self
+        if ($object === $this) {
+            return true;
+        }
+        return $object instanceof ClosureWrapper
             && $this->closure === $object->closure;
     }
 }

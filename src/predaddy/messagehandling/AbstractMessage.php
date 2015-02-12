@@ -61,9 +61,15 @@ abstract class AbstractMessage extends Object implements Message
         return clone $this->created;
     }
 
-    public function equals(ObjectInterface $object = null)
+    final public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self && $this->id === $object->id;
+        if ($object === $this) {
+            return true;
+        }
+        /* @var $object AbstractMessage */
+        return $object !== null
+            && $this->getClassName() === $object->getClassName()
+            && $this->id === $object->id;
     }
 
     /**

@@ -118,10 +118,10 @@ class Sort extends Object implements IteratorAggregate, Countable
         if ($object === $this) {
             return true;
         }
-        if (!($object instanceof self)) {
-            return false;
-        }
-        return $this->orders === $object->orders;
+        /* @var $object Sort */
+        return $object !== null
+            && $this->getClassName() === $object->getClassName()
+            && $this->orders === $object->orders;
     }
 
     public function toString()

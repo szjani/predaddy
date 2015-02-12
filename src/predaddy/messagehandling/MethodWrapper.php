@@ -61,7 +61,10 @@ final class MethodWrapper extends Object implements CallableWrapper
 
     public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self
+        if ($object === $this) {
+            return true;
+        }
+        return $object instanceof MethodWrapper
             && Objects::equal($this->object, $object->object)
             && Objects::equal($this->method, $object->method);
     }

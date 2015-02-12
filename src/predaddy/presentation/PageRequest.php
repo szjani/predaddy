@@ -123,11 +123,10 @@ class PageRequest extends Object implements Pageable
         if ($object === $this) {
             return true;
         }
-        if (!($object instanceof self)) {
-            return false;
-        }
-
-        return Objects::equal($this->page, $object->page)
+        /* @var $object PageRequest */
+        return $object !== null
+            && $this->getClassName() === $object->getClassName()
+            && Objects::equal($this->page, $object->page)
             && Objects::equal($this->size, $object->size)
             && Objects::equal($this->sort, $object->sort);
     }

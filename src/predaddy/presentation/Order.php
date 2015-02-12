@@ -34,7 +34,14 @@ use precore\util\Objects;
  */
 class Order extends Object
 {
+    /**
+     * @var Direction
+     */
     private $direction;
+
+    /**
+     * @var string
+     */
     private $property;
 
     /**
@@ -68,10 +75,11 @@ class Order extends Object
         if ($object === $this) {
             return true;
         }
-        if (!($object instanceof self)) {
-            return false;
-        }
-        return $this->direction->equals($object->direction) && $this->property === $object->property;
+        /* @var $object Order */
+        return $object !== null
+            && $this->getClassName() === $object->getClassName()
+            && $this->direction->equals($object->direction)
+            && $this->property === $object->property;
     }
 
     public function toString()

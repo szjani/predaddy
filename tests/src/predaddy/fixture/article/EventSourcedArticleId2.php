@@ -21,40 +21,22 @@
  * SOFTWARE.
  */
 
-namespace predaddy\domain;
+namespace predaddy\fixture\article;
 
-use precore\lang\ObjectInterface;
-use precore\util\Objects;
+use predaddy\domain\UUIDAggregateId;
 
-trait AggregateIdTrait
+/**
+ * @package predaddy\fixture
+ *
+ * @author Janos Szurovecz <szjani@szjani.hu>
+ */
+final class EventSourcedArticleId2 extends UUIDAggregateId implements ArticleId
 {
-    /**
-     * @return string
-     */
-    public abstract function value();
-
     /**
      * @return string FQCN
      */
-    public abstract function aggregateClass();
-
-    final public function equals(ObjectInterface $object = null)
+    public function aggregateClass()
     {
-        if ($object === $this) {
-            return true;
-        }
-        /* @var $object AggregateIdTrait|ObjectInterface */
-        return $object !== null
-            && get_class($this) === $object->getClassName()
-            && $this->value() === $object->value()
-            && $this->aggregateClass() === $object->aggregateClass();
-    }
-
-    final public function toString()
-    {
-        return Objects::toStringHelper($this)
-            ->add($this->value())
-            ->add($this->aggregateClass())
-            ->toString();
+        return EventSourcedArticle::className();
     }
 }

@@ -65,13 +65,6 @@ class ArticleCreated extends AbstractDomainEvent
         return $this->text;
     }
 
-    public function equals(ObjectInterface $object = null)
-    {
-        return $object instanceof self
-            && $this->author === $object->author
-            && $this->text === $object->text;
-    }
-
     public function toString()
     {
         return Objects::toStringHelper($this)

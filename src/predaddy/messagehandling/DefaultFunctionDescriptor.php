@@ -124,7 +124,12 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
 
     public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self
+        if ($object === $this) {
+            return true;
+        }
+        /* @var $object self */
+        return $object !== null
+            && $this->getClassName() === $object->getClassName()
             && Objects::equal($this->callableWrapper, $object->callableWrapper)
             && Objects::equal($this->priority, $object->priority);
     }

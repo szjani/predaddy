@@ -34,8 +34,6 @@ use precore\util\Objects;
  */
 final class DefaultAggregateId extends Object implements AggregateId
 {
-    use AggregateIdTrait;
-
     /**
      * @var string
      */
@@ -70,5 +68,23 @@ final class DefaultAggregateId extends Object implements AggregateId
     public function aggregateClass()
     {
         return $this->aggregateClass;
+    }
+
+    final public function equals(ObjectInterface $object = null)
+    {
+        if ($object === $this) {
+            return true;
+        }
+        return $object instanceof AggregateId
+            && $this->value() === $object->value()
+            && $this->aggregateClass() === $object->aggregateClass();
+    }
+
+    final public function toString()
+    {
+        return Objects::toStringHelper($this)
+            ->add($this->value())
+            ->add($this->aggregateClass())
+            ->toString();
     }
 }

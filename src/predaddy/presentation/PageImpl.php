@@ -169,11 +169,10 @@ class PageImpl extends Object implements IteratorAggregate, Page
         if ($object === $this) {
             return true;
         }
-        if (!($object instanceof self)) {
-            return false;
-        }
-
-        return Objects::equal($this->total, $object->total)
+        /* @var $object PageImpl */
+        return $object !== null
+            && $this->getClassName() === $object->getClassName()
+            && Objects::equal($this->total, $object->total)
             && Objects::equal($this->content, $object->content)
             && Objects::equal($this->pageable, $object->pageable);
     }

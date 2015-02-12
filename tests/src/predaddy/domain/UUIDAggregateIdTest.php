@@ -26,6 +26,7 @@ namespace predaddy\domain;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
 use predaddy\fixture\article\EventSourcedArticleId;
+use predaddy\fixture\article\EventSourcedArticleId2;
 
 /**
  * @package src\predaddy\domain
@@ -52,5 +53,34 @@ class UUIDAggregateIdTest extends PHPUnit_Framework_TestCase
     public function shouldFailIfBuiltFromInvalidString()
     {
         EventSourcedArticleId::from('invalid');
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCheckReference()
+    {
+        /* @var $id UUIDAggregateId */
+        $id = $this->getMockForAbstractClass(UUIDAggregateId::className(), [], '', false);
+        $id
+            ->expects(self::never())
+            ->method('value');
+        $id
+            ->expects(self::never())
+            ->method('aggregateClass');
+
+        self::assertTrue($id->equals($id));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotBeEqualTwoDifferentTypeOfAggregateId()
+    {
+        $value = UUID::randomUUID()->toString();
+        $id1 = EventSourcedArticleId::from($value);
+        $id2 = EventSourcedArticleId2::from($value);
+        self::assertFalse($id1->equals($id2));
+        self::assertFalse($id2->equals($id1));
     }
 }

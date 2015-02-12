@@ -114,7 +114,8 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
 
     public function equals(ObjectInterface $object = null)
     {
-        return $object instanceof self
+        // instanceof has to be used here, since aggregates might be proxied (e.g. Doctrine)
+        return $object instanceof AbstractAggregateRoot
             && Objects::equal($this->getId(), $object->getId());
     }
 }

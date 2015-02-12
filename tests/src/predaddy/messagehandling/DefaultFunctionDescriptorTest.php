@@ -24,6 +24,7 @@
 namespace predaddy\messagehandling;
 
 use PHPUnit_Framework_TestCase;
+use predaddy\commandhandling\CommandFunctionDescriptor;
 use ReflectionClass;
 use ReflectionFunction;
 
@@ -70,6 +71,17 @@ class DefaultFunctionDescriptorTest extends PHPUnit_Framework_TestCase
         $priority = 2;
         $descriptor = new DefaultFunctionDescriptor(self::$anyWrapper, $priority);
         self::assertEquals($priority, $descriptor->getPriority());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotBeEqualTwoDifferentTypeOfDescriptors()
+    {
+        $descriptor1 = new DefaultFunctionDescriptor(self::$anyWrapper, self::$anyPriority);
+        $descriptor2 = new CommandFunctionDescriptor(self::$anyWrapper, self::$anyPriority);
+        self::assertFalse($descriptor1->equals($descriptor2));
+        self::assertFalse($descriptor2->equals($descriptor1));
     }
 
     /**
