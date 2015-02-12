@@ -24,6 +24,7 @@
 namespace predaddy\domain;
 
 use PHPUnit_Framework_TestCase;
+use predaddy\eventhandling\EventBus;
 use predaddy\fixture\BaseEvent;
 
 /**
@@ -39,7 +40,16 @@ class EventPublisherTest extends PHPUnit_Framework_TestCase
      */
     public function shouldSetNullMessageBus()
     {
+        $called = false;
+        $bus = new EventBus();
+        $bus->registerClosure(
+            function (BaseEvent $event) use (&$called) {
+                $called = true;
+            }
+        );
+        EventPublisher::instance()->setEventBus($bus);
         EventPublisher::instance()->setEventBus(null);
         EventPublisher::instance()->post(new BaseEvent());
+        self::assertFalse($called);
     }
 }

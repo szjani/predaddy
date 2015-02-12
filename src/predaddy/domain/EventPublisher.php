@@ -38,7 +38,15 @@ use predaddy\messagehandling\util\NullMessageBus;
  */
 final class EventPublisher extends Object
 {
+    /**
+     * @var EventPublisher
+     */
     private static $instance;
+
+    /**
+     * @var NullMessageBus
+     */
+    private static $nullMessageBus;
 
     /**
      * @var MessageBus
@@ -50,12 +58,13 @@ final class EventPublisher extends Object
      */
     public static function init()
     {
+        self::$nullMessageBus = new NullMessageBus();
         self::$instance = new EventPublisher();
     }
 
     private function __construct()
     {
-        $this->eventBus = new NullMessageBus();
+        $this->eventBus = self::$nullMessageBus;
     }
 
     /**
@@ -63,7 +72,7 @@ final class EventPublisher extends Object
      */
     public function setEventBus(EventBus $eventBus = null)
     {
-        $this->eventBus = $eventBus ?: new NullMessageBus();
+        $this->eventBus = $eventBus ?: self::$nullMessageBus;
         self::getLogger()->debug('Event bus has been set to EventPublisher: [{}]', [$this->eventBus]);
     }
 
