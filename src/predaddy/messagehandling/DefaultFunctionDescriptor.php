@@ -43,7 +43,7 @@ use ReflectionClass;
 class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
 {
     /**
-     * @var ObjectClass
+     * @var string
      */
     private $handledMessageClass = null;
     private $compatibleMessageClassNames = [];
@@ -67,17 +67,17 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     }
 
     /**
-     * @param ObjectClass $messageClass
+     * @param object $message
      * @return boolean
      */
-    public function isHandlerFor(ObjectClass $messageClass)
+    public function isHandlerFor($message)
     {
         if (!$this->valid) {
             return false;
         }
-        $messageClassName = $messageClass->getName();
+        $messageClassName = get_class($message);
         if (!array_key_exists($messageClassName, $this->compatibleMessageClassNames)) {
-            $this->compatibleMessageClassNames[$messageClassName] = $this->canHandleValidMessage($messageClass);
+            $this->compatibleMessageClassNames[$messageClassName] = $this->canHandleValidMessage($message);
         }
         return $this->compatibleMessageClassNames[$messageClassName];
     }
@@ -95,7 +95,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
      */
     public function getHandledMessageClassName()
     {
-        return $this->handledMessageClass->getName();
+        return $this->handledMessageClass;
     }
 
     /**
@@ -140,9 +140,9 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
         return $this->callableWrapper;
     }
 
-    protected function canHandleValidMessage(ObjectClass $messageClass)
+    protected function canHandleValidMessage($object)
     {
-        return $this->handledMessageClass->isAssignableFrom($messageClass);
+        return is_a($object, $this->handledMessageClass);
     }
 
     protected function getBaseMessageClassName()
@@ -169,7 +169,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
                 return false;
             }
         }
-        $this->handledMessageClass = ObjectClass::forName($paramType->getName());
+        $this->handledMessageClass = $paramType->getName();
         return true;
     }
 }

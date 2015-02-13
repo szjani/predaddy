@@ -56,7 +56,7 @@ class AnnotatedMessageHandlerDescriptorTest extends PHPUnit_Framework_TestCase
         self::assertNotNull($methods);
         $counter = 0;
         foreach ($methods as $method) {
-            if ($method->isHandlerFor($message->getObjectClass())) {
+            if ($method->isHandlerFor($message)) {
                 $counter++;
             }
         }

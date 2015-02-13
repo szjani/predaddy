@@ -26,7 +26,6 @@ namespace predaddy\messagehandling;
 use ArrayObject;
 use Closure;
 use Exception;
-use precore\lang\ObjectClass;
 use precore\util\Collections;
 use precore\util\Objects;
 use SplHeap;
@@ -216,18 +215,17 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      */
     protected function callableWrappersFor($message)
     {
-        $objectClass = ObjectClass::forName(get_class($message));
         $heap = Collections::createHeap(Collections::reverseOrder());
 
-        self::insertAllHandlers($this->functionDescriptors, $heap, $objectClass);
+        self::insertAllHandlers($this->functionDescriptors, $heap, $message);
 
         foreach ($this->factories as $factory) {
             /* @var $factoryDescriptor FunctionDescriptor */
             $factoryDescriptor = $this->factories[$factory];
-            if ($factoryDescriptor->isHandlerFor($objectClass)) {
+            if ($factoryDescriptor->isHandlerFor($message)) {
                 $handler = call_user_func($factory, $message);
                 $descriptor = $this->handlerDescriptorFactory->create($handler);
-                self::insertAllHandlers($descriptor->getFunctionDescriptors(), $heap, $objectClass);
+                self::insertAllHandlers($descriptor->getFunctionDescriptors(), $heap, $message);
             }
         }
 
@@ -239,11 +237,11 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         return $res;
     }
 
-    private static function insertAllHandlers($functionDescriptors, SplHeap $heap, ObjectClass $objectClass)
+    private static function insertAllHandlers($functionDescriptors, SplHeap $heap, $message)
     {
         /* @var $functionDescriptor FunctionDescriptor */
         foreach ($functionDescriptors as $functionDescriptor) {
-            if ($functionDescriptor->isHandlerFor($objectClass)) {
+            if ($functionDescriptor->isHandlerFor($message)) {
                 $heap->insert($functionDescriptor);
             }
         }

@@ -35,10 +35,10 @@ interface FunctionDescriptor extends Comparable, ObjectInterface
     public function isValid();
 
     /**
-     * @param ObjectClass $messageClass
+     * @param object $message
      * @return boolean
      */
-    public function isHandlerFor(ObjectClass $messageClass);
+    public function isHandlerFor($message);
 
     /**
      * @return CallableWrapper

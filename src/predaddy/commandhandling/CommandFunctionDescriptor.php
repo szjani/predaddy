@@ -23,7 +23,6 @@
 
 namespace predaddy\commandhandling;
 
-use precore\lang\ObjectClass;
 use predaddy\messagehandling\DefaultFunctionDescriptor;
 
 final class CommandFunctionDescriptor extends DefaultFunctionDescriptor
@@ -33,8 +32,8 @@ final class CommandFunctionDescriptor extends DefaultFunctionDescriptor
         return __NAMESPACE__ . '\Command';
     }
 
-    protected function canHandleValidMessage(ObjectClass $messageClass)
+    protected function canHandleValidMessage($object)
     {
-        return $messageClass->getName() === $this->getHandledMessageClassName();
+        return get_class($object) === $this->getHandledMessageClassName();
     }
 }
