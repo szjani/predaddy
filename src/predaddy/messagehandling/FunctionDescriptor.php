@@ -24,7 +24,6 @@
 namespace predaddy\messagehandling;
 
 use precore\lang\Comparable;
-use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 
 interface FunctionDescriptor extends Comparable, ObjectInterface
