@@ -2,7 +2,7 @@ MessageBus
 ==========
 
 MessageBus provides a general interface for message handling. The basic concept is that message handlers can
-be registered to the bus which forwards each incoming messages to the appropriate handler. Message handlers
+be registered to the bus which forwards each incoming message to the appropriate handlers. Message handlers
 can be either objects or closures.
 
 `SimpleMessageBus` is a basic implementation of the `MessageBus` interface. Currently, all other `MessageBus` implementations extend this class.
@@ -21,7 +21,7 @@ $bus = new SimpleMessageBus();
 
 ### Message
 
-Message classes don't have to extend any classes or implement any interfaces, so a message can be an instance of any class. However a `Message` interface is available which provides some useful methods, and the `AbstractMessage` class implements this interface.
+Message classes do not have to extend neither a class nor implement an interface, but messages must be objects. A `Message` interface is available, which provides some useful methods, and the `AbstractMessage` class implements this interface.
 
 ```php
 class SampleMessage1 extends AbstractMessage
@@ -29,7 +29,7 @@ class SampleMessage1 extends AbstractMessage
 }
 ```
 
-If any of your message classes cannot be cast to string which is necessary for logging, you should register an error handler which can be found in precore library:
+If a message class cannot be cast to string, which is necessary for logging, you should register an error handler that can be found in precore library:
 ```php
 ErrorHandler::register();
 ```
@@ -37,7 +37,7 @@ Otherwise `E_RECOVERABLE_ERROR` error is being triggered. If all of your message
 
 ### Handlers
 
-Predaddy supports message handler objects and closures as well. Since it's not required to implement any interfaces or extend any classes, you can use any objects as message handler. Predaddy supports annotations to mark handler methods.
+Predaddy supports message handler objects and closures as well. Since it is not required to implement neither an interfaces nor extend a class, you can use a simple object as message handler. Predaddy supports annotations to recognize handler methods.
 
 ```php
 class SampleMessageHandler
@@ -102,7 +102,7 @@ $messageBus = SimpleMessageBus::builder()
 );
 ```
 
-Hint: Feel free to implement any configuration file reading utility class which provides the properly built `Configuration` object.
+Hint: Feel free to implement a configuration file reading utility class that provides the properly built `Configuration` object.
 
 ### Registering handlers
 
@@ -115,7 +115,7 @@ $bus->registerClosure($closure);
 
 Predaddy 3 supports dynamic handlers. In a typical application the PHP interpreter stops after the response has been sent out, therefore
 it may be unnecessary to create and register in all handlers. Rather than, you can register handler factory closures which act as handler closures:
-theirs parameter's typehint defines which type of object can be handled and if an object is compatible with that, the message bus
+their parameter's typehint defines which type of object can be handled and if an object is compatible with that, the message bus
 calls the factory function and passes the message to the return value just like it was registered as a handler.
 
 This behavior is defined in `HandlerFactoryRegisterableMessageBus` which is implemented by `SimpleMessageBus`.
@@ -129,13 +129,17 @@ $this->bus->registerHandlerFactory($factory);
 
 If a message's type is compatible with the factory's typehint, the factory will be called and the handler will be constructed even if the handler will not be able to handle the message.
 
+Hint: You can use your dependency injection container object within these factories to obtain and return the appropriate handler.
+
 ### Sending messages
 
 ```php
 $bus->post(new SampleMessage1());
 ```
 
-In some cases handlers have return value or it is more common that they throw exceptions. In order to be notified about
+All handlers that are registered in `$bus` and able to handle `SampleMessage1` message type will be called by the message bus.
+
+In some cases handlers have return value or it is more common that they throw exception. In order to be notified about
 these things it is possible to pass a second argument, a `MessageCallback` object to the `MessageBus::post()` method. The appropriate
 method on this object will be called if any of the above happens.
 
@@ -143,8 +147,8 @@ method on this object will be called if any of the above happens.
 $bus->post(new SampleMessage1(), $messageCallback);
 ```
 
-To ease of create such a `MessageCallback` object, `MessageCallbackClosures` provides a simple and powerful way to build a callback
-object based on Closures.
+To ease of create such a `MessageCallback` object, you can use `SimpleMessageCallback`. `MessageCallbackClosures` provides a simple and powerful way to build a callback
+object based on Closures:
 
 ```php
 $messageCallback = MessageCallbackClosures::builder()
@@ -155,10 +159,10 @@ $messageCallback = MessageCallbackClosures::builder()
 
 ### Exception handling
 
-All `MessageBus` implementation catches all exceptions thrown by handlers, so the messages are being forwarded
-to all handlers, even if some of them throw exception.
+All `MessageBus` implementation catches all exceptions that were thrown by handlers, so the messages are being forwarded
+to all handlers.
 
-If you need to handle exceptions, you can implement `SubscriberExceptionHandler` interface and use builder to instantiate the bus:
+If you need to handle exceptions in a generic way, you can implement `SubscriberExceptionHandler` interface and use builder to instantiate the bus:
 
 ```php
 $bus = SimpleMessageBus::builder()
@@ -168,7 +172,7 @@ $bus = SimpleMessageBus::builder()
 
 ### Handler prioritization
 
-In predaddy 2.1 it is possible to define the sequence how handlers are being executed. The higher the priority the handler is being called earlier.
+Since version 2.1 it is possible to define the sequence how handlers are being executed. The higher the priority the handler is being called earlier.
 The default priority is 1.
 
 For closures you can pass the priority to the `registerClosure` method as the second argument.
@@ -215,15 +219,15 @@ In this example the methods are being called in the following sequence: `handler
 ### Handler methods/functions
 
 Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods must have one parameter with typehint.
-The typehint defines which message objects can be handled, by default. If you want to handle for example all `Message` objects, which implement this interface,
-you just have to use `Message` typehint. This kind of solution provides an easy way to use and distinguish a huge amount of
-message classes. Interface and abstract class typehints also work as expected. A handler class could have as many handler methods as you want.
+The typehint defines which message objects can be handled, by default. If you want to handle for example all objects that implement `Message` interface,
+you just need to define one handler method with a `Message` parameter. This kind of solution provides an easy way to use and distinguish a huge amount of
+message classes. Interface and abstract class typehints work as expected. A handler class could have as many handler methods as you want.
 The handler methods must be public, but this rule can be overridden in the passed `MessageHandlerDescriptor`.
 
 ### Annotations
 
 You can use your own handler method scanning/defining process, however the system does support annotation based configuration.
-It means that you just have to mark handler methods in your handler classes with `@Subject` annotation. When you register an instance
+It means that you just have to mark handler methods in your handler classes with `@Subscribe` annotation. When you register an instance
 of this class, predaddy is automatically finding these methods.
 
 Do not forget to put the following use statement into your message handler classes:
@@ -233,22 +237,22 @@ use predaddy\messagehandling\annotation\Subscribe;
 
 ### Interceptors
 
-It's possible to extend bus behaviour when messages are being dispatched. `DispatchInterceptor` objects wrap
+It is possible to extend bus behaviour when messages are being dispatched. `DispatchInterceptor` objects wrap
 the concrete dispatch process and are able to modify that. It is usable for logging, transaction handling, etc.
 
 The following interceptors are shipped with predaddy:
 
- - `WrapInTransactionInterceptor`: The message dispatch processes will be wrapped in a new transaction. Needs [trf4php](https://github.com/szjani/trf4php).
+ - `WrapInTransactionInterceptor`: The message dispatch processes will be wrapped in a transaction. Needs [trf4php](https://github.com/szjani/trf4php).
  - `BlockerInterceptor`: Message dispatching can be blocked by this interceptor and all collected messages can be flushed or cleared.
- - `BlockerInterceptorManager`: It manages the given `BlockerInterceptor`. Should be used with another message bus object. Currently it is being used
+ - `BlockerInterceptorManager`: It manages the given `BlockerInterceptor`. Should be used with another message bus object. Currently it is used
  by `CommandBus`: blocks all outgoing events until the command handler execution ends.
- - `EventPersister`: Persists all messages into an `EventStore` which is going through the message bus.
+ - `EventPersister`: Persists all messages that go through the message bus into an `EventStore`.
 
-In predaddy 3 interceptors are called only once regardless how much handlers will be called.
+In predaddy 3, interceptors are called only once for each message.
 
 ### Unhandled messages
 
-Those messages which haven't been sent to any handlers during the dispatch process are being wrapped into an individual `DeadMessage` object and being dispatched again.
+Those messages that haven not been sent to any handlers during the dispatch process are being wrapped into an individual `DeadMessage` object and being dispatched again.
 Registering a `DeadMessage` handler is a common way to log or debug unhandled messages.
 
 ### MessageBus implementations
@@ -258,11 +262,11 @@ There is a default implementation of `MessageBus` interface called `SimpleMessag
 #### CommandBus
 
 `Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type. If more than one
-handler can the command passed to, `IllegalStateException` will be thrown.
+handler can the command be passed to, `IllegalStateException` will be thrown.
 
 #### DirectCommandBus
 
-`DirectCommandBus` extends `CommandBus` and automatically registers a `DirectCommandForwarder` object as a handler which handles all unhandled commands. This bus should be used if business method parameters in the aggregates are mostly `Command` objects.
+`DirectCommandBus` extends `CommandBus` and handles all unhandled commands. This bus should be used if business method parameters in the aggregates are mostly `Command` objects.
 
 #### EventBus
 
@@ -271,7 +275,7 @@ Only `Event` objects will be passed to the appropriate handlers.
 #### Mf4phpMessageBus
 
 `Mf4phpMessageBus` wraps a `MessageDispatcher`, so all features provided by [mf4php](https://github.com/szjani/mf4php) can be achieved with this class, such as
-synchronize messages to transactions and asynchronous event dispatching. For further information see the [mf4php](https://github.com/szjani/mf4php) documentation.
+synchronizing messages to transactions and asynchronous event dispatching. For further information see the [mf4php](https://github.com/szjani/mf4php) documentation.
 
 ## Best practises
 
@@ -284,7 +288,7 @@ and the corresponding lf4php binder. For more information see [lf4php documentat
 ### Overriding __toString for logging
 
 Predaddy logs on different levels. In order to ease finding errors and debug application overriding `__toString()` method in messages is essential.
-`AbstractMessage` overrides `toString()` inherited from `Object` which is part of precore library and string generation based on `ToStringHelper`.
+`AbstractMessage` overrides `toString()` inherited from `Object`, which is part of precore library, and string generation is based on `ToStringHelper`.
 If you extend `AbstractMessage` you can can easily add more fields into the generated string if you override `toStringHelper()` method.
 The following example can be found in `AbstractDomainEvent`:
 
