@@ -41,43 +41,51 @@ $eventBus = $trBuses->eventBus();
 $commandBus = $trBuses->commandBus();
 
 // register the command handlers
-$commandBus->register(new UserCommandHandler($userRepository));
+$commandBus->register(new AccountCommandHandler($accountRepository));
 
 // register the event handlers
-$eventBus->register(new UserEventHandler());
+$eventBus->register(new SmsNotifier());
 ```
 
-Hint: `Repository` interface is required only for `DirectCommandBus` and EventSourced aggregates. `$userRepository` in this example can
-implement a domain specific, customized `UserRepository` interface.
+Hint: `Repository` interface is required only for `DirectCommandBus` and EventSourced aggregates. `$accountRepository` in this example can
+implement a domain specific, customized `AccountRepository` interface.
 
 #### The domain model
 
 ```php
-class User extends AbstractAggregateRoot
+class Account extends AbstractAggregateRoot
 {
     /**
      * Unique identifier
      *
      * @var string
      */
-    private $userId;
+    private $accountId;
     
     /**
-     * @var string
+     * Invariant. Enforced to be >= 0.
+     * @var float
      */
-    private $email;
+    private $balance;
+
+    public function __construct($initialAmount)
+    {
+        Preconditions::checkArgument($initialAmount >= 0);
+        $this->accountId = AccountId::create()->value();
+        $this->balance = $initialAmount;
+    }
 
     public function getId()
     {
-        return UserId::from($this->userId);
+        return AccountId::from($this->accountId);
     }
 
-    public function modifyEmailAddress($email)
+    public function withdraw($amount)
     {
         // validate parameters, throw exception if necessary
-        Assert::email($email);
-        $this->email = $email;
-        $this->raise(new UserEmailModified($email));
+        Preconditions::checkArgument($amount <= $this->balance, "Cannot withdraw '%f' amount of money", $amount);
+        $this->balance -= $amount;
+        $this->raise(new MoneyWithdrawn($amount));
     }
 }
 ```
@@ -85,11 +93,11 @@ class User extends AbstractAggregateRoot
 It is a good practise to use aggregate specific ID value objects.
 
 ```php
-final class UserId extends UUIDAggregateId
+final class AccountId extends UUIDAggregateId
 {
     public function aggregateClass()
     {
-        return User::className();
+        return Account::className();
     }
 }
 ```
@@ -100,13 +108,13 @@ and you can recreate the ID object in the `getId()` method all the time, like in
 #### An event handler
 
 ```php
-class UserEventHandler
+class SmsNotifier
 {
     /**
      * @Subscribe
      * will be called just after the transaction has been committed
      */
-    public function handleEmailModification(UserEmailModified $event)
+    public function sendNotificationText(MoneyWithdrawn $event)
     {
         // other tasks, fire new commands, update read model, etc.
     }
@@ -119,21 +127,21 @@ implement `NonBlockable` interface.
 #### The command handler
 
 ```php
-class UserCommandHandler
+class AccountCommandHandler
 {
     /**
      * @Subscribe
      * will be called and wrapped in a transaction
      */
-    public function handleCommand(ModifyEmail $command)
+    public function handleCommand(WithdrawMoney $command)
     {
         // somehow obtain the persistent aggregate root
-        $user = $this->userRepository->load(UserId::from($command->aggregateId()));
+        $account = $this->accountRepository->load(AccountId::from($command->aggregateId()));
         
         // checking the aggregate state (optional)
-        $user->failWhenStateHashViolation($command->stateHash());
+        $account->failWhenStateHashViolation($command->stateHash());
         
-        $user->modifyEmailAddress($command->getEmail());
+        $account->withdraw($command->getAmount());
     }
 }
 ```
@@ -141,7 +149,7 @@ class UserCommandHandler
 #### Sending a command
 
 ```php
-$commandBus->post(new ModifyEmail($userId, $email));
+$commandBus->post(new WithdrawMoney($accountId, $amount));
 ```
 
 Hint: If you would like to validate commands before they are being processed, take a look at [predaddy-symfony-validator component](https://github.com/szjani/predaddy-symfony-validator).
@@ -169,21 +177,29 @@ $commandBus = $trBuses->commandBus();
 #### Model
 
 ```php
-class EventSourcedUser extends AbstractEventSourcedAggregateRoot
+class Account extends AbstractEventSourcedAggregateRoot
 {
-    const DEFAULT_VALUE = 1;
+    /**
+     * Unique identifier
+     *
+     * @var AccountId
+     */
+    private $accountId;
 
-    private $id;
-    private $value = self::DEFAULT_VALUE;
+    /**
+     * Invariant. Enforced to be >= 0.
+     * @var float
+     */
+    private $balance;
 
     /**
      * @Subscribe
-     * @param CreateEventSourcedUser $command
+     * @param CreateAccount $command
      */
-    public function __construct(CreateEventSourcedUser $command)
+    public function __construct(CreateAccount $command)
     {
-        // UserId extends UUIDAggregateId
-        $this->apply(new UserCreated(UserId::create()));
+        Preconditions::checkArgument(0 < $command->getInitialAmount(), 'Initial amount must be >= 0');
+        $this->apply(new AccountCreated(AccountId::create(), $command->getInitialAmount()));
     }
 
     /**
@@ -191,32 +207,36 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
      */
     public function getId()
     {
-        return $this->id;
+        return $this->accountId;
     }
 
     /**
      * @Subscribe
      * @param Increment $command
      */
-    public function increment(Increment $command)
+    public function withdraw(WithdrawMoney $command)
     {
-        $this->apply(new IncrementedEvent());
+        // validate parameters, throw exception if necessary
+        $amount = $command->getAmount();
+        Preconditions::checkArgument($amount <= $this->balance, "Cannot withdraw '%f' amount of money", $amount);
+        $this->apply(new MoneyWithdrawn($amount));
     }
 
     /**
      * @Subscribe
      */
-    private function handleCreated(UserCreated $event)
+    private function handleCreated(AccountCreated $event)
     {
-        $this->id = $event->aggregateId();
+        $this->accountId = $event->aggregateId();
+        $this->balance = $event->getInitialAmount();
     }
 
     /**
      * @Subscribe
      */
-    private function handleIncrementedEvent(IncrementedEvent $event)
+    private function handleWithdraw(MoneyWithdrawn $event)
     {
-        $this->value++;
+        $this->balance -= $event->getAmount();
     }
 }
 ```
@@ -225,17 +245,20 @@ class EventSourcedUser extends AbstractEventSourcedAggregateRoot
 
 ```php
 // catch the aggregate ID generated inside the AR
-$aggregateId = null;
+$accountId = null;
 $eventBus->registerClosure(
-    function (UserCreated $event) use (&$aggregateId) {
-        $aggregateId = $event->aggregateId();
+    function (AccountCreated $event) use (&$accountId) {
+        $accountId = $event->aggregateId()->value();
     }
 );
 
-$commandBus->post(new CreateEventSourcedUser());
-$commandBus->post(new Increment($aggregateId->value()));
-$commandBus->post(new Increment($aggregateId->value()));
+$commandBus->post(new CreateAccount(100));
+$commandBus->post(new WithdrawMoney($accountId, 50));
+$commandBus->post(new WithdrawMoney($accountId, 60));
 ```
+
+Eventually, the event store will save two events in two separated database transactions: an `AccountCreated` and a `MoneyWithdrawn` event. The third command will cause an exception,
+since the balance would be -10 after the third withdrawal.
 
 ### EventStores and Repositories
 
