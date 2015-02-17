@@ -70,9 +70,11 @@ class Account extends AbstractAggregateRoot
 
     public function __construct($initialAmount)
     {
-        Preconditions::checkArgument($initialAmount >= 0);
-        $this->accountId = AccountId::create()->value();
+        Preconditions::checkArgument(0 <= $initialAmount, 'Initial amount must be >= 0');
+        $accountId = AccountId::create();
+        $this->accountId = $accountId->value();
         $this->balance = $initialAmount;
+        $this->raise(new AccountCreated($accountId, $initialAmount));
     }
 
     public function getId()
@@ -198,7 +200,7 @@ class Account extends AbstractEventSourcedAggregateRoot
      */
     public function __construct(CreateAccount $command)
     {
-        Preconditions::checkArgument(0 < $command->getInitialAmount(), 'Initial amount must be >= 0');
+        Preconditions::checkArgument(0 <= $command->getInitialAmount(), 'Initial amount must be >= 0');
         $this->apply(new AccountCreated(AccountId::create(), $command->getInitialAmount()));
     }
 
