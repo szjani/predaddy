@@ -23,13 +23,13 @@
 
 namespace predaddy\messagehandling;
 
+use ArrayIterator;
 use Closure;
 use InvalidArgumentException;
 use precore\lang\Object;
 use precore\util\Preconditions;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
-use SplFixedArray;
 
 /**
  * @author Janos Szurovecz <szjani@szjani.hu>
@@ -42,7 +42,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
     private static $emptyCallback;
 
     /**
-     * @var SplFixedArray
+     * @var DispatchInterceptor[]
      */
     private $interceptors;
 
@@ -56,7 +56,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
 
     public function __construct(array $interceptors = [])
     {
-        $this->interceptors = SplFixedArray::fromArray($interceptors);
+        $this->interceptors = $interceptors;
     }
 
     /**
@@ -111,7 +111,7 @@ abstract class InterceptableMessageBus extends Object implements MessageBus
     {
         return new DefaultInterceptorChain(
             $message,
-            $this->interceptors,
+            new ArrayIterator($this->interceptors),
             $dispatchClosure
         );
     }
