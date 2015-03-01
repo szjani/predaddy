@@ -9,6 +9,27 @@ can be either objects or closures.
 
 If you use CQRS, then I highly recommend to use the pre-configured `EventBus` and `CommandBus` classes.
 
+## Details
+
+### Handler methods/functions
+
+Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods must have one parameter with typehint.
+The typehint defines which message objects can be handled, by default. If you want to handle for example all objects that implement `Message` interface,
+you just need to define one handler method with a `Message` parameter. This kind of solution provides an easy way to use and distinguish a huge amount of
+message classes. Interface and abstract class typehints work as expected. A handler class could have as many handler methods as you want.
+The handler methods must be public, but this rule can be overridden in the passed `MessageHandlerDescriptor`.
+
+### Annotations
+
+You can use your own handler method scanning/defining process, however the system does support annotation based configuration.
+It means that you just have to mark handler methods in your handler classes with `@Subscribe` annotation. When you register an instance
+of this class, predaddy is automatically finding these methods.
+
+Do not forget to put the following use statement into your message handler classes:
+```php
+use predaddy\messagehandling\annotation\Subscribe;
+```
+
 ## Example
 
 ### Configuration
@@ -17,6 +38,17 @@ You can use annotations to define message handler methods with the following con
 
 ```php
 $bus = new SimpleMessageBus();
+```
+
+If you would like to use non-default configuration, use the builder object to instantiate `SimpleMessageBus`.
+
+```php
+$bus = SimpleMessageBus::builder()
+    ->withIdentifier('busName')
+    ->withInterceptors([$interceptor1, $interceptor2])
+    ->withExceptionHandler($exceptionHandler)
+    ...
+    ->build();
 ```
 
 ### Message
@@ -222,28 +254,7 @@ message handlers. `SimpleMessageBus` and all of its subclasses support this feat
 
 Hint: You can use `PropagationStopTrait`.
 
-## More details
-
-### Handler methods/functions
-
-Predaddy is quite configurable, but it has several default behaviours. Handler functions/methods must have one parameter with typehint.
-The typehint defines which message objects can be handled, by default. If you want to handle for example all objects that implement `Message` interface,
-you just need to define one handler method with a `Message` parameter. This kind of solution provides an easy way to use and distinguish a huge amount of
-message classes. Interface and abstract class typehints work as expected. A handler class could have as many handler methods as you want.
-The handler methods must be public, but this rule can be overridden in the passed `MessageHandlerDescriptor`.
-
-### Annotations
-
-You can use your own handler method scanning/defining process, however the system does support annotation based configuration.
-It means that you just have to mark handler methods in your handler classes with `@Subscribe` annotation. When you register an instance
-of this class, predaddy is automatically finding these methods.
-
-Do not forget to put the following use statement into your message handler classes:
-```php
-use predaddy\messagehandling\annotation\Subscribe;
-```
-
-### Interceptors
+## Interceptors
 
 It is possible to extend bus behaviour when messages are being dispatched. `DispatchInterceptor` objects wrap
 the concrete dispatch process and are able to modify that. It is usable for logging, transaction handling, etc.
@@ -258,29 +269,29 @@ The following interceptors are shipped with predaddy:
 
 In predaddy 3, interceptors are called only once for each message.
 
-### Unhandled messages
+## Unhandled messages
 
 Those messages that haven not been sent to any handlers during the dispatch process are being wrapped into an individual `DeadMessage` object and being dispatched again.
 Registering a `DeadMessage` handler is a common way to log or debug unhandled messages.
 
-### MessageBus implementations
+## MessageBus implementations
 
 There is a default implementation of `MessageBus` interface called `SimpleMessageBus`. Predaddy also provides some other specialized implementations which extend this class.
 
-#### CommandBus
+### CommandBus
 
 `Message` objects must implement `Command` interface. The typehint in the handler methods must be exactly the same as the command object's type. If more than one
 handler can the command be passed to, `IllegalStateException` will be thrown.
 
-#### DirectCommandBus
+### DirectCommandBus
 
 `DirectCommandBus` extends `CommandBus` and handles all unhandled commands. This bus should be used if business method parameters in the aggregates are mostly `Command` objects.
 
-#### EventBus
+### EventBus
 
 Only `Event` objects will be passed to the appropriate handlers.
 
-#### Mf4phpMessageBus
+### Mf4phpMessageBus
 
 `Mf4phpMessageBus` wraps a `MessageDispatcher`, so all features provided by [mf4php](https://github.com/szjani/mf4php) can be achieved with this class, such as
 synchronizing messages to transactions and asynchronous event dispatching. For further information see the [mf4php](https://github.com/szjani/mf4php) documentation.
