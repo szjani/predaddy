@@ -38,6 +38,8 @@ use SplObjectStorage;
  * {@link MessageHandlerDescriptorFactory} and {@link FunctionDescriptorFactory} instances
  * through the builder object.
  *
+ * It manages {@link PropagationStoppable} messages properly.
+ *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
 class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactoryRegisterableMessageBus
@@ -168,6 +170,9 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         $handled = false;
         foreach ($this->callableWrappersFor($message) as $callable) {
             $handled = true;
+            if ($message instanceof PropagationStoppable && $message->isPropagationStopped()) {
+                break;
+            }
             try {
                 $result = $callable->invoke($message);
                 self::getLogger()->debug(

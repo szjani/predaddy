@@ -27,6 +27,7 @@ use Exception;
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use precore\util\UUID;
+use predaddy\fixture\PropagationStoppableMessage;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\util\MessageCallbackClosures;
 use RuntimeException;
@@ -428,5 +429,47 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         $message = new SimpleMessage();
         $this->bus->post($message);
         self::assertNull($handler->lastMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldStopPropagation()
+    {
+        $called = 0;
+        $handler1 = function (PropagationStoppableMessage $msg) use (&$called) {
+            $msg->stopPropagation();
+            $called++;
+        };
+        $handler2 = function (PropagationStoppableMessage $msg) use (&$called) {
+            $called++;
+        };
+        $this->bus->registerClosure($handler1, 2);
+        $this->bus->registerClosure($handler2, 1);
+        $this->bus->post(new PropagationStoppableMessage());
+        self::assertEquals(1, $called);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotHandleAlreadyPropagationStoppedMessage()
+    {
+        $called = false;
+        $deadMessageSent = false;
+        $handler = function (PropagationStoppableMessage $msg) use (&$called) {
+            $called = true;
+        };
+        $deadMessageHandler = function (DeadMessage $msg) use (&$deadMessageSent) {
+            $deadMessageSent = true;
+        };
+        $this->bus->registerClosure($handler);
+        $this->bus->registerClosure($deadMessageHandler);
+
+        $msg = new PropagationStoppableMessage();
+        $msg->stopPropagation();
+        $this->bus->post($msg);
+        self::assertEquals(0, $called);
+        self::assertFalse($deadMessageSent);
     }
 }
