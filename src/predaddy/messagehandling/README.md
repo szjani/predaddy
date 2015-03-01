@@ -214,6 +214,14 @@ class PrioritizedHandler
 
 In this example the methods are being called in the following sequence: `handler3`, `handler1`, `handler2`.
 
+## Stop propagation
+
+The `MessageBus` implementation may support propagation stopping. It means that if a message implements `PropagationStoppable`,
+and a particular message handler calls `stopPropagation()` on the message object, then the message bus will not call the rest of the
+message handlers. `SimpleMessageBus` and all of its subclasses support this feature.
+
+Hint: You can use `PropagationStopTrait`.
+
 ## More details
 
 ### Handler methods/functions
