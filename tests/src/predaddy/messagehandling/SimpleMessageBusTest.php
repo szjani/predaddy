@@ -469,7 +469,7 @@ class SimpleMessageBusTest extends PHPUnit_Framework_TestCase
         $msg = new PropagationStoppableMessage();
         $msg->stopPropagation();
         $this->bus->post($msg);
-        self::assertEquals(0, $called);
+        self::assertFalse($called);
         self::assertFalse($deadMessageSent);
     }
 }
