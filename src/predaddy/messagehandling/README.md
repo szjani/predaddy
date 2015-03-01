@@ -111,26 +111,6 @@ $bus->register(new SampleMessageHandler());
 $bus->registerClosure($closure);
 ```
 
-### Dynamic handlers
-
-Predaddy 3 supports dynamic handlers. In a typical application the PHP interpreter stops after the response has been sent out, therefore
-it may be unnecessary to create and register in all handlers. Rather than, you can register handler factory closures which act as handler closures:
-their parameter's typehint defines which type of object can be handled and if an object is compatible with that, the message bus
-calls the factory function and passes the message to the return value just like it was registered as a handler.
-
-This behavior is defined in `HandlerFactoryRegisterableMessageBus` which is implemented by `SimpleMessageBus`.
-
-```php
-$factory = function (Message $message) {
-    return new SimpleMessageHandler();
-};
-$this->bus->registerHandlerFactory($factory);
-```
-
-If a message's type is compatible with the factory's typehint, the factory will be called and the handler will be constructed even if the handler will not be able to handle the message.
-
-Hint: You can use your dependency injection container object within these factories to obtain and return the appropriate handler.
-
 ### Sending messages
 
 ```php
@@ -157,7 +137,27 @@ $messageCallback = MessageCallbackClosures::builder()
     ->build();
 ```
 
-### Exception handling
+## Dynamic handlers
+
+Predaddy 3 supports dynamic handlers. In a typical application the PHP interpreter stops after the response has been sent out, therefore
+it may be unnecessary to create and register in all handlers. Rather than, you can register handler factory closures which act as handler closures:
+their parameter's typehint defines which type of object can be handled and if an object is compatible with that, the message bus
+calls the factory function and passes the message to the return value just like it was registered as a handler.
+
+This behavior is defined in `HandlerFactoryRegisterableMessageBus` which is implemented by `SimpleMessageBus`.
+
+```php
+$factory = function (Message $message) {
+    return new SimpleMessageHandler();
+};
+$this->bus->registerHandlerFactory($factory);
+```
+
+If a message's type is compatible with the factory's typehint, the factory will be called and the handler will be constructed even if the handler will not be able to handle the message.
+
+Hint: You can use your dependency injection container object within these factories to obtain and return the appropriate handler.
+
+## Exception handling
 
 All `MessageBus` implementation catches all exceptions that were thrown by handlers, so the messages are being forwarded
 to all handlers.
@@ -170,7 +170,7 @@ $bus = SimpleMessageBus::builder()
     ->build();
 ```
 
-### Handler prioritization
+## Handler prioritization
 
 Since version 2.1 it is possible to define the sequence how handlers are being executed. The higher the priority the handler is being called earlier.
 The default priority is 1.
