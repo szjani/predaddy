@@ -23,14 +23,16 @@
 
 namespace predaddy\inmemory;
 
-use predaddy\domain\AbstractRepository;
+use precore\lang\Object;
+use precore\util\Preconditions;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
+use predaddy\domain\Repository;
 
 /**
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-final class InMemoryRepository extends AbstractRepository
+final class InMemoryRepository extends Object implements Repository
 {
     /**
      * @var array
@@ -47,9 +49,11 @@ final class InMemoryRepository extends AbstractRepository
     public function load(AggregateId $aggregateId)
     {
         $key = $this->createKey($aggregateId);
-        if (!array_key_exists($key, $this->aggregates)) {
-            $this->throwInvalidAggregateIdException($aggregateId);
-        }
+        Preconditions::checkArgument(
+            array_key_exists($key, $this->aggregates),
+            'Aggregate with ID [%s] does not exist',
+            $aggregateId
+        );
         self::getLogger()->debug('Aggregate identified by [{}] has been loaded', [$aggregateId]);
         return $this->aggregates[$key];
     }

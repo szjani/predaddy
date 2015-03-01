@@ -25,17 +25,18 @@ namespace predaddy\domain\eventsourcing;
 
 use InvalidArgumentException;
 use precore\lang\ObjectClass;
-use predaddy\domain\AbstractRepository;
+use precore\util\Preconditions;
 use predaddy\domain\AggregateId;
 use predaddy\domain\AggregateRoot;
 use predaddy\domain\EventStore;
+use predaddy\domain\Repository;
 
 /**
  * Should be used for event sourcing.
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class EventSourcingRepository extends AbstractRepository
+class EventSourcingRepository implements Repository
 {
     /**
      * @var EventStore
@@ -78,9 +79,7 @@ class EventSourcingRepository extends AbstractRepository
         }
         $events = $this->eventStore->getEventsFor($aggregateId, $stateHash);
         if ($aggregate === null) {
-            if (!$events->valid()) {
-                $this->throwInvalidAggregateIdException($aggregateId);
-            }
+            Preconditions::checkArgument($events->valid(), 'Aggregate with ID [%s] does not exist', $aggregateId);
             $aggregate = $aggregateRootClass->newInstanceWithoutConstructor();
         }
         $aggregateRootClass->cast($aggregate);
