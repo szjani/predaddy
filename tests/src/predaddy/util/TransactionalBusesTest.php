@@ -25,6 +25,7 @@ namespace predaddy\util;
 
 use Exception;
 use PHPUnit_Framework_TestCase;
+use predaddy\commandhandling\DirectCommandBus;
 use predaddy\commandhandling\SimpleCommand;
 use predaddy\eventhandling\SimpleEvent;
 use predaddy\MessageHandler;
@@ -207,5 +208,17 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
             }
         );
         $buses->commandBus()->post(new SimpleCommand());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateDirectCommandBus()
+    {
+        $buses = TransactionalBusesBuilder::create($this->transactionManager)
+            ->withRepository($this->getMock('\predaddy\domain\Repository'))
+            ->build();
+        $commandBus = $buses->commandBus();
+        self::assertInstanceOf(DirectCommandBus::className(), $commandBus);
     }
 }
