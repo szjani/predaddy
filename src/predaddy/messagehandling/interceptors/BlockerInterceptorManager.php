@@ -49,8 +49,8 @@ final class BlockerInterceptorManager extends Object implements DispatchIntercep
     {
         $this->blockerInterceptor->startBlocking();
         $chain->proceed();
-        $this->blockerInterceptor->flush();
         $this->blockerInterceptor->stopBlocking();
+        $this->blockerInterceptor->flush();
     }
 
     public function handleException(Exception $exception, SubscriberExceptionContext $context)

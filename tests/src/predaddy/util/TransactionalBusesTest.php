@@ -28,6 +28,8 @@ use PHPUnit_Framework_TestCase;
 use predaddy\commandhandling\DirectCommandBus;
 use predaddy\commandhandling\SimpleCommand;
 use predaddy\eventhandling\SimpleEvent;
+use predaddy\fixture\BaseEvent;
+use predaddy\fixture\BaseEvent2;
 use predaddy\MessageHandler;
 use RuntimeException;
 use trf4php\TransactionException;
@@ -220,5 +222,35 @@ class TransactionalBusesTest extends PHPUnit_Framework_TestCase
             ->build();
         $commandBus = $buses->commandBus();
         self::assertInstanceOf(DirectCommandBus::className(), $commandBus);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldStopBlockingBeforeFlushing()
+    {
+        $commandBus = $this->buses->commandBus();
+        $eventBus = $this->buses->eventBus();
+        $secondHandlerCalled = false;
+
+        $commandBus->registerClosure(
+            function (SimpleCommand $command) {
+                $this->buses->eventBus()->post(new BaseEvent());
+            }
+        );
+
+        $eventBus->registerClosure(
+            function (BaseEvent $event) use ($eventBus) {
+                $eventBus->post(new BaseEvent2());
+            }
+        );
+        $eventBus->registerClosure(
+            function (BaseEvent2 $event2) use (&$secondHandlerCalled) {
+                $secondHandlerCalled = true;
+            }
+        );
+
+        $commandBus->post(new SimpleCommand());
+        self::assertTrue($secondHandlerCalled);
     }
 }
