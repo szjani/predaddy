@@ -246,7 +246,7 @@ abstract class Fixture implements MessageCallback
     /**
      * The same as {@link registerAnnotatedCommandHandler()} but with closure.
      *
-     * @param callable $closure
+     * @param Closure $closure
      * @return $this
      */
     public function registerCommandClosure(Closure $closure)
