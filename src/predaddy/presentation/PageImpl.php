@@ -109,7 +109,7 @@ class PageImpl extends Object implements IteratorAggregate, Page
 
     public function hasContent()
     {
-        return !empty($this->content);
+        return count($this->content) !== 0;
     }
 
     public function hasNextPage()
