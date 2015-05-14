@@ -80,7 +80,7 @@ class DirectCommandBus extends CommandBus
     protected function callableWrappersFor($message)
     {
         $wrappers = parent::callableWrappersFor($message);
-        if ($wrappers->count() == 0 && ($message instanceof DirectCommand)) {
+        if (($message instanceof DirectCommand) && $wrappers->count() === 0) {
             $wrappers = new ArrayObject([new ClosureWrapper(
                 function (DirectCommand $command) {
                     return $this->forwardCommand($command);
