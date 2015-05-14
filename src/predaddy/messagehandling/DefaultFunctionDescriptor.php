@@ -116,7 +116,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     public function compareTo($object)
     {
         Preconditions::checkNotNull($object, 'Compared object cannot be null');
-        $this->objectClass()->cast($object);
+        $this->getObjectClass()->cast($object);
         return $object->priority - $this->priority;
     }
 
