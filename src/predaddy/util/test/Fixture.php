@@ -345,14 +345,14 @@ abstract class Fixture implements MessageCallback
     private function checkThrownException()
     {
         if ($this->raisedException !== null) {
-            /* @var $exception Exception */
-            PHPUnit_Framework_TestCase::assertInstanceOf($this->expectedExceptionClass, $this->raisedException);
-            if ($this->expectedExceptionMessage !== null) {
-                PHPUnit_Framework_TestCase::assertEquals(
-                    $this->expectedExceptionMessage,
-                    $this->raisedException->getMessage()
-                );
+            if ($this->expectedExceptionClass === null) {
+                throw $this->raisedException;
             }
+            PHPUnit_Framework_TestCase::assertInstanceOf($this->expectedExceptionClass, $this->raisedException);
+            PHPUnit_Framework_TestCase::assertEquals(
+                $this->expectedExceptionMessage,
+                $this->raisedException->getMessage()
+            );
         }
     }
 
