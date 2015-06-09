@@ -67,4 +67,22 @@ class UserTest extends PHPUnit_Framework_TestCase
             ->when(new Increment())
             ->expectException('\RuntimeException', 'Cannot be incremented more, than twice');
     }
+
+    /**
+     * @test
+     * @expectedException \RuntimeException
+     */
+    public function shouldThrowNotExpectedException()
+    {
+        $fixture = Fixtures::newGivenWhenThenFixture(User::className());
+        $fixture
+            ->registerAnnotatedCommandHandler(new UserCommandHandler(new InMemoryRepository()))
+            ->givenCommands(
+                new CreateUser(),
+                new Increment(),
+                new Increment()
+            )
+            ->when(new Increment())
+            ->expectNoEvents();
+    }
 }
