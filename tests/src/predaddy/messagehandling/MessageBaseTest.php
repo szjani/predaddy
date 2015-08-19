@@ -58,4 +58,31 @@ class MessageBaseTest extends PHPUnit_Framework_TestCase
         self::assertEquals($message->identifier(), $deserialized->identifier());
         self::assertEquals(SimpleMessage::PRIVATE_VALUE, $deserialized->getPrivateData());
     }
+
+    /**
+     * @test
+     * @expectedException \precore\lang\NullPointerException
+     */
+    public function shouldThrowNpeIfCreatedIsNull()
+    {
+        $message = new NullCreatedMessage();
+        $message->created();
+    }
+
+    /**
+     * @test
+     * @expectedException \precore\lang\NullPointerException
+     */
+    public function shouldThrowNpeIfIdIsNull()
+    {
+        $message = new NullCreatedMessage();
+        $message->identifier();
+    }
+}
+
+final class NullCreatedMessage extends AbstractMessage
+{
+    public function __construct()
+    {
+    }
 }

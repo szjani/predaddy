@@ -24,9 +24,11 @@
 namespace predaddy\messagehandling;
 
 use DateTime;
+use precore\lang\NullPointerException;
 use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
+use precore\util\Preconditions;
 use precore\util\UUID;
 
 /**
@@ -47,18 +49,20 @@ abstract class AbstractMessage extends Object implements Message
 
     /**
      * @return string
+     * @throws NullPointerException if ID is not initialized
      */
     public function identifier()
     {
-        return $this->id;
+        return Preconditions::checkNotNull($this->id, 'ID is not initialized');
     }
 
     /**
      * @return DateTime
+     * @throws NullPointerException if created field is not initialized
      */
     public function created()
     {
-        return clone $this->created;
+        return clone Preconditions::checkNotNull($this->created, 'created field is not initialized');
     }
 
     final public function equals(ObjectInterface $object = null)
