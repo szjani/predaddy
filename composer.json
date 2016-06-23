@@ -19,7 +19,7 @@
     },
     "require-dev": {
         "mf4php/mf4php": "~1.1",
-        "satooshi/php-coveralls": "dev-master",
+        "satooshi/php-coveralls": "~1.0",
         "phpunit/phpunit": "~4.1",
         "lf4php/lf4php-log4php": "~2.1",
         "jms/serializer": "~0.15"
