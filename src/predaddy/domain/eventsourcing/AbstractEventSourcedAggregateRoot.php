@@ -1,25 +1,5 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\domain\eventsourcing;
 
@@ -48,7 +28,7 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      */
     private static $descriptorFactory;
 
-    public static function init()
+    public static function init() : void
     {
         self::$descriptorFactory = new EventSourcingEventHandlerDescriptorFactory(
             new EventFunctionDescriptorFactory()
@@ -59,7 +39,7 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      * @param AbstractEventSourcedAggregateRoot $aggregateRoot
      * @return EventBus
      */
-    private static function createInnerEventBus(AbstractEventSourcedAggregateRoot $aggregateRoot)
+    private static function createInnerEventBus(AbstractEventSourcedAggregateRoot $aggregateRoot) : EventBus
     {
         $bus = EventBus::builder()
             ->withIdentifier(static::className())
@@ -75,7 +55,7 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      * @see EventSourcingRepository
      * @param Iterator $events DomainEvent iterator
      */
-    final public function loadFromHistory(Iterator $events)
+    final public function loadFromHistory(Iterator $events) : void
     {
         $bus = self::createInnerEventBus($this);
         foreach ($events as $event) {
@@ -88,7 +68,7 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      *
      * @param DomainEvent $event
      */
-    final protected function apply(DomainEvent $event)
+    final protected function apply(DomainEvent $event) : void
     {
         $this->handleEventInAggregate($event);
         parent::raise($event);
@@ -100,12 +80,12 @@ abstract class AbstractEventSourcedAggregateRoot extends AbstractAggregateRoot i
      * @Subscribe
      * @param DomainEvent $event
      */
-    final protected function updateStateHash(DomainEvent $event)
+    final protected function updateStateHash(DomainEvent $event) : void
     {
         $this->setStateHash($event->stateHash());
     }
 
-    private function handleEventInAggregate(DomainEvent $event, MessageBus $innerBus = null)
+    private function handleEventInAggregate(DomainEvent $event, MessageBus $innerBus = null) : void
     {
         if ($innerBus === null) {
             $innerBus = self::createInnerEventBus($this);

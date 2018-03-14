@@ -1,30 +1,10 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\presentation;
 
 use InvalidArgumentException;
-use precore\lang\Object;
+use precore\lang\BaseObject;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use precore\util\Preconditions;
@@ -35,7 +15,7 @@ use precore\util\Preconditions;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class PageRequest extends Object implements Pageable
+class PageRequest extends BaseObject implements Pageable
 {
     private $page;
     private $size;
@@ -47,7 +27,7 @@ class PageRequest extends Object implements Pageable
      * @param Sort $sort
      * @throws InvalidArgumentException if $page is < 0
      */
-    public function __construct($page, $size, Sort $sort = null)
+    public function __construct(int $page, int $size, Sort $sort = null)
     {
         Preconditions::checkArgument(0 <= $page, 'Page must be at least 0');
         $this->page = (int) $page;
@@ -58,7 +38,7 @@ class PageRequest extends Object implements Pageable
     /**
      * @return Pageable
      */
-    public function first()
+    public function first() : Pageable
     {
         return new PageRequest(0, $this->size, $this->sort);
     }
@@ -66,7 +46,7 @@ class PageRequest extends Object implements Pageable
     /**
      * @return int
      */
-    public function getOffset()
+    public function getOffset() : int
     {
         return $this->page * $this->size;
     }
@@ -74,7 +54,7 @@ class PageRequest extends Object implements Pageable
     /**
      * @return int
      */
-    public function getPageNumber()
+    public function getPageNumber() : int
     {
         return $this->page;
     }
@@ -82,7 +62,7 @@ class PageRequest extends Object implements Pageable
     /**
      * @return int
      */
-    public function getPageSize()
+    public function getPageSize() : int
     {
         return $this->size;
     }
@@ -90,12 +70,12 @@ class PageRequest extends Object implements Pageable
     /**
      * @return Sort
      */
-    public function getSort()
+    public function getSort() : Sort
     {
         return $this->sort;
     }
 
-    public function hasPrevious()
+    public function hasPrevious() : bool
     {
         return 0 < $this->page;
     }
@@ -103,7 +83,7 @@ class PageRequest extends Object implements Pageable
     /**
      * @return Pageable
      */
-    public function next()
+    public function next() : Pageable
     {
         return new PageRequest($this->page + 1, $this->size, $this->sort);
     }
@@ -111,14 +91,14 @@ class PageRequest extends Object implements Pageable
     /**
      * @return Pageable
      */
-    public function previousOrFirst()
+    public function previousOrFirst() : Pageable
     {
         return $this->hasPrevious()
             ? new PageRequest($this->page - 1, $this->size, $this->sort)
             : $this;
     }
 
-    public function equals(ObjectInterface $object = null)
+    public function equals(ObjectInterface $object = null) : bool
     {
         if ($object === $this) {
             return true;
@@ -131,7 +111,7 @@ class PageRequest extends Object implements Pageable
             && Objects::equal($this->sort, $object->sort);
     }
 
-    public function toString()
+    public function toString() : string
     {
         return Objects::toStringHelper($this)
             ->add('page', $this->page)

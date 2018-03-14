@@ -1,31 +1,11 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling;
 
+use precore\lang\BaseObject;
 use precore\lang\ClassCastException;
 use precore\lang\NullPointerException;
-use precore\lang\Object;
 use precore\lang\ObjectClass;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
@@ -40,7 +20,7 @@ use ReflectionClass;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
+class DefaultFunctionDescriptor extends BaseObject implements FunctionDescriptor
 {
     /**
      * @var string
@@ -59,7 +39,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
      */
     private $priority;
 
-    public function __construct(CallableWrapper $callableWrapper, $priority)
+    public function __construct(CallableWrapper $callableWrapper, int $priority)
     {
         $this->priority = (int) $priority;
         $this->callableWrapper = $callableWrapper;
@@ -70,7 +50,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
      * @param object $message
      * @return boolean
      */
-    public function isHandlerFor($message)
+    public function isHandlerFor($message) : bool
     {
         if (!$this->valid) {
             return false;
@@ -85,7 +65,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     /**
      * @return boolean
      */
-    public function isValid()
+    public function isValid() : bool
     {
         return $this->valid;
     }
@@ -93,7 +73,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     /**
      * @return string
      */
-    public function getHandledMessageClassName()
+    public function getHandledMessageClassName() : string
     {
         return $this->handledMessageClass;
     }
@@ -101,7 +81,7 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     /**
      * @return int
      */
-    public function getPriority()
+    public function getPriority() : int
     {
         return $this->priority;
     }
@@ -113,14 +93,14 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
      * @throws ClassCastException - if the specified object's type prevents it from being compared to this object.
      * @throws NullPointerException if the specified object is null
      */
-    public function compareTo($object)
+    public function compareTo($object) : int
     {
         Preconditions::checkNotNull($object, 'Compared object cannot be null');
         $this->getObjectClass()->cast($object);
         return $object->priority - $this->priority;
     }
 
-    public function equals(ObjectInterface $object = null)
+    public function equals(ObjectInterface $object = null) : bool
     {
         if ($object === $this) {
             return true;
@@ -135,22 +115,22 @@ class DefaultFunctionDescriptor extends Object implements FunctionDescriptor
     /**
      * @return CallableWrapper
      */
-    public function getCallableWrapper()
+    public function getCallableWrapper() : CallableWrapper
     {
         return $this->callableWrapper;
     }
 
-    protected function canHandleValidMessage($object)
+    protected function canHandleValidMessage($object) : bool
     {
         return is_a($object, $this->handledMessageClass);
     }
 
-    protected function getBaseMessageClassName()
+    protected function getBaseMessageClassName() : ?string
     {
         return null;
     }
 
-    private function check()
+    private function check() : bool
     {
         $params = $this->callableWrapper->reflectionFunction()->getParameters();
         if (count($params) !== 1) {

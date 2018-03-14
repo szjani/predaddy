@@ -1,25 +1,5 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\util;
 
@@ -110,7 +90,7 @@ final class TransactionalBusesBuilder
      * @param TransactionManager $txManager
      * @return TransactionalBusesBuilder
      */
-    public static function create(TransactionManager $txManager)
+    public static function create(TransactionManager $txManager) : TransactionalBusesBuilder
     {
         return new self($txManager);
     }
@@ -119,7 +99,7 @@ final class TransactionalBusesBuilder
      * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function interceptCommandsWithinTransaction(array $interceptors)
+    public function interceptCommandsWithinTransaction(array $interceptors) : TransactionalBusesBuilder
     {
         $this->withinTransactionCommandInterceptors = $interceptors;
         return $this;
@@ -129,7 +109,7 @@ final class TransactionalBusesBuilder
      * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function interceptCommandsOutsideTransaction(array $interceptors)
+    public function interceptCommandsOutsideTransaction(array $interceptors) : TransactionalBusesBuilder
     {
         $this->outsideTransactionCommandInterceptors = $interceptors;
         return $this;
@@ -139,7 +119,7 @@ final class TransactionalBusesBuilder
      * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function interceptEventsWithinTransaction(array $interceptors)
+    public function interceptEventsWithinTransaction(array $interceptors) : TransactionalBusesBuilder
     {
         $this->withinTransactionEventInterceptors = $interceptors;
         return $this;
@@ -149,7 +129,7 @@ final class TransactionalBusesBuilder
      * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function interceptEventsOutsideTransaction(array $interceptors)
+    public function interceptEventsOutsideTransaction(array $interceptors) : TransactionalBusesBuilder
     {
         $this->outsideTransactionEventInterceptors = $interceptors;
         return $this;
@@ -162,7 +142,7 @@ final class TransactionalBusesBuilder
      * @param Repository $repository
      * @return $this
      */
-    public function withRepository(Repository $repository)
+    public function withRepository(Repository $repository) : TransactionalBusesBuilder
     {
         $this->repository = $repository;
         $this->useDirectCommandBus();
@@ -174,7 +154,7 @@ final class TransactionalBusesBuilder
      * @return $this
      * @throws RuntimeException if flag is true and repository is not set
      */
-    public function useDirectCommandBus($flag = true)
+    public function useDirectCommandBus($flag = true) : TransactionalBusesBuilder
     {
         Preconditions::checkState(
             !$flag || $this->repository !== null,
@@ -187,7 +167,7 @@ final class TransactionalBusesBuilder
     /**
      * @return TransactionalBuses
      */
-    public function build()
+    public function build() : TransactionalBuses
     {
         $commandBus = $this->createCommandBus();
         $eventBus = $this->createEventBus();
@@ -198,7 +178,7 @@ final class TransactionalBusesBuilder
     /**
      * @return EventBus
      */
-    private function createEventBus()
+    private function createEventBus() : EventBus
     {
         return EventBus::builder()
             ->withInterceptors(
@@ -214,7 +194,7 @@ final class TransactionalBusesBuilder
     /**
      * @return CommandBus|DirectCommandBus
      */
-    private function createCommandBus()
+    private function createCommandBus() : CommandBus
     {
         $commandInterceptorList = array_merge(
             $this->outsideTransactionCommandInterceptors,

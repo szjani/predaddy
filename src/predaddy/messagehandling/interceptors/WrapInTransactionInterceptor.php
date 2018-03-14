@@ -1,31 +1,11 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling\interceptors;
 
 use Exception;
 use lf4php\MDC;
-use precore\lang\Object;
+use precore\lang\BaseObject;
 use precore\util\UUID;
 use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
@@ -41,7 +21,7 @@ use trf4php\TransactionManager;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-final class WrapInTransactionInterceptor extends Object implements DispatchInterceptor, SubscriberExceptionHandler
+final class WrapInTransactionInterceptor extends BaseObject implements DispatchInterceptor, SubscriberExceptionHandler
 {
     const MDC_KEY = 'TR';
 
@@ -62,7 +42,7 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
         $this->transactionManager = $transactionManager;
     }
 
-    public function invoke($message, InterceptorChain $chain)
+    public function invoke($message, InterceptorChain $chain) : void
     {
         try {
             $this->transactionLevel++;
@@ -92,7 +72,7 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
         }
     }
 
-    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    public function handleException(Exception $exception, SubscriberExceptionContext $context) : void
     {
         $this->rollbackRequired = true;
         self::getLogger()->debug("Transaction rollback required, context '{}'!", [$context], $exception);
@@ -101,7 +81,7 @@ final class WrapInTransactionInterceptor extends Object implements DispatchInter
     /**
      * @return int
      */
-    public function getTransactionLevel()
+    public function getTransactionLevel() : int
     {
         return $this->transactionLevel;
     }

@@ -2,7 +2,7 @@
 
 namespace predaddy\domain\eventsourcing;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use predaddy\domain\DecrementedEvent;
 use predaddy\domain\IncrementedEvent;
 use predaddy\domain\UserCreated;
@@ -14,7 +14,7 @@ use predaddy\util\test\Fixtures;
  * @package predaddy\domain\eventsourcing
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class EventSourcedUserTest extends PHPUnit_Framework_TestCase
+class EventSourcedUserTest extends TestCase
 {
     /**
      * @test

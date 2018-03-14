@@ -35,7 +35,7 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
 
     public function testMessageFactory()
     {
-        $factory = $this->getMock(__NAMESPACE__ . '\ObjectMessageFactory', ['createMessage']);
+        $factory = $this->getMockBuilder(__NAMESPACE__ . '\ObjectMessageFactory', ['createMessage'])->getMock();
         $factory
             ->expects(self::once())
             ->method('createMessage')
@@ -78,7 +78,7 @@ class Mf4PhpMessageBusTest extends SimpleMessageBusTest
      */
     public function postInvalidMessageToDispatcher()
     {
-        $message = $this->getMock('\mf4php\Message');
+        $message = $this->getMockBuilder('\mf4php\Message')->getMock();
         $this->dispatcher->send(new DefaultQueue(Mf4PhpMessageBusBuilder::DEFAULT_NAME), $message);
     }
 }

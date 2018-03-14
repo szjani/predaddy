@@ -2,7 +2,7 @@
 
 namespace predaddy\domain;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use predaddy\inmemory\InMemoryRepository;
 use predaddy\util\test\Fixtures;
 
@@ -12,7 +12,7 @@ use predaddy\util\test\Fixtures;
  * @package predaddy\domain
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class UserTest extends PHPUnit_Framework_TestCase
+class UserTest extends TestCase
 {
     /**
      * @test

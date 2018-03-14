@@ -1,34 +1,15 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO message SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling;
 
 use DateTime;
+use precore\lang\BaseObject;
 use precore\lang\NullPointerException;
-use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use precore\util\Preconditions;
+use precore\util\ToStringHelper;
 use precore\util\UUID;
 
 /**
@@ -36,7 +17,7 @@ use precore\util\UUID;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-abstract class AbstractMessage extends Object implements Message
+abstract class AbstractMessage extends BaseObject implements Message
 {
     protected $id;
     protected $created;
@@ -51,7 +32,7 @@ abstract class AbstractMessage extends Object implements Message
      * @return string
      * @throws NullPointerException if ID is not initialized
      */
-    public function identifier()
+    public function identifier() : string
     {
         return Preconditions::checkNotNull($this->id, 'ID is not initialized');
     }
@@ -60,12 +41,12 @@ abstract class AbstractMessage extends Object implements Message
      * @return DateTime
      * @throws NullPointerException if created field is not initialized
      */
-    public function created()
+    public function created() : DateTime
     {
         return clone Preconditions::checkNotNull($this->created, 'created field is not initialized');
     }
 
-    final public function equals(ObjectInterface $object = null)
+    final public function equals(ObjectInterface $object = null) : bool
     {
         if ($object === $this) {
             return true;
@@ -77,16 +58,16 @@ abstract class AbstractMessage extends Object implements Message
     }
 
     /**
-     * @return \precore\util\ToStringHelper
+     * @return ToStringHelper
      */
-    protected function toStringHelper()
+    protected function toStringHelper() : ToStringHelper
     {
         return Objects::toStringHelper($this)
             ->add('id', $this->identifier())
             ->add('created', $this->created());
     }
 
-    public function toString()
+    public function toString() : string
     {
         return $this->toStringHelper()->toString();
     }

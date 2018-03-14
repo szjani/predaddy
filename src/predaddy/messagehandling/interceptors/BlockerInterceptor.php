@@ -1,29 +1,9 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling\interceptors;
 
-use precore\lang\Object;
+use precore\lang\BaseObject;
 use predaddy\messagehandling\DispatchInterceptor;
 use predaddy\messagehandling\InterceptorChain;
 use predaddy\messagehandling\NonBlockable;
@@ -40,7 +20,7 @@ use predaddy\messagehandling\NonBlockable;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-final class BlockerInterceptor extends Object implements DispatchInterceptor
+final class BlockerInterceptor extends BaseObject implements DispatchInterceptor
 {
     private $blocking = false;
 
@@ -59,7 +39,7 @@ final class BlockerInterceptor extends Object implements DispatchInterceptor
         $this->manager = new BlockerInterceptorManager($this);
     }
 
-    public function invoke($message, InterceptorChain $chain)
+    public function invoke($message, InterceptorChain $chain) : void
     {
         if ($this->blocking && !($message instanceof NonBlockable)) {
             $this->chains[] = $chain;
@@ -68,19 +48,19 @@ final class BlockerInterceptor extends Object implements DispatchInterceptor
         }
     }
 
-    public function startBlocking()
+    public function startBlocking() : void
     {
         $this->blocking = true;
         self::getLogger()->debug('Message blocking has been started');
     }
 
-    public function stopBlocking()
+    public function stopBlocking() : void
     {
         $this->blocking = false;
         self::getLogger()->debug('Message blocking has been stopped');
     }
 
-    public function flush()
+    public function flush() : void
     {
         $chains = $this->chains;
         $this->chains = [];
@@ -90,7 +70,7 @@ final class BlockerInterceptor extends Object implements DispatchInterceptor
         self::getLogger()->debug('Blocked chains have been flushed, {} item(s) was sent', [count($chains)]);
     }
 
-    public function clear()
+    public function clear() : void
     {
         $this->chains = [];
         self::getLogger()->debug('Blocked chains have been cleared');
@@ -99,7 +79,7 @@ final class BlockerInterceptor extends Object implements DispatchInterceptor
     /**
      * @return BlockerInterceptorManager
      */
-    public function manager()
+    public function manager() : BlockerInterceptorManager
     {
         return $this->manager;
     }

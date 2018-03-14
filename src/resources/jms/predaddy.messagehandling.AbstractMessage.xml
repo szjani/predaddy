@@ -2,6 +2,8 @@
 <serializer>
     <class name="predaddy\messagehandling\AbstractMessage" exclusion-policy="ALL">
         <property name="id" type="string" expose="true" />
-        <property name="created" type="DateTime" expose="true" />
+        <property name="created" expose="true">
+            <type><![CDATA[DateTime<'Y-m-d\TH:i:s.uO'>]]></type>
+        </property>
     </class>
 </serializer>

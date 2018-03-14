@@ -1,25 +1,5 @@
 <?php
-/*
- * Copyright (c) 2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling;
 
@@ -75,7 +55,7 @@ class SimpleMessageBusBuilder
     /**
      * Should not be called!
      */
-    public static function init()
+    public static function init() : void
     {
         self::$defaultHandlerDescFactory = new AnnotatedMessageHandlerDescriptorFactory(
             new DefaultFunctionDescriptorFactory()
@@ -88,7 +68,7 @@ class SimpleMessageBusBuilder
      *
      * @return string
      */
-    protected static function defaultName()
+    protected static function defaultName() : string
     {
         return self::DEFAULT_NAME;
     }
@@ -98,7 +78,7 @@ class SimpleMessageBusBuilder
      *
      * @return AnnotatedMessageHandlerDescriptorFactory
      */
-    protected static function defaultHandlerDescFactory()
+    protected static function defaultHandlerDescFactory() : MessageHandlerDescriptorFactory
     {
         return self::$defaultHandlerDescFactory;
     }
@@ -108,7 +88,7 @@ class SimpleMessageBusBuilder
      *
      * @return NullSubscriberExceptionHandler
      */
-    protected static function defaultExceptionHandler()
+    protected static function defaultExceptionHandler() : SubscriberExceptionHandler
     {
         return self::$defaultExceptionHandler;
     }
@@ -125,7 +105,7 @@ class SimpleMessageBusBuilder
      * @param $identifier
      * @return $this
      */
-    public function withIdentifier($identifier)
+    public function withIdentifier(string $identifier) : self
     {
         $this->identifier = (string) $identifier;
         return $this;
@@ -135,7 +115,7 @@ class SimpleMessageBusBuilder
      * @param DispatchInterceptor[] $interceptors
      * @return $this
      */
-    public function withInterceptors(array $interceptors)
+    public function withInterceptors(array $interceptors) : self
     {
         $this->interceptors = $interceptors;
         return $this;
@@ -145,7 +125,7 @@ class SimpleMessageBusBuilder
      * @param SubscriberExceptionHandler $exceptionHandler
      * @return $this
      */
-    public function withExceptionHandler(SubscriberExceptionHandler $exceptionHandler)
+    public function withExceptionHandler(SubscriberExceptionHandler $exceptionHandler) : self
     {
         $this->exceptionHandler = $exceptionHandler;
         return $this;
@@ -155,7 +135,7 @@ class SimpleMessageBusBuilder
      * @param MessageHandlerDescriptorFactory $descriptorFactory
      * @return $this
      */
-    public function withHandlerDescriptorFactory(MessageHandlerDescriptorFactory $descriptorFactory)
+    public function withHandlerDescriptorFactory(MessageHandlerDescriptorFactory $descriptorFactory) : self
     {
         $this->handlerDescriptorFactory = $descriptorFactory;
         return $this;
@@ -164,7 +144,7 @@ class SimpleMessageBusBuilder
     /**
      * @return SubscriberExceptionHandler
      */
-    public function getExceptionHandler()
+    public function getExceptionHandler() : SubscriberExceptionHandler
     {
         return $this->exceptionHandler;
     }
@@ -172,7 +152,7 @@ class SimpleMessageBusBuilder
     /**
      * @return MessageHandlerDescriptorFactory
      */
-    public function getHandlerDescriptorFactory()
+    public function getHandlerDescriptorFactory() : MessageHandlerDescriptorFactory
     {
         return $this->handlerDescriptorFactory;
     }
@@ -180,7 +160,7 @@ class SimpleMessageBusBuilder
     /**
      * @return string
      */
-    public function getIdentifier()
+    public function getIdentifier() : string
     {
         return $this->identifier;
     }
@@ -188,7 +168,7 @@ class SimpleMessageBusBuilder
     /**
      * @return DispatchInterceptor[]
      */
-    public function getInterceptors()
+    public function getInterceptors() : array
     {
         return $this->interceptors;
     }

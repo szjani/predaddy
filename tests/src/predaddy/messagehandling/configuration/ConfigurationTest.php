@@ -2,7 +2,7 @@
 
 namespace predaddy\messagehandling\configuration;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use predaddy\messagehandling\MessageBus;
 use stdClass;
 
@@ -12,7 +12,7 @@ use stdClass;
  * @package predaddy\messagehandling\configuration
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class ConfigurationTest extends PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
     const A_METHOD_NAME = 'methodName';
     const A_METHOD_NAME2 = 'methodName2';

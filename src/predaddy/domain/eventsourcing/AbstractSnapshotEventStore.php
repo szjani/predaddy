@@ -1,29 +1,9 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\domain\eventsourcing;
 
-use precore\lang\Object;
+use precore\lang\BaseObject;
 use precore\lang\ObjectClass;
 use predaddy\domain\AggregateId;
 use predaddy\domain\DomainEvent;
@@ -31,7 +11,7 @@ use predaddy\domain\DomainEvent;
 /**
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-abstract class AbstractSnapshotEventStore extends Object implements SnapshotEventStore
+abstract class AbstractSnapshotEventStore extends BaseObject implements SnapshotEventStore
 {
     /**
      * @var SnapshotStrategy
@@ -50,19 +30,19 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
      * @param EventSourcedAggregateRoot $aggregateRoot
      * @return void
      */
-    abstract protected function doCreateSnapshot(EventSourcedAggregateRoot $aggregateRoot);
+    abstract protected function doCreateSnapshot(EventSourcedAggregateRoot $aggregateRoot) : void;
 
     /**
      * @param DomainEvent $event
      * @return int version number
      */
-    abstract protected function doPersist(DomainEvent $event);
+    abstract protected function doPersist(DomainEvent $event) : int;
 
     /**
      * @param DomainEvent $event
      * @return void
      */
-    public function persist(DomainEvent $event)
+    public function persist(DomainEvent $event) : void
     {
         $version = $this->doPersist($event);
         $aggregateId = $event->aggregateId();
@@ -77,7 +57,7 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
      *
      * @param AggregateId $aggregateId
      */
-    public function createSnapshot(AggregateId $aggregateId)
+    public function createSnapshot(AggregateId $aggregateId) : void
     {
         if (!$this->eventSourced($aggregateId)) {
             return;
@@ -96,7 +76,7 @@ abstract class AbstractSnapshotEventStore extends Object implements SnapshotEven
         $this->doCreateSnapshot($aggregateRoot);
     }
 
-    private function eventSourced(AggregateId $aggregateId)
+    private function eventSourced(AggregateId $aggregateId) : bool
     {
         $class = ObjectClass::forName($aggregateId->aggregateClass());
         return $class->isSubclassOf('predaddy\domain\eventsourcing\EventSourcedAggregateRoot');

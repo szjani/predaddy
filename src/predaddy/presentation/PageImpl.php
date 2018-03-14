@@ -1,31 +1,11 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\presentation;
 
 use ArrayIterator;
 use IteratorAggregate;
-use precore\lang\Object;
+use precore\lang\BaseObject;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 
@@ -34,7 +14,7 @@ use precore\util\Objects;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class PageImpl extends Object implements IteratorAggregate, Page
+class PageImpl extends BaseObject implements IteratorAggregate, Page
 {
     private $content = [];
 
@@ -53,7 +33,7 @@ class PageImpl extends Object implements IteratorAggregate, Page
      * @param Pageable $pageable
      * @param int $total Total number of all elements (not just the current page's)
      */
-    public function __construct(array $content, Pageable $pageable = null, $total = null)
+    public function __construct(array $content, Pageable $pageable = null, int $total = null)
     {
         $this->content = array_merge($this->content, $content);
         $this->total = $total === null ? count($content) : $total;
@@ -63,15 +43,15 @@ class PageImpl extends Object implements IteratorAggregate, Page
     /**
      * @return array of the records in the current page
      */
-    public function getContent()
+    public function getContent() : \Traversable
     {
-        return $this->content;
+        return new \ArrayObject($this->content);
     }
 
     /**
      * @return int The page number
      */
-    public function getNumber()
+    public function getNumber() : int
     {
         return $this->pageable === null
             ? 0
@@ -81,53 +61,53 @@ class PageImpl extends Object implements IteratorAggregate, Page
     /**
      * @return int size of the content
      */
-    public function getSize()
+    public function getSize() : int
     {
         return $this->pageable === null
             ? 0
             : $this->pageable->getPageSize();
     }
 
-    public function getSort()
+    public function getSort() : ?Sort
     {
         return $this->pageable === null
             ? null
             : $this->pageable->getSort();
     }
 
-    public function getTotalElements()
+    public function getTotalElements() : int
     {
         return $this->total;
     }
 
-    public function getTotalPages()
+    public function getTotalPages() : int
     {
         return $this->getSize() == 0
             ? 1
-            : ceil($this->total / $this->getSize());
+            : (int) ceil($this->total / $this->getSize());
     }
 
-    public function hasContent()
+    public function hasContent() : bool
     {
         return count($this->content) !== 0;
     }
 
-    public function hasNextPage()
+    public function hasNextPage() : bool
     {
         return $this->getNumber() + 1 < $this->getTotalPages();
     }
 
-    public function hasPreviousPage()
+    public function hasPreviousPage() : bool
     {
         return 0 < $this->getNumber();
     }
 
-    public function isFirstPage()
+    public function isFirstPage() : bool
     {
         return !$this->hasPreviousPage();
     }
 
-    public function isLastPage()
+    public function isLastPage() : bool
     {
         return !$this->hasNextPage();
     }
@@ -137,7 +117,7 @@ class PageImpl extends Object implements IteratorAggregate, Page
      *
      * @return Pageable
      */
-    public function nextPageable()
+    public function nextPageable() : ?Pageable
     {
         return $this->hasNextPage()
             ? $this->pageable->next()
@@ -149,7 +129,7 @@ class PageImpl extends Object implements IteratorAggregate, Page
      *
      * @return Pageable
      */
-    public function previousPageable()
+    public function previousPageable() : ?Pageable
     {
         return $this->hasPreviousPage()
             ? $this->pageable->previousOrFirst()
@@ -164,7 +144,7 @@ class PageImpl extends Object implements IteratorAggregate, Page
         return new ArrayIterator($this->content);
     }
 
-    public function equals(ObjectInterface $object = null)
+    public function equals(ObjectInterface $object = null) : bool
     {
         if ($object === $this) {
             return true;
@@ -177,7 +157,7 @@ class PageImpl extends Object implements IteratorAggregate, Page
             && Objects::equal($this->pageable, $object->pageable);
     }
 
-    public function toString()
+    public function toString() : string
     {
         return Objects::toStringHelper($this)
             ->add('total', $this->total)

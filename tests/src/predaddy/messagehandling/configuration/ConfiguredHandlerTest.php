@@ -2,7 +2,7 @@
 
 namespace predaddy\messagehandling\configuration;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use precore\lang\ObjectInterface;
 use precore\util\UUID;
 use predaddy\messagehandling\AbstractMessageHandler;
@@ -18,7 +18,7 @@ use stdClass;
  * @package predaddy\messagehandling\configuration
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class ConfiguredHandlerTest extends PHPUnit_Framework_TestCase
+class ConfiguredHandlerTest extends TestCase
 {
     private $called = 0;
 

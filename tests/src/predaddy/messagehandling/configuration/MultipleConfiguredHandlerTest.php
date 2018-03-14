@@ -2,7 +2,7 @@
 
 namespace predaddy\messagehandling\configuration;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use precore\util\UUID;
 use predaddy\messagehandling\annotation\AnnotatedMessageHandlerDescriptorFactory;
 use predaddy\messagehandling\DefaultFunctionDescriptorFactory;
@@ -14,7 +14,7 @@ use predaddy\messagehandling\SimpleMessageBus;
  * @package predaddy\messagehandling\configuration
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class MultipleConfiguredHandlerTest extends PHPUnit_Framework_TestCase
+class MultipleConfiguredHandlerTest extends TestCase
 {
     /**
      * @test

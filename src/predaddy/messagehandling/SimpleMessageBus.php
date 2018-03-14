@@ -1,25 +1,5 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling;
 
@@ -99,13 +79,13 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         return new SimpleMessageBusBuilder();
     }
 
-    public function registerHandlerFactory(Closure $factory)
+    public function registerHandlerFactory(Closure $factory) : void
     {
         $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($factory), self::DEFAULT_PRIORITY);
         $this->factories->attach($factory, $descriptor);
     }
 
-    public function unregisterHandlerFactory(Closure $factory)
+    public function unregisterHandlerFactory(Closure $factory) : void
     {
         $this->factories->detach($factory);
     }
@@ -113,7 +93,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     /**
      * @param object $handler
      */
-    public function register($handler)
+    public function register($handler) : void
     {
         $descriptor = $this->handlerDescriptorFactory->create($handler);
         foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
@@ -124,7 +104,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
     /**
      * @param object $handler
      */
-    public function unregister($handler)
+    public function unregister($handler) : void
     {
         $descriptor = $this->handlerDescriptorFactory->create($handler);
         foreach ($descriptor->getFunctionDescriptors() as $functionDescriptor) {
@@ -136,7 +116,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      * @param Closure $closure
      * @param int $priority
      */
-    public function registerClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
+    public function registerClosure(Closure $closure, int $priority = self::DEFAULT_PRIORITY) : void
     {
         $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($closure), $priority);
         $this->functionDescriptors->attach($descriptor);
@@ -146,7 +126,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      * @param Closure $closure
      * @param int $priority
      */
-    public function unregisterClosure(Closure $closure, $priority = self::DEFAULT_PRIORITY)
+    public function unregisterClosure(Closure $closure, int $priority = self::DEFAULT_PRIORITY) : void
     {
         $descriptor = $this->closureDescriptorFactory->create(new ClosureWrapper($closure), $priority);
         $this->functionDescriptors->detach($descriptor);
@@ -165,7 +145,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      * @param MessageCallback $callback
      * @return void
      */
-    protected function dispatch($message, MessageCallback $callback)
+    protected function dispatch($message, MessageCallback $callback) : void
     {
         $handled = false;
         foreach ($this->callableWrappersFor($message) as $callable) {
@@ -218,7 +198,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
      * @param $message
      * @return ArrayObject
      */
-    protected function callableWrappersFor($message)
+    protected function callableWrappersFor($message) : ArrayObject
     {
         $heap = Collections::createHeap(Collections::reverseOrder());
 
@@ -242,7 +222,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         return $res;
     }
 
-    private static function insertAllHandlers($functionDescriptors, SplHeap $heap, $message)
+    private static function insertAllHandlers($functionDescriptors, SplHeap $heap, $message) : void
     {
         /* @var $functionDescriptor FunctionDescriptor */
         foreach ($functionDescriptors as $functionDescriptor) {
@@ -252,7 +232,7 @@ class SimpleMessageBus extends InterceptableMessageBus implements HandlerFactory
         }
     }
 
-    public function toString()
+    public function toString() : string
     {
         return Objects::toStringHelper($this)
             ->add($this->identifier)

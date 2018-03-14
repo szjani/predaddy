@@ -1,31 +1,11 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\messagehandling\util;
 
 use Closure;
 use Exception;
-use precore\lang\Object;
+use precore\lang\BaseObject;
 use predaddy\messagehandling\MessageCallback;
 
 /**
@@ -42,7 +22,7 @@ use predaddy\messagehandling\MessageCallback;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-final class MessageCallbackClosures extends Object implements MessageCallback
+final class MessageCallbackClosures extends BaseObject implements MessageCallback
 {
     /**
      * @var Closure|null
@@ -64,7 +44,7 @@ final class MessageCallbackClosures extends Object implements MessageCallback
     /**
      * @return MessageCallbackClosuresBuilder
      */
-    public static function builder()
+    public static function builder() : MessageCallbackClosuresBuilder
     {
         return new MessageCallbackClosuresBuilder();
     }
@@ -73,7 +53,7 @@ final class MessageCallbackClosures extends Object implements MessageCallback
      * @param MessageCallbackClosuresBuilder $builder
      * @return MessageCallbackClosures
      */
-    public static function build(MessageCallbackClosuresBuilder $builder)
+    public static function build(MessageCallbackClosuresBuilder $builder) : MessageCallbackClosures
     {
         $callback = new MessageCallbackClosures();
         $callback->onSuccessClosure = $builder->getSuccessClosure();
@@ -81,14 +61,14 @@ final class MessageCallbackClosures extends Object implements MessageCallback
         return $callback;
     }
 
-    public function onSuccess($result)
+    public function onSuccess($result) : void
     {
         if ($this->onSuccessClosure !== null) {
             call_user_func($this->onSuccessClosure, $result);
         }
     }
 
-    public function onFailure(Exception $exception)
+    public function onFailure(Exception $exception) : void
     {
         if ($this->onFailureClosure !== null) {
             call_user_func($this->onFailureClosure, $exception);

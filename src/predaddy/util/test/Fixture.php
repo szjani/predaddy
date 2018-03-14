@@ -1,32 +1,12 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\util\test;
 
 use BadMethodCallException;
 use Closure;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use precore\lang\ObjectClass;
 use predaddy\commandhandling\AbstractCommand;
 use predaddy\commandhandling\Command;
@@ -270,7 +250,7 @@ abstract class Fixture implements MessageCallback
      * @param mixed $result
      * @return void
      */
-    public function onSuccess($result)
+    public function onSuccess($result) : void
     {
         $this->commandResult = $result;
     }
@@ -279,7 +259,7 @@ abstract class Fixture implements MessageCallback
      * @param Exception $exception
      * @return void
      */
-    public function onFailure(Exception $exception)
+    public function onFailure(Exception $exception) : void
     {
         $this->raisedException = $exception;
     }
@@ -338,7 +318,7 @@ abstract class Fixture implements MessageCallback
     private function checkReturnValue()
     {
         if ($this->checkReturnValue) {
-            PHPUnit_Framework_TestCase::assertEquals($this->expectedReturnValue, $this->commandResult);
+            TestCase::assertEquals($this->expectedReturnValue, $this->commandResult);
         }
     }
 
@@ -348,8 +328,8 @@ abstract class Fixture implements MessageCallback
             if ($this->expectedExceptionClass === null) {
                 throw $this->raisedException;
             }
-            PHPUnit_Framework_TestCase::assertInstanceOf($this->expectedExceptionClass, $this->raisedException);
-            PHPUnit_Framework_TestCase::assertEquals(
+            TestCase::assertInstanceOf($this->expectedExceptionClass, $this->raisedException);
+            TestCase::assertEquals(
                 $this->expectedExceptionMessage,
                 $this->raisedException->getMessage()
             );
@@ -360,7 +340,7 @@ abstract class Fixture implements MessageCallback
     {
         $thenCount = count($this->then);
         $raisedCount = count($this->raisedEvents);
-        PHPUnit_Framework_TestCase::assertEquals($thenCount, $raisedCount, self::EVENT_NUMBER_MISMATCH);
+        TestCase::assertEquals($thenCount, $raisedCount, self::EVENT_NUMBER_MISMATCH);
         for ($i = 0; $i < $thenCount; $i++) {
             $expectedEvent = $this->then[$i];
             $raisedEvent = $this->raisedEvents[$i];
@@ -370,7 +350,7 @@ abstract class Fixture implements MessageCallback
             if ($expectedEvent instanceof AbstractDomainEvent) {
                 $expectedEvent = DomainEventMetaReset::reset($expectedEvent);
             }
-            PHPUnit_Framework_TestCase::assertEquals($expectedEvent, $raisedEvent);
+            TestCase::assertEquals($expectedEvent, $raisedEvent);
         }
     }
 }

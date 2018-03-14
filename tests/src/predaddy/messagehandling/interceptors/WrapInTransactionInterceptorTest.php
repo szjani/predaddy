@@ -3,7 +3,7 @@
 namespace predaddy\messagehandling\interceptors;
 
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use predaddy\messagehandling\AbstractMessage;
 use predaddy\messagehandling\SimpleMessageBus;
 use stdClass;
@@ -14,7 +14,7 @@ use stdClass;
  * @package predaddy\messagehandling\interceptors
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-class WrapInTransactionInterceptorTest extends PHPUnit_Framework_TestCase
+class WrapInTransactionInterceptorTest extends TestCase
 {
     /**
      * @var DummyTransactionManager

@@ -1,25 +1,5 @@
 <?php
-/*
- * Copyright (c) 2012-2014 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\domain;
 
@@ -39,7 +19,7 @@ abstract class UUIDAggregateId extends AbstractAggregateId
      */
     private $uuid;
 
-    final private function __construct($uuid)
+    final private function __construct(string $uuid)
     {
         $this->uuid = $uuid;
     }
@@ -47,7 +27,7 @@ abstract class UUIDAggregateId extends AbstractAggregateId
     /**
      * @return static
      */
-    final public static function create()
+    final public static function create() : self
     {
         return new static(UUID::randomUUID()->toString());
     }
@@ -56,7 +36,7 @@ abstract class UUIDAggregateId extends AbstractAggregateId
      * @param string $value
      * @return static
      */
-    final public static function from($value)
+    final public static function from($value) : self
     {
         return new static(UUID::fromString($value)->toString());
     }
@@ -64,7 +44,7 @@ abstract class UUIDAggregateId extends AbstractAggregateId
     /**
      * @return string
      */
-    final public function value()
+    final public function value() : string
     {
         return $this->uuid;
     }

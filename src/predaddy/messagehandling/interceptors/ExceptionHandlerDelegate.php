@@ -27,7 +27,7 @@ final class ExceptionHandlerDelegate implements SubscriberExceptionHandler
         $this->handlers = $handlers;
     }
 
-    public function handleException(Exception $exception, SubscriberExceptionContext $context)
+    public function handleException(Exception $exception, SubscriberExceptionContext $context) : void
     {
         foreach ($this->handlers as $handler) {
             $handler->handleException($exception, $context);

@@ -1,30 +1,10 @@
 <?php
-/*
- * Copyright (c) 2013 Janos Szurovecz
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+declare(strict_types=1);
 
 namespace predaddy\domain;
 
+use precore\lang\BaseObject;
 use precore\lang\IllegalStateException;
-use precore\lang\Object;
 use precore\lang\ObjectInterface;
 use precore\util\Objects;
 use precore\util\Preconditions;
@@ -45,7 +25,7 @@ use precore\util\Preconditions;
  *
  * @author Janos Szurovecz <szjani@szjani.hu>
  */
-abstract class AbstractAggregateRoot extends Object implements AggregateRoot
+abstract class AbstractAggregateRoot extends BaseObject implements AggregateRoot
 {
     /**
      * @var string
@@ -56,7 +36,7 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
      * @param string $expectedHash
      * @throws IllegalStateException
      */
-    final public function failWhenStateHashViolation($expectedHash)
+    final public function failWhenStateHashViolation($expectedHash) : void
     {
         Preconditions::checkState(
             $this->stateHash() === $expectedHash,
@@ -71,12 +51,12 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
      * @param DomainEvent $raisedEvent
      * @return string
      */
-    protected function calculateNextStateHash(DomainEvent $raisedEvent)
+    protected function calculateNextStateHash(DomainEvent $raisedEvent) : string
     {
         return $raisedEvent->identifier();
     }
 
-    protected function setStateHash($stateHash)
+    protected function setStateHash($stateHash) : void
     {
         $this->stateHash = $stateHash;
     }
@@ -87,7 +67,7 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
      *
      * @param DomainEvent $event
      */
-    final protected function raise(DomainEvent $event)
+    final protected function raise(DomainEvent $event) : void
     {
         $this->setStateHash($this->calculateNextStateHash($event));
         if ($event instanceof AbstractDomainEvent) {
@@ -99,12 +79,12 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
     /**
      * @return null|string
      */
-    public function stateHash()
+    public function stateHash() : ?string
     {
         return $this->stateHash;
     }
 
-    public function toString()
+    public function toString() : string
     {
         return Objects::toStringHelper($this)
             ->add('id', $this->getId())
@@ -112,7 +92,7 @@ abstract class AbstractAggregateRoot extends Object implements AggregateRoot
             ->toString();
     }
 
-    public function equals(ObjectInterface $object = null)
+    public function equals(ObjectInterface $object = null) : bool
     {
         // instanceof has to be used here, since aggregates might be proxied (e.g. Doctrine)
         return $object instanceof AbstractAggregateRoot
