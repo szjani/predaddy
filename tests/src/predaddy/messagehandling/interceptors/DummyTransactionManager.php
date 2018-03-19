@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace predaddy\messagehandling\interceptors;
 
@@ -51,7 +52,7 @@ final class DummyTransactionManager implements TransactionManager
     /**
      * Begin a transaction.
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         $this->init();
     }
@@ -61,7 +62,7 @@ final class DummyTransactionManager implements TransactionManager
      *
      * @throws TransactionException
      */
-    public function commit()
+    public function commit() : void
     {
         $this->committed = $this->pending;
         $this->pending = new SplObjectStorage();
@@ -72,7 +73,7 @@ final class DummyTransactionManager implements TransactionManager
      *
      * @throws TransactionException
      */
-    public function rollback()
+    public function rollback() : void
     {
         $this->init();
     }

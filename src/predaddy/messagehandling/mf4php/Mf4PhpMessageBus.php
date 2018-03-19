@@ -81,7 +81,7 @@ class Mf4PhpMessageBus extends SimpleMessageBus implements MessageListener
      * @param Mf4phpMessage $message
      * @throws InvalidArgumentException
      */
-    public function onMessage(Mf4phpMessage $message)
+    public function onMessage(Mf4phpMessage $message) : void
     {
         Preconditions::checkArgument($message instanceof ObjectMessage, "Message must be an instance of ObjectMessage");
         $object = $message->getObject();
